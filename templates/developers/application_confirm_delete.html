@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load url from compat %}
+{% block content %}
+
+    <h1>{% trans "Are you sure to delete the Api Client" %} {{ application.name }}?</h1>
+    <form method="post" action="{% url 'developers-app-delete' application.pk %}">
+        {% csrf_token %}
+
+        <div class="control-group">
+            <div class="controls">
+                <a class="btn btn-large" href="{% url "developers-app-list" %}">{% trans "Cancel" %}</a>
+                <input type="submit" class="btn btn-large btn-danger" name="allow" value="{% trans "Delete" %}"/>
+            </div>
+        </div>
+    </form>
+
+{% endblock content %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock title %}
+
+{% block content %}
+
+    <h1>Audio Commons</h1>
+
+    {% if form.errors %}
+    <p>Your username and password didn't match. Please try again.</p>
+    {% endif %}
+
+    {% if next %}
+        {% if user.is_authenticated %}
+        <p>Your account doesn't have access to this page. To proceed,
+        please login with an account that has access.</p>
+        {% else %}
+        <p>Please login to see this page.</p>
+        {% endif %}
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input class="btn btn-success" type="submit" value="Login" />
+    <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+
+    {% comment %}
+    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    {% endcomment %}
+
+{% endblock %}

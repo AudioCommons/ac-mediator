@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load url from compat %}
+{% block content %}
+    <h1>{% trans "Authorized clients" %}</h1>
+    <ul>
+    {% for authorized_token in authorized_tokens %}
+        <li>
+            {{ authorized_token.application }}
+            (<a href="{% url 'authorized-token-delete' authorized_token.pk %}">revoke</a>)
+        </li>
+        <ul>
+        {% for scope_name, scope_description in authorized_token.scopes.items %}
+            <li>{{ scope_name }}: {{ scope_description }}</li>
+        {% endfor %}
+        </ul>
+    {% empty %}
+        <li>{% trans "There are no authorized api clients yet." %}</li>
+    {% endfor %}
+    </ul>
+    <br>
+    <p><a href="{% url 'home' %}">Home</a></p>
+{% endblock %}

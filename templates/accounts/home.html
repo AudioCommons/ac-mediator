@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+    <h1>Home</h1>
+    Users
+    <ul>
+        <li><a href="{% url 'link_services' %}">Link services</a></li>
+        <li><a href="{% url 'authorized-token-list' %}">Authorized clients</a></li>
+    </ul>
+    Developers
+    <ul>
+        <li><a href="{% url 'developers-app-list' %}">API Clients</a></li>
+    </ul>
+{% endblock %}

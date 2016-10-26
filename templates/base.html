@@ -1,0 +1,43 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Commons - {% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Rajdhani:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,500' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}" />
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="logo-background">
+            <img src="{% static "img/logo-icon.svg" %}" style="height:550px;" alt="">
+        </div>
+
+        <div class="block-center">
+            <div class="pull-right">
+                {% if request.user.is_authenticated %}
+                    {{ request.user.username }} (<a href="{% url 'logout' %}">Logout</a>)
+                {% else %}
+                    {% if user %}
+                        {{ user }} (<a href="{% url 'logout' %}">Logout</a>)
+                    {% else %}
+                        <a href="{% url 'registration' %}">Register</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% block content %}
+            {% endblock content%}
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+

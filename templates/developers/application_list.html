@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <h1>Your Api Clients</h1>
+    {% if applications %}
+        <ul>
+            {% for application in applications %}
+                <li><a href="{{ application.get_absolute_url }}">{{ application.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <a class="btn btn-success" href="{% url "developers-app-register" %}">New Api Client</a>
+    <br><br>
+    <p><a href="{% url 'home' %}">Home</a></p>
+
+{% endblock content %}
