@@ -3,5 +3,14 @@
 
 {% block content %}
     <h1>Link services</h1>
-    <p><a href="{% url 'home' %}">Home</a></p>
+
+    <ul>
+    {% for service in available_services %}
+        <li>{{ service.name }} ({{ service.url }})</li>
+    {% empty %}
+        <li>No services available</li>
+    {% endfor %}
+    </ul>
+
+    <br><a href="{% url 'home' %}">Home</a>
 {% endblock %}

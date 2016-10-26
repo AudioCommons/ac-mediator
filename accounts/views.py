@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from accounts.forms import RegistrationForm
+from services import get_available_services
 
 
 def registration(request):
@@ -24,4 +25,7 @@ def home(request):
 
 @login_required
 def link_services(request):
-    return render(request, 'accounts/link_services.html')
+    tvars = {
+        'available_services': get_available_services()
+    }
+    return render(request, 'accounts/link_services.html', tvars)
