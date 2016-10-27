@@ -3,4 +3,4 @@ __pycache__
 .idea/*
 .env
 local_settings.py
-services_conf.conf
+services_conf.cfg
