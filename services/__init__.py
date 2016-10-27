@@ -1,8 +1,11 @@
 import inspect
 import pkgutil
 import configparser
+import os
 from services.classes import BaseACService
 from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException, ACServiceDoesNotExist
+
+SERVICES_CONFIGURATION_FILE = 'services/services_conf.cfg'
 
 
 def _load_services():
@@ -28,7 +31,10 @@ def _configure_services(loaded_services):
     :return: list of successfully configures BaseACService instances
     """
     config = configparser.ConfigParser()
-    config.read('services/services_conf.cfg')
+    if not os.path.exists(SERVICES_CONFIGURATION_FILE):
+        print('No services configuration file has been found, no services will be loaded...')
+        return []
+    config.read(SERVICES_CONFIGURATION_FILE)
     configured_services = []
     for service in loaded_services:
         try:
