@@ -1,0 +1,46 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Link service complete</title>
+    <style>
+        body {
+            background-color:#f5f5f5;
+            text-align:center;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .frame {
+            width:100%;
+            weight:100%;
+        }
+
+        .image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            margin:-60px 0 0 -60px;
+            opacity:0.7;
+            {% if not errors %}
+                -webkit-animation:spin 4s linear infinite;
+                -moz-animation:spin 4s linear infinite;
+                animation:spin 4s linear infinite;
+            {% endif %}
+        }
+
+        @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+        @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+        @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+    </style>
+</head>
+<body {% if not errors %}onload="window.location='{% url "link_service_get_token" service_id %}?code={{ code }}';"{% endif %}>
+    <div class="frame">
+        <img class="image" src="{% static "img/logo-icon.svg" %}" alt="">
+        {% if errors %}<br><br>An error occured and we could not link your account...{% endif %}
+    </div>
+</body>
+</html>

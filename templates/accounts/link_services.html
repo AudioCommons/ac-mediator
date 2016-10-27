@@ -5,8 +5,21 @@
     <h1>Link services</h1>
 
     <ul>
-    {% for service in available_services %}
-        <li>{{ service.name }} ({{ service.url }})</li>
+    {% for service, user_credentials in services_info %}
+        <li>
+            {{ service.name }} ({{ service.url }})
+            {% if user_credentials %}
+                <a class="btn btn-danger"
+                   href="{% url "unlink_service" service.id %}"
+                >unlink</a>
+            {% else %}
+                <button class="btn btn-success"
+                        onclick="window.open('{{ service.get_authorize_url }}',
+                                             '{{ service.name }} authorization',
+                                             '{{ service.get_authorize_popup_specs }}')"
+                >link</button>
+            {% endif %}
+        </li>
     {% empty %}
         <li>No services available</li>
     {% endfor %}

@@ -11,6 +11,9 @@ urlpatterns = [
 
     # Link services
     url(r'^link_services/$', views.link_services, name='link_services'),
+    url(r'^link_service/(?P<service_id>[^\/]+)/$', views.link_service_callback, name='link_service_callback'),
+    url(r'^link_service_get_token/(?P<service_id>[^\/]+)/$', views.link_service_get_token, name='link_service_get_token'),
+    url(r'^unlink_service/(?P<service_id>[^\/]+)/$', views.unlink_service, name='unlink_service'),
 
     # Manage given api credentials
     url(r'^authorized_clients/$', AuthorizedTokensListView.as_view(

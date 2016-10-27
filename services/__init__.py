@@ -2,7 +2,7 @@ import inspect
 import pkgutil
 import configparser
 from services.classes import BaseACService
-from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException
+from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException, ACServiceDoesNotExist
 
 
 def _load_services():
@@ -62,4 +62,4 @@ def get_service_by_id(service_id):
     for service in available_services:
         if service.id == service_id:
             return service
-    return None
+    raise ACServiceDoesNotExist

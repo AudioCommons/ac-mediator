@@ -4,3 +4,7 @@ class ACException(Exception):
 
 class ImproperlyConfiguredACService(Exception):
     pass
+
+
+class ACServiceDoesNotExist(Exception):
+    pass
