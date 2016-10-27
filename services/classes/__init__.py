@@ -1,3 +1,6 @@
+from ac_mediator.exceptions import ImproperlyConfiguredACService
+
+
 class BaseACService(object):
     """
     Base class for Audio Commons Service.
@@ -9,6 +12,31 @@ class BaseACService(object):
     NAME = 'Service name'
     URL = 'http://example.com'
     API_BASE_URL = 'http://example.com/api/'
+    service_id = None
+
+    def configure(self, config):
+        # Do main configuration
+        if 'service_id' not in config:
+            raise ImproperlyConfiguredACService('Missing item \'service_id\'')
+        self.set_service_id(config['service_id'])
+
+        # Call all object methods that start with 'conf_' to perform mixin's configuration
+        for item in dir(self):
+            if item.startswith('conf_') and callable(getattr(self, item)):
+                getattr(self, item)(config)
+
+    def set_service_id(self, service_id):
+        """
+        This should be a unique id for the service.
+        The id is provided by the Audio Commons consortium.
+        :param service_id: 8 character alphanumeric string (e.g. ef21b9ad)
+        :return:
+        """
+        self.service_id = service_id
+
+    @property
+    def id(self):
+        return self.service_id
 
     @property
     def name(self):
@@ -22,13 +50,22 @@ class BaseACService(object):
 class ACServiceAuthMixin(object):
     """
     Mixin that defines and implements service linking steps.
-    Specific services should override methods from this mixin.
+    This mixin implements standard linking strategy for services that
+    implement Oauth2. Services with specific requirements should override
+    the methods from this mixin.
     """
 
     BASE_AUTHORIZE_URL = "http://example.com/api/authorize/?client_id={client_id}"
 
     service_client_id = None
     service_client_secret = None
+
+    def conf_auth(self, config):
+        if 'client_id' not in config:
+            raise ImproperlyConfiguredACService('Missing item \'client_id\'')
+        if 'client_secret' not in config:
+            raise ImproperlyConfiguredACService('Missing item \'client_secret\'')
+        self.set_credentials(config['client_id'], config['client_secret'])
 
     def set_credentials(self, client_id, client_secret):
         self.service_client_id = client_id
