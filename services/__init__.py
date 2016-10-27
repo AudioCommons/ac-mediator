@@ -34,6 +34,9 @@ def _configure_services(loaded_services):
         try:
             try:
                 configuration = config[service.name]
+                enabled = configuration['enabled']
+                if enabled == 'no':
+                    continue
             except KeyError:
                 raise ImproperlyConfiguredACService('No configuration section found')
             service.configure(configuration)
@@ -43,6 +46,7 @@ def _configure_services(loaded_services):
         except ImproperlyConfiguredACService as e:
             print('Service {0} could not be configured: {1}'.format(service.name, e))
             continue
+    print('Loaded {0} services: {1}'.format(len(configured_services), [service.name for service in configured_services]))
     return configured_services
 
 

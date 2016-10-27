@@ -6,7 +6,7 @@
 
     <ul>
     {% for service, user_credentials in services_info %}
-        <li>
+        <li style="margin-bottom:5px;">
             {{ service.name }} ({{ service.url }})
             {% if user_credentials %}
                 <a class="btn btn-danger"
