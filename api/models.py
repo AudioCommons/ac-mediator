@@ -9,6 +9,7 @@ class ApiClient(AbstractApplication):
     """
 
     agree_tos = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
     #  Add more custom fields here like description, logo, preferred services...
 
     def get_absolute_url(self):

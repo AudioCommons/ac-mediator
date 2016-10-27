@@ -30,6 +30,7 @@ class ServiceCredentials(models.Model):
     account = models.ForeignKey(Account, related_name='service_credentials')
     service_id = models.CharField(max_length=64)
     credentials = JSONField()
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _('service credentials')
