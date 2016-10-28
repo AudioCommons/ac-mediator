@@ -53,7 +53,8 @@ def link_service_callback(request, service_id):
     tvars = {
         'errors': service is None or code is None,
         'service_id': service.id if service is not None else None,
-        'code': request.GET.get('code')
+        'code': request.GET.get('code'),
+        'complete': False,
     }
     return render(request, 'accounts/link_service_callback.html', tvars)
 
@@ -61,10 +62,8 @@ def link_service_callback(request, service_id):
 @login_required
 def link_service_get_token(request, service_id):
     service = get_service_by_id(service_id)  # No need to check as is called after link_service_callback
-
     # Request credentials
     success, credentials = service.request_credentials(request.GET.get('code'))
-
     if success:
         # Store credentials (replace existing ones if needed)
         service_credentials, is_new = ServiceCredentials.objects.get_or_create(
@@ -74,8 +73,11 @@ def link_service_get_token(request, service_id):
     else:
         # Delete credentials (if existing)
         ServiceCredentials.objects.filter(account=request.user, service_id=service_id).delete()
-
-    return render(request, 'accounts/link_service_complete.html')
+    tvars = {
+        'errors': not success,
+        'complete': True,
+    }
+    return render(request, 'accounts/link_service_callback.html', tvars)
 
 
 @login_required

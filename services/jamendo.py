@@ -10,11 +10,6 @@ class JamendoService(BaseACService, ACServiceAuthMixin):
     ACCESS_TOKEN_URL = API_BASE_URL + 'oauth/grant/'
     REFRESH_TOKEN_URL = API_BASE_URL + 'oauth/grant/'
 
-    def get_authorize_url(self):
-        # Jamendo needs to include 'redirect_uri' in the authorize url
-        return self.BASE_AUTHORIZE_URL.format(self.service_client_id) \
-               + '&redirect_uri={0}'.format(self.get_redirect_uri())
-
     def access_token_request_data(self, authorization_code):
         # Jamendo needs to include 'redirect_uri' in the access token request
         data = super(JamendoService, self).access_token_request_data(authorization_code)
