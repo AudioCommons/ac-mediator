@@ -5,19 +5,21 @@
     <h1>Link services</h1>
 
     <ul>
-    {% for service, user_credentials in services_info %}
+    {% for service, supports_enduser_auth, user_credentials in services_info %}
         <li style="margin-bottom:5px;">
             {{ service.name }} ({{ service.url }})
-            {% if user_credentials %}
-                <a class="btn btn-danger"
-                   href="{% url "unlink_service" service.id %}"
-                >unlink</a>
-            {% else %}
-                <button class="btn btn-success"
-                        onclick="window.open('{{ service.get_authorize_url }}',
-                                             '{{ service.name }} authorization',
-                                             '{{ service.get_authorize_popup_specs }}')"
-                >link</button>
+            {% if supports_enduser_auth %}
+                {% if user_credentials %}
+                    <a class="btn btn-danger"
+                       href="{% url "unlink_service" service.id %}"
+                    >unlink</a>
+                {% else %}
+                    <button class="btn btn-success"
+                            onclick="window.open('{{ service.get_authorize_url }}',
+                                                 '{{ service.name }} authorization',
+                                                 '{{ service.get_authorize_popup_specs }}')"
+                    >link</button>
+                {% endif %}
             {% endif %}
         </li>
     {% empty %}

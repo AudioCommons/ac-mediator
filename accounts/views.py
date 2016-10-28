@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from accounts.forms import RegistrationForm
 from accounts.models import ServiceCredentials
 from services import get_available_services, get_service_by_id
+from services.classes import ENDUSER_AUTH_METHOD
 from ac_mediator.exceptions import ACServiceDoesNotExist
 
 
@@ -29,9 +30,13 @@ def home(request):
 
 @login_required
 def link_services(request):
-    services_info = [
-        (service, request.user.get_credentials_for_service(service.id)) for service in get_available_services()
-    ]
+    services_info = list()
+    for service in get_available_services():
+        services_info.append((
+            service,
+            service.supports_auth(ENDUSER_AUTH_METHOD) == True,
+            service.get_enduser_token(request.user) if service.supports_auth(ENDUSER_AUTH_METHOD) else None
+        ))
     tvars = {'services_info': services_info}
     return render(request, 'accounts/link_services.html', tvars)
 
@@ -42,8 +47,11 @@ def link_service_callback(request, service_id):
         service = get_service_by_id(service_id)
     except ACServiceDoesNotExist:
         service = None
+    code = request.GET.get('code', None)
+    if code is None:
+        print('There were errors in the redirect from service: {0}'.format(request.GET.get('error', 'unknown')))
     tvars = {
-        'errors': service is None,
+        'errors': service is None or code is None,
         'service_id': service.id if service is not None else None,
         'code': request.GET.get('code')
     }
@@ -55,13 +63,17 @@ def link_service_get_token(request, service_id):
     service = get_service_by_id(service_id)  # No need to check as is called after link_service_callback
 
     # Request credentials
-    credentials = service.request_credentials(request.GET.get('code'))
+    success, credentials = service.request_credentials(request.GET.get('code'))
 
-    # Store credentials (replace existing ones if needed)
-    service_credentials, is_new = ServiceCredentials.objects.get_or_create(
-        account=request.user, service_id=service.id)
-    service_credentials.credentials = credentials
-    service_credentials.save()
+    if success:
+        # Store credentials (replace existing ones if needed)
+        service_credentials, is_new = ServiceCredentials.objects.get_or_create(
+            account=request.user, service_id=service.id)
+        service_credentials.credentials = credentials
+        service_credentials.save()
+    else:
+        # Delete credentials (if existing)
+        ServiceCredentials.objects.filter(account=request.user, service_id=service_id).delete()
 
     return render(request, 'accounts/link_service_complete.html')
 

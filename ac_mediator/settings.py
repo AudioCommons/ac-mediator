@@ -145,6 +145,10 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
+# Site
+BASE_URL = 'https://audiocommons.org'
+
+
 try:
     from ac_mediator.local_settings import *
 except ImportError:

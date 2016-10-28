@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
-from services import get_service_by_id
+
 
 class Account(AbstractUser):
     """
@@ -16,15 +16,6 @@ class Account(AbstractUser):
     class Meta:
         verbose_name = _('account')
         verbose_name_plural = _('accounts')
-
-    def get_credentials_for_service(self, service_id):
-        service = get_service_by_id(service_id)
-        try:
-            return service.process_credentials(
-                ServiceCredentials.objects.get(account=self, service_id=service_id).credentials
-            )
-        except ServiceCredentials.DoesNotExist:
-            return None
 
 
 class ServiceCredentials(models.Model):

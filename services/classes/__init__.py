@@ -1,5 +1,12 @@
-from ac_mediator.exceptions import ImproperlyConfiguredACService
+from accounts.models import ServiceCredentials
+from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException
+from django.core.urlresolvers import reverse
+from django.conf import settings
 import requests
+
+# Define some constants (this should come from an ontology definition?)
+APIKEY_AUTH_METHOD = 'apikey_auth'
+ENDUSER_AUTH_METHOD = 'enduser_auth'
 
 
 class BaseACService(object):
@@ -50,12 +57,13 @@ class BaseACService(object):
 
 class ACServiceAuthMixin(object):
     """
-    Mixin that defines and implements service linking steps.
+    Mixin that sotres service credentials and implements service linking steps.
     This mixin implements standard linking strategy for services that
-    implement Oauth2. Services with specific requirements should override
+    support Oauth2 authentication. Services with specific requirements should override
     the methods from this mixin.
     """
 
+    SUPPORTED_AUTH_METHODS = [APIKEY_AUTH_METHOD, ENDUSER_AUTH_METHOD]
     BASE_AUTHORIZE_URL = "http://example.com/api/authorize/?client_id={0}"
     ACCESS_TOKEN_URL = "http://example.com/api/oauth2/access_token/"
     REFRESH_TOKEN_URL = "http://example.com/api/oauth2/refresh_token/"
@@ -77,22 +85,60 @@ class ACServiceAuthMixin(object):
     def get_authorize_url(self):
         return self.BASE_AUTHORIZE_URL.format(self.service_client_id)
 
-    def request_credentials(self, authorization_code):
-        r = requests.post(
+    def get_redirect_uri(self):
+        print(settings.BASE_URL + reverse('link_service_callback', args=[self.id]))
+        return settings.BASE_URL + reverse('link_service_callback', args=[self.id])
+
+    def access_token_request_data(self, authorization_code):
+        return {
+            'client_id': self.service_client_id,
+            'client_secret': self.service_client_secret,
+            'grant_type': 'authorization_code',
+            'code': authorization_code
+        }
+
+    def request_access_token(self, authorization_code):
+        return requests.post(
             self.ACCESS_TOKEN_URL,
-            data={
-                'client_id': self.service_client_id,
-                'client_secret': self.service_client_secret,
-                'grant_type': 'authorization_code',
-                'code': authorization_code
-            }
+            data=self.access_token_request_data(authorization_code)
         )
-        return r.json()
+
+    def request_credentials(self, authorization_code):
+        r = self.request_access_token(authorization_code)
+        return r.status_code == 200, r.json()
+
+    @staticmethod
+    def get_authorize_popup_specs():
+        return 'height=400,width=500'
 
     @staticmethod
     def process_credentials(credentials_data):
         return credentials_data
 
-    @staticmethod
-    def get_authorize_popup_specs():
-        return 'height=400,width=500'
+    def supports_auth(self, auth_type):
+        return auth_type in self.SUPPORTED_AUTH_METHODS
+
+    def get_apikey(self):
+        """
+        API key used for non-end user authenticated requests
+        TODO: this should include the way in which the api key is included (via header, request param, etc)
+        :return: string containing the api key
+        """
+        if not self.supports_auth(APIKEY_AUTH_METHOD):
+            raise ACException('Auth method \'{0}\' not supported by service {0}'.format(APIKEY_AUTH_METHOD, self.name))
+        return self.service_client_secret
+
+    def get_enduser_token(self, account):
+        """
+        Get token used to make requests to the service on behalf of 'account'
+        TODO: this should include the way in which the token is included (via header, request param, etc)
+        :param account: user account to act on behalf of
+        :return: string containing the token
+        """
+        if not self.supports_auth(ENDUSER_AUTH_METHOD):
+            raise ACException('Auth method \'{0}\' not supported by service {1}'.format(ENDUSER_AUTH_METHOD, self.name))
+        try:
+            credentials = ServiceCredentials.objects.get(account=account, service_id=self.id).credentials
+            return credentials['access_token']
+        except ServiceCredentials.DoesNotExist:
+            return None
