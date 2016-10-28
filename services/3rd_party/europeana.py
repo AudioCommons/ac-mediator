@@ -1,6 +1,6 @@
-from services.classes.constants import *
-from services.classes.base import BaseACService
-from services.classes.auth import ACServiceAuthMixin
+from services.mixins.constants import *
+from services.mixins.base import BaseACService
+from services.mixins.auth import ACServiceAuthMixin
 from ac_mediator.exceptions import ImproperlyConfiguredACService
 
 

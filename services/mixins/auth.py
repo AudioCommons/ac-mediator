@@ -3,12 +3,12 @@ from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import requests
-from services.classes.constants import *
+from services.mixins.constants import *
 
 
 class ACServiceAuthMixin(object):
     """
-    Mixin that sotres service credentials and implements service linking steps.
+    Mixin that stores service credentials and implements service linking steps.
     This mixin implements standard linking strategy for services that
     support Oauth2 authentication. Services with specific requirements should override
     the methods from this mixin.
@@ -92,3 +92,22 @@ class ACServiceAuthMixin(object):
             return credentials['access_token']
         except ServiceCredentials.DoesNotExist:
             return None
+
+    def get_auth_info_for_request(self, auth_method, account=None):
+        """
+        Return dictionary with information about how to authenticate a request.
+        The dictionary can contain the following fields:
+            - header: dictionary with header name and header contents (key, value) to be
+              added to a request (including credentials).
+            - params: dictionary with request paramer name and contents (key, value) to be
+              added to a request (including credentials).
+        An example for 'header':
+            {'type': 'header', 'header': {'Authorization': 'Token API_KEY'}'}
+        An example for 'param':
+            {'type': 'param', 'param': {'token': 'API_KEY'}}
+        If both fields are included, both will be added when sending the request.
+        :param auth_method: auth method for which information is wanted
+        :param account: user account (for enduser authentication only)
+        :return: dictionary with auth information
+        """
+        raise NotImplementedError

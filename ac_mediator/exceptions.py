@@ -8,3 +8,7 @@ class ImproperlyConfiguredACService(Exception):
 
 class ACServiceDoesNotExist(Exception):
     pass
+
+
+class UnexpectedServiceResourceField(Exception):
+    pass
