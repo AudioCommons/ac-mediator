@@ -2,13 +2,13 @@ class ACException(Exception):
     pass
 
 
-class ImproperlyConfiguredACService(Exception):
+class ImproperlyConfiguredACService(ACException):
     pass
 
 
-class ACServiceDoesNotExist(Exception):
+class ACServiceDoesNotExist(ACException):
     pass
 
 
-class UnexpectedServiceResourceField(Exception):
+class UnexpectedServiceResourceField(ACException):
     pass

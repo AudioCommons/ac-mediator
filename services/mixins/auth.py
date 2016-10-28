@@ -102,9 +102,9 @@ class ACServiceAuthMixin(object):
             - params: dictionary with request paramer name and contents (key, value) to be
               added to a request (including credentials).
         An example for 'header':
-            {'type': 'header', 'header': {'Authorization': 'Token API_KEY'}'}
+            {'headers': {'Authorization': 'Token API_KEY'}'}
         An example for 'param':
-            {'type': 'param', 'param': {'token': 'API_KEY'}}
+            {'params': {'token': 'API_KEY'}}
         If both fields are included, both will be added when sending the request.
         :param auth_method: auth method for which information is wanted
         :param account: user account (for enduser authentication only)

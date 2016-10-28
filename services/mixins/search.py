@@ -43,7 +43,7 @@ class BaseACServiceSearch(object):
         """
         raise NotImplementedError
 
-    def translate_single_result(self, result, fail_silently=True):
+    def translate_single_result(self, result, fail_silently=False):
         translated_result = dict()
         for field_name, field_value in result.items():
             try:

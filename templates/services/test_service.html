@@ -1,10 +1,32 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}Test service {{ service.name }}{% endblock title %}
-
 {% block content %}
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            testTextSearch();
+        }, false);
+
+
+        function testTextSearch() {
+            getJSON('{% url "test_service_component" service.id %}?component=text_search').then(function(xhr) {
+                if (xhr.status == 200){
+                    document.getElementById("test_text_search").innerHTML =
+                        '<i class="fa fa-check" style="color:green;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response.response, null, 4) + '</pre>';
+                } else {
+                    document.getElementById("test_text_search").innerHTML =
+                        '<i class="fa fa-times" style="color:red;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response, null, 4) + '</pre>';
+                }
+            });
+        }
+    </script>
+
     <h1>Test service</h1>
     <h2>{{ service.name }}</h2>
+
+
+    <h3>Text search</h3>
+    <div id="test_text_search"></div>
 
     <br><a href="{% url 'home' %}">Home</a>
 {% endblock %}

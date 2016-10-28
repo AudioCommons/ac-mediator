@@ -67,7 +67,9 @@ class BaseACService(object):
             if ENDUSER_AUTH_METHOD not in supported_auth_methods:
                 auth_method = APIKEY_AUTH_METHOD
             else:
-                if account is not None:
+                if account is None:
+                    auth_method = APIKEY_AUTH_METHOD
+                else:
                     auth_method = ENDUSER_AUTH_METHOD
         else:
             if use_authentication_method not in supported_auth_methods:
@@ -80,7 +82,7 @@ class BaseACService(object):
             url,
             params=params,
             data=data,
-            headers=auth_info.get('header', dict()))
+            headers=auth_info.get('headers', dict()))
         return self.validate_response_status_code(r)
 
     @staticmethod
