@@ -30,14 +30,18 @@ def home(request):
 
 @login_required
 def link_services(request):
-    services_info = list()
+    linkable_services_info = list()
+    non_linkable_services_info = list()
     for service in get_available_services():
-        services_info.append((
-            service,
-            service.supports_auth(ENDUSER_AUTH_METHOD) == True,
-            service.get_enduser_token(request.user) if service.supports_auth(ENDUSER_AUTH_METHOD) else None
-        ))
-    tvars = {'services_info': services_info}
+        if service.supports_auth(ENDUSER_AUTH_METHOD):
+            linkable_services_info.append((
+                service,
+                service.get_enduser_token(request.user)
+            ))
+        else:
+            non_linkable_services_info.append(service)
+    tvars = {'linkable_services_info': linkable_services_info,
+             'non_linkable_services_info': non_linkable_services_info}
     return render(request, 'accounts/link_services.html', tvars)
 
 
