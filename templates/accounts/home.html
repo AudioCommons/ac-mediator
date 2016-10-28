@@ -13,4 +13,10 @@
     <ul>
         <li><a href="{% url 'developers-app-list' %}">API Clients</a></li>
     </ul>
+    Test services
+    <ul>
+    {% for service in services %}
+        <li><a href="{% url "test_service" service.id %}">{{ service.name }}</a></li>
+    {% endfor %}
+    </ul>
 {% endblock %}

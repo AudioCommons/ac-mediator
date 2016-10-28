@@ -25,7 +25,7 @@ def registration(request):
 
 @login_required
 def home(request):
-    return render(request, 'accounts/home.html')
+    return render(request, 'accounts/home.html', {'services': get_available_services()})
 
 
 @login_required

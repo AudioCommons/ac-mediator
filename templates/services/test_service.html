@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Test service {{ service.name }}{% endblock title %}
+
+{% block content %}
+    <h1>Test service</h1>
+    <h2>{{ service.name }}</h2>
+
+    <br><a href="{% url 'home' %}">Home</a>
+{% endblock %}
