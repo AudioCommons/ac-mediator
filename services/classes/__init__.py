@@ -86,7 +86,6 @@ class ACServiceAuthMixin(object):
         return self.BASE_AUTHORIZE_URL.format(self.service_client_id)
 
     def get_redirect_uri(self):
-        print(settings.BASE_URL + reverse('link_service_callback', args=[self.id]))
         return settings.BASE_URL + reverse('link_service_callback', args=[self.id])
 
     def access_token_request_data(self, authorization_code):
