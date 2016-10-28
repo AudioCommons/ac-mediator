@@ -6,7 +6,7 @@ from django.conf import settings
 from services.mixins.base import BaseACService
 from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException, ACServiceDoesNotExist
 
-SERVICES_CONFIGURATION_FILE = os.path.join(settings.BASE_DIR, 'services/3rd_party/services_conf.cfg')
+SERVICES_CONFIGURATION_FILE = os.path.join(settings.BASE_DIR, 'services/services_conf.cfg')
 SERVICES_SCAN_FOLDER = os.path.join(settings.BASE_DIR, 'services/3rd_party/')
 
 
