@@ -2,7 +2,7 @@ import inspect
 import pkgutil
 import configparser
 import os
-from services.classes import BaseACService
+from services.classes.base import BaseACService
 from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException, ACServiceDoesNotExist
 
 SERVICES_CONFIGURATION_FILE = 'services/services_conf.cfg'

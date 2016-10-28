@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from accounts.forms import RegistrationForm
 from accounts.models import ServiceCredentials
 from services import get_available_services, get_service_by_id
-from services.classes import ENDUSER_AUTH_METHOD
+from services.classes.constants import ENDUSER_AUTH_METHOD
 from ac_mediator.exceptions import ACServiceDoesNotExist
 
 

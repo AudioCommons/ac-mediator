@@ -1,4 +1,6 @@
-from services.classes import *
+from services.classes.constants import *
+from services.classes.base import BaseACService
+from services.classes.auth import ACServiceAuthMixin
 
 
 class FreesoundService(BaseACService, ACServiceAuthMixin):

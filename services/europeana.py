@@ -1,4 +1,7 @@
-from services.classes import *
+from services.classes.constants import *
+from services.classes.base import BaseACService
+from services.classes.auth import ACServiceAuthMixin
+from ac_mediator.exceptions import ImproperlyConfiguredACService
 
 
 class EuropeanaService(BaseACService, ACServiceAuthMixin):
