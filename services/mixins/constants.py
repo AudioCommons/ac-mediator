@@ -7,7 +7,7 @@ ENDUSER_AUTH_METHOD = 'enduser_auth'
 # Resource fields (just using fake names here)
 FIELD_ID = 'xx:id'
 FIELD_URL = 'xx:url'
-FIELD_NAME = 'xx:url'
+FIELD_NAME = 'xx:name'
 FIELD_LICENSE = 'xx:license'
 FIELD_AUTHOR_NAME = 'xx:author_name'
 FIELD_TAGS = 'xx:tags'

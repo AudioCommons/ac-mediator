@@ -43,7 +43,7 @@ class BaseACServiceSearch(object):
         """
         raise NotImplementedError
 
-    def translate_single_result(self, result, fail_silently=False):
+    def translate_single_result(self, result, fail_silently=True):
         translated_result = dict()
         for field_name, field_value in result.items():
             try:
@@ -51,6 +51,8 @@ class BaseACServiceSearch(object):
             except UnexpectedServiceResourceField as e:
                 if not fail_silently:
                     raise e  # Propagate exception
+                else:
+                    print('Could not translate field {0}'.format(field_name))
                 continue
             translated_result[trans_field_name] = trans_field_value
         return translated_result
