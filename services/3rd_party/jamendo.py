@@ -39,13 +39,24 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             'shareurl': FIELD_URL,
             'name': FIELD_NAME,
             'artist_name': FIELD_AUTHOR_NAME,
-            'license_ccurl': FIELD_LICENSE,  # TODO: write propper method
             'audiodownload': FIELD_STATIC_RETRIEVE,
         }
 
     @staticmethod
     def translate_field_musicinfo(value):
         return FIELD_TAGS, value['tags']
+
+    @staticmethod
+    def translate_field_license_ccurl(value):
+        # TODO: this does not include license versioning (3.0, 4.0...)
+        if '/by/' in value: return FIELD_LICENSE, LICENSE_CC_BY
+        if '/by-nc/' in value: return FIELD_LICENSE, LICENSE_CC_BY_NC
+        if '/by-nd/' in value: return FIELD_LICENSE, LICENSE_CC_BY_ND
+        if '/by-sa/' in value: return FIELD_LICENSE, LICENSE_CC_BY_SA
+        if '/by-nc-sa/' in value: return FIELD_LICENSE, LICENSE_CC_BY_NC_SA
+        if '/by-nc-nd/' in value: return FIELD_LICENSE, LICENSE_CC_BY_NC_ND
+        if '/zero/' in value: return FIELD_LICENSE, LICENSE_CC0
+        return FIELD_LICENSE, LICENSE_UNKNOWN
 
     def format_search_response(self, response):
         results = list()
