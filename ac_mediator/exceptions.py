@@ -10,5 +10,5 @@ class ACServiceDoesNotExist(ACException):
     pass
 
 
-class UnexpectedServiceResourceField(ACException):
+class ACFieldTranslateException(ACException):
     pass

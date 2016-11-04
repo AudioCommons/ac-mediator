@@ -1,4 +1,5 @@
-from ac_mediator.exceptions import UnexpectedServiceResourceField
+from ac_mediator.exceptions import ACFieldTranslateException
+from services.mixins.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS
 
 
 class BaseACServiceSearch(object):
@@ -7,54 +8,75 @@ class BaseACServiceSearch(object):
     TODO: documentation
     """
 
-    def translate_field(self, service_field_name, service_field_value):
+    def translate_field(self, ac_field_name, result):
         """
-        Given a resource field and its value, return the translated version of it which
-        is compatible with the Audio Commons API.
-        To perform this translation first we check if the field is available in self.direct_fields_mapping.
-        If that is the case, this function just translates the field name and returns the translated
-        (field_name, field_value) tuple.
-        If field name is not available in self.direct_fields_mapping, then the object should implement
-        a specific method for providing the translation for the field. Such method should be named
-        'translate_field_FIELDNAME'. We check if this method exists and call it if that's the case (returning
-        its response). If method does not exist we raise an exception to inform that field could not be
-        translated.
-        :param service_field_name: name of the field
-        :param service_field_value: value of the field
-        :return: tuple with (translated field name, translated field value)
+        Given an audio commons field name and a dictionary representing a single result entry form a
+        service response, return the corresponding field value compatible with the Audio
+        Commons API. To perform this translation first we check if the field is available in
+        self.direct_fields_mapping. If that is the case, this function simply returns the corresponding
+        value according to the field name mapping specified in self.direct_fields_mapping.
+        If field name is not available in self.direct_fields_mapping, then the service object is
+        expected to implement a specific method for providing the translation for the field.
+        Such method should be named 'translate_field_ACFIELDNAME', where 'ACFIELDNAME' is the name
+        of the field as defined in the Audio Commons API (see services.mixins.constants.py).
+        We check if this method exists and call it if that's the case (returning its response).
+        If method does not exist we raise an exception to inform that field could not be translated.
+        :param ac_field_name: name of the field in the Audio Commons API domain
+        :param result: dictionary representing a single result entry form a service response
+        :return: value of ac_field_name for the given result
         """
-        if service_field_name in self.direct_fields_mapping:
-            return self.direct_fields_mapping[service_field_name], service_field_value
-        get_method_name = 'translate_field_{0}'.format(service_field_name)
+        if ac_field_name in self.direct_fields_mapping:
+            try:
+                return result[self.direct_fields_mapping[ac_field_name]]
+            except Exception as e:  # Using generic catch on purpose here to notify in the frontend
+                raise ACFieldTranslateException(
+                    'Can\'t translate field \'{0}\' ({1}: {2})'.format(ac_field_name, e.__class__.__name__, e))
+        get_method_name = 'translate_field_{0}'.format(ac_field_name)
         if get_method_name in dir(self):
-            return getattr(self, get_method_name)(service_field_value)
-        raise UnexpectedServiceResourceField('Can\'t translate unexpected field {0}'.format(service_field_name))
+            try:
+                return getattr(self, get_method_name)(result)
+            except Exception as e:  # Using generic catch on purpose here to notify in the frontend
+                raise ACFieldTranslateException(
+                    'Can\'t translate field \'{0}\' ({1}: {2})'.format(ac_field_name, e.__class__.__name__, e))
+        raise ACFieldTranslateException('Can\'t translate field \'{0}\' (unexpected field)'.format(ac_field_name))
 
     @property
     def direct_fields_mapping(self):
         """
-        Return a dictionary of service resource fields that can be directly mapped to
-        Audio Commons fields. 'directly mapped' means that the value can be passed
+        Return a dictionary of Audio Commons field names that can be directly mapped to
+        service resource fields. 'directly mapped' means that the value can be passed
         to the response unchanged and only the field name needs (probably) to be changed.
-        For example, id service provider returns something like {'original_filename': 'audio filename'},
+        For example, id service provider returns a result such as {'original_filename': 'audio filename'},
         we just need to change 'original_filename' for 'name' in order to make it compatible
-        with Audio Commons format.
-        :return: dictionary mapping (keys are services resource field names and values are Audio Commons field names)
+        with Audio Commons format. Therefore, the direct_fields_mapping dictionary would include
+        an entry like 'AUDIO_COMMONS_TERM_FOR_FIELD_NAME': 'original_filename'.
+        :return: dictionary mapping (keys are Audio Commons field names and values are services' resource field names)
         """
-        raise NotImplementedError
+        return {}
 
-    def translate_single_result(self, result, fail_silently=True):
+    def translate_single_result(self, result, target_fields=MINIMUM_RESOURCE_DESCRIPTION_FIELDS, fail_silently=False):
+        """
+        Take an individual search result from a service response in the form of a dictionary
+        and translate its keys and values to an Audio Commons API compatible format.
+        This method iterates over a given set of target ac_fields and computes the value
+        that each field should have in the Audio Commons API context.
+        :param result: dictionary representing a single result entry form a service response
+        :param target_fields: list of Audio Commons fields to return (default: MINIMUM_RESOURCE_DESCRIPTION_FIELDS)
+        :param fail_silently: whether to raise an exception if a particular field can not be translated or use a value of 'None'
+        :return: dictionary representing the single result with keys and values comparible with Audio Commons API
+        """
         translated_result = dict()
-        for field_name, field_value in result.items():
+        for ac_field_name in target_fields:
             try:
-                trans_field_name, trans_field_value = self.translate_field(field_name, field_value)
-            except UnexpectedServiceResourceField as e:
+                trans_field_value = self.translate_field(ac_field_name, result)
+            except ACFieldTranslateException as e:
                 if not fail_silently:
                     raise e  # Propagate exception
                 else:
-                    print('Could not translate field {0}'.format(field_name))
+                    translated_result[ac_field_name] = None
+                    print(e)  # Simply print exception message and continue
                 continue
-            translated_result[trans_field_name] = trans_field_value
+            translated_result[ac_field_name] = trans_field_value
         return translated_result
 
     def format_search_response(self, response):

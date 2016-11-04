@@ -28,26 +28,33 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     @property
     def direct_fields_mapping(self):
         return {
-            'id': FIELD_ID,
-            'guid': FIELD_URL,
+            FIELD_ID: 'id',
+            FIELD_URL: 'guid',
         }
 
     @staticmethod
-    def translate_field_title(value):
-        return FIELD_NAME, value[0]
+    def translate_field_name(result):
+        return result['title'][0]
 
     @staticmethod
-    def translate_dcCreator(value):
-        return FIELD_AUTHOR_NAME, value[0]
+    def translate_field_author_name(result):
+        try:
+            return result['dcCreator'][0]
+        except KeyError:
+            return None
 
     @staticmethod
-    def translate_field_rights(value):
-        return FIELD_LICENSE, translate_cc_license_url(value[0])
+    def translate_field_license(result):
+        return translate_cc_license_url(result['rights'][0])
 
     @staticmethod
-    def translate_field_edmIsShownBy(value):
+    def translate_field_tags(result):
+        return []  # Explicitly return no tags
+
+    @staticmethod
+    def translate_field_static_retrieve(result):
         # TODO: this field does not always return static file urls...
-        return FIELD_STATIC_RETRIEVE, value[0]
+        return result['edmIsShownBy'][0]
 
     def format_search_response(self, response):
         results = list()

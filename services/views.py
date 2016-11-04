@@ -36,7 +36,6 @@ def test_service_component(request, service_id):
     if component == 'text_search' and isinstance(service, ACServiceTextSearch):
         try:
             query = test_config.get('text_search_query', 'dogs')
-            print(query)
             response = service.text_search(query=query)
             return JsonResponse(
                 {'component': component,

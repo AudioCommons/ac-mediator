@@ -37,20 +37,20 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     @property
     def direct_fields_mapping(self):
         return {
-            'id': FIELD_ID,
-            'url': FIELD_URL,
-            'name': FIELD_NAME,
-            'username': FIELD_AUTHOR_NAME,
-            'tags': FIELD_TAGS
+            FIELD_ID: 'id',
+            FIELD_URL: 'url',
+            FIELD_NAME: 'name',
+            FIELD_AUTHOR_NAME: 'username',
+            FIELD_TAGS: 'tags'
         }
 
     @staticmethod
-    def translate_field_license(value):
-        return FIELD_LICENSE, translate_cc_license_url(value)
+    def translate_field_license(result):
+        return translate_cc_license_url(result['license'])
 
     @staticmethod
-    def translate_field_previews(value):
-        return FIELD_STATIC_RETRIEVE, value['preview-hq-ogg']
+    def translate_field_static_retrievew(result):
+        return result['previews']['preview-hq-ogg']
 
     def format_search_response(self, response):
         results = list()
@@ -67,7 +67,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         # TODO: add minimum response fields?
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
-            params={'query': query},
+            params={'query': query,
+                    'fields': 'id,url,name,license,previews,username,tags'},
             supported_auth_methods=[APIKEY_AUTH_METHOD, ENDUSER_AUTH_METHOD]
         )
         return self.format_search_response(response)

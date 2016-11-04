@@ -36,20 +36,24 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     @property
     def direct_fields_mapping(self):
         return {
-            'id': FIELD_ID,
-            'shareurl': FIELD_URL,
-            'name': FIELD_NAME,
-            'artist_name': FIELD_AUTHOR_NAME,
-            'audiodownload': FIELD_STATIC_RETRIEVE,
+            FIELD_ID: 'id',
+            FIELD_URL: 'shareurl',
+            FIELD_NAME: 'name',
+            FIELD_AUTHOR_NAME: 'artist_name',
+            FIELD_STATIC_RETRIEVE: 'audiodownload',
         }
 
     @staticmethod
-    def translate_field_musicinfo(value):
-        return FIELD_TAGS, value['tags']
+    def translate_field_tags(result):
+        try:
+            tags = result['musicinfo']['tags']['genres'] + result['musicinfo']['tags']['instruments'] + result['musicinfo']['tags']['vartags']
+        except KeyError:
+            tags = []
+        return tags
 
     @staticmethod
-    def translate_field_license_ccurl(value):
-        return FIELD_LICENSE, translate_cc_license_url(value)
+    def translate_field_license(result):
+        return translate_cc_license_url(result['license_ccurl'])
 
     def format_search_response(self, response):
         results = list()
@@ -66,7 +70,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         # TODO: add minimum response fields?
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
-            params={'search': query},
+            params={'search': query, 'include': 'musicinfo'},
             supported_auth_methods=[APIKEY_AUTH_METHOD]
         )
         return self.format_search_response(response)

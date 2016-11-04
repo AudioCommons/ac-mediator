@@ -5,13 +5,23 @@ APIKEY_AUTH_METHOD = 'apikey_auth'
 ENDUSER_AUTH_METHOD = 'enduser_auth'
 
 # Resource fields (just using fake names here)
-FIELD_ID = 'xx:id'
-FIELD_URL = 'xx:url'
-FIELD_NAME = 'xx:name'
-FIELD_LICENSE = 'xx:license'
-FIELD_AUTHOR_NAME = 'xx:author_name'
-FIELD_TAGS = 'xx:tags'
-FIELD_STATIC_RETRIEVE = 'xx:static_retrieve'
+FIELD_ID = 'id'
+FIELD_URL = 'url'
+FIELD_NAME = 'name'
+FIELD_LICENSE = 'license'
+FIELD_AUTHOR_NAME = 'author_name'
+FIELD_TAGS = 'tags'
+FIELD_STATIC_RETRIEVE = 'static_retrieve'
+
+MINIMUM_RESOURCE_DESCRIPTION_FIELDS = [
+    FIELD_ID,
+    FIELD_URL,
+    FIELD_NAME,
+    FIELD_AUTHOR_NAME,
+    FIELD_TAGS,
+    FIELD_LICENSE,
+    FIELD_STATIC_RETRIEVE
+]
 
 # Search results parameters
 NEXT_PAGE_PROP = 'next'

@@ -69,5 +69,6 @@ h3 {
     font-weight: 100;
     font-size: 80%;
     max-height: 300px;
+    word-wrap: normal;
 }
 
