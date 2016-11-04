@@ -1,4 +1,5 @@
 from services.mixins.constants import *
+from services.mixins.utils import *
 from services.mixins.base import BaseACService
 from services.mixins.auth import ACServiceAuthMixin
 from services.mixins.search import ACServiceTextSearch
@@ -48,22 +49,14 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
 
     @staticmethod
     def translate_field_license_ccurl(value):
-        # TODO: this does not include license versioning (3.0, 4.0...)
-        if '/by/' in value: return FIELD_LICENSE, LICENSE_CC_BY
-        if '/by-nc/' in value: return FIELD_LICENSE, LICENSE_CC_BY_NC
-        if '/by-nd/' in value: return FIELD_LICENSE, LICENSE_CC_BY_ND
-        if '/by-sa/' in value: return FIELD_LICENSE, LICENSE_CC_BY_SA
-        if '/by-nc-sa/' in value: return FIELD_LICENSE, LICENSE_CC_BY_NC_SA
-        if '/by-nc-nd/' in value: return FIELD_LICENSE, LICENSE_CC_BY_NC_ND
-        if '/zero/' in value: return FIELD_LICENSE, LICENSE_CC0
-        return FIELD_LICENSE, LICENSE_UNKNOWN
+        return FIELD_LICENSE, translate_cc_license_url(value)
 
     def format_search_response(self, response):
         results = list()
         for result in response['results']:
             results.append(self.translate_single_result(result))
         return {
-            NUM_RESULTS_PROP: response['headers']['results_count'],
+            NUM_RESULTS_PROP: None,  # TODO: work out this param
             NEXT_PAGE_PROP: None,  # TODO: work out this param
             PREV_PAGE_PROP: None,  # TODO: work out this param
             RESULTS_LIST: results,

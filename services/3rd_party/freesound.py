@@ -1,5 +1,6 @@
 from ac_mediator.exceptions import ACException
 from services.mixins.constants import *
+from services.mixins.utils import *
 from services.mixins.base import BaseACService
 from services.mixins.auth import ACServiceAuthMixin
 from services.mixins.search import ACServiceTextSearch
@@ -45,12 +46,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
 
     @staticmethod
     def translate_field_license(value):
-        return FIELD_LICENSE, {
-            'http://creativecommons.org/publicdomain/zero/1.0/': LICENSE_CC0,
-            'http://creativecommons.org/licenses/by/3.0/': LICENSE_CC_BY,
-            'http://creativecommons.org/licenses/by-nc/3.0/': LICENSE_CC_BY_NC,
-            'http://creativecommons.org/licenses/sampling+/1.0/': LICENSE_CC_SAMPLING_PLUS,
-        }[value]
+        return FIELD_LICENSE, translate_cc_license_url(value)
 
     @staticmethod
     def translate_field_previews(value):
@@ -62,8 +58,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             results.append(self.translate_single_result(result))
         return {
             NUM_RESULTS_PROP: response['count'],
-            NEXT_PAGE_PROP: response['next'],
-            PREV_PAGE_PROP: response['previous'],
+            NEXT_PAGE_PROP: None,  # TODO: work out this param
+            PREV_PAGE_PROP: None,  # TODO: work out this param
             RESULTS_LIST: results,
         }
 

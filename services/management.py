@@ -7,6 +7,7 @@ from services.mixins.base import BaseACService
 from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException, ACServiceDoesNotExist
 
 SERVICES_CONFIGURATION_FILE = os.path.join(settings.BASE_DIR, 'services/services_conf.cfg')
+SERVICES_TEST_CONFIGURATION_FILE = os.path.join(settings.BASE_DIR, 'services/test_services_conf.cfg')
 SERVICES_SCAN_FOLDER = os.path.join(settings.BASE_DIR, 'services/3rd_party/')
 
 
@@ -75,3 +76,30 @@ def get_service_by_id(service_id):
         if service.id == service_id:
             return service
     raise ACServiceDoesNotExist
+
+
+test_services_configuration = None
+
+
+def get_test_service_configuration(service):
+    """
+    Return testing parameters for requested service.
+    This method checks if the configuration file has already been loaded into
+    'test_services_configuration' global variable. If it has not, it loads it,
+    otherwise it returns the section corresponding to the requested service
+    (if it exists) or returns an empty dictionary.
+    """
+    global test_services_configuration
+    if test_services_configuration is None:
+        if not os.path.exists(SERVICES_TEST_CONFIGURATION_FILE):
+            print('No services test configuration file has been found, no specific test parameters will be used...')
+            test_services_configuration = {}
+        else:
+            config = configparser.ConfigParser()
+            config.read(SERVICES_TEST_CONFIGURATION_FILE)
+            test_services_configuration = config
+    try:
+        return test_services_configuration[service.name]
+    except KeyError:
+        # print('No specific test configuration section found for service {0}'.format(service.name))
+        return {}

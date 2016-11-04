@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
-from services.management import get_service_by_id
+from services.management import get_service_by_id, get_test_service_configuration
 from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
 from services.mixins.search import ACServiceTextSearch
 
@@ -30,10 +30,14 @@ def test_service_component(request, service_id):
         service = get_service_by_id(service_id)
     except ACServiceDoesNotExist:
         raise Http404
+
+    test_config = get_test_service_configuration(service)
     component = request.GET.get('component', None)
     if component == 'text_search' and isinstance(service, ACServiceTextSearch):
         try:
-            response = service.text_search(query='dogs')
+            query = test_config.get('text_search_query', 'dogs')
+            print(query)
+            response = service.text_search(query=query)
             return JsonResponse(
                 {'component': component,
                  'status': 'OK',
