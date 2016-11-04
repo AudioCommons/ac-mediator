@@ -3,6 +3,7 @@ from django.http import Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
 from services.management import get_service_by_id
 from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
+from services.mixins.search import ACServiceTextSearch
 
 
 @login_required
@@ -30,13 +31,13 @@ def test_service_component(request, service_id):
     except ACServiceDoesNotExist:
         raise Http404
     component = request.GET.get('component', None)
-    if component == 'text_search':
+    if component == 'text_search' and isinstance(service, ACServiceTextSearch):
         try:
             response = service.text_search(query='dogs')
             return JsonResponse(
                 {'component': component,
                  'status': 'OK',
-                 'message': 'success',
+                 'message': 'Success',
                  'response': response})
         except ACException as e:
             return JsonResponse(
@@ -45,5 +46,5 @@ def test_service_component(request, service_id):
                  'message': str(e)}, status=500)
     return JsonResponse(
         {'component': component,
-         'status': 'FA',
-         'message': 'invalid component'})
+         'status': 'IN',
+         'message': 'Invalid or not supported component'})

@@ -10,12 +10,17 @@
 
         function testTextSearch() {
             getJSON('{% url "test_service_component" service.id %}?component=text_search').then(function(xhr) {
-                if (xhr.status == 200){
+                if ((xhr.status == 200) && (xhr.response.status == 'OK')){
                     document.getElementById("test_text_search").innerHTML =
                         '<i class="fa fa-check" style="color:green;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response.response, null, 4) + '</pre>';
                 } else {
-                    document.getElementById("test_text_search").innerHTML =
-                        '<i class="fa fa-times" style="color:red;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response, null, 4) + '</pre>';
+                    if (xhr.response.status == 'FA'){
+                        document.getElementById("test_text_search").innerHTML =
+                            '<i class="fa fa-times" style="color:red;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response, null, 4) + '</pre>';
+                    } else {
+                        document.getElementById("test_text_search").innerHTML = xhr.response.message;
+                    }
+
                 }
             });
         }
