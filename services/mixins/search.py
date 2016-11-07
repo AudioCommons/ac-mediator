@@ -3,6 +3,12 @@ from services.mixins.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS
 
 
 def translates_field(field_name):
+    """
+    This decorator annotates the decorated function with a '_translates_field_name' property
+    with a reference to an Audio Commons metadata field name.
+    :param field_name: Audio Commons metadata field name (see services.mixins.constants.py)
+    :return: decorated function
+    """
     def wrapper(func):
         func._translates_field_name = field_name
         return func
@@ -17,9 +23,9 @@ class BaseACServiceSearch(object):
     3rd party service returns a list of results with services particular fields and values, we can translate
     these to a unified Audio Commons format.
     Services that implement any of the search functionalities must at least implement:
-        - BaseACServiceSearch.direct_fields_mapping(self)
         - BaseACServiceSearch.format_search_response(self)
-        - necessary methods for translating individual fields using the 'translates_field' decorator
+        - BaseACServiceSearch.direct_fields_mapping(self) and/or necessary methods for translating individual
+          fields using the 'translates_field' decorator
     """
 
     translate_field_methods_registry = None
