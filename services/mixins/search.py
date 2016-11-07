@@ -1,5 +1,5 @@
 from ac_mediator.exceptions import ACFieldTranslateException
-from services.mixins.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS, FIELD_ID
+from services.mixins.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS, FIELD_ID, SEARCH_TEXT_COMPONENT
 
 
 def translates_field(field_name):
@@ -144,6 +144,9 @@ class ACServiceTextSearch(BaseACServiceSearch):
     """
 
     TEXT_SEARCH_ENDPOINT_URL = 'http://example.com/api/search/'
+
+    def conf_textsearch(self, *args):
+        self.implemented_components.append(SEARCH_TEXT_COMPONENT)
 
     def text_search(self, query):
         """

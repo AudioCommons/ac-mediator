@@ -4,8 +4,9 @@
 {% block content %}
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
-            testComponent('text_search');
-            testComponent('licensing');
+            {% for component in components %}
+                testComponent('{{ component }}');
+            {% endfor %}
         }, false);
 
         function testComponent(component_name) {
@@ -30,18 +31,12 @@
     <h1>Test service</h1>
     <h2>{{ service.name }}</h2>
 
-
-    <h3>Text search</h3>
-    <div class="test_box" id="test_text_search">
-        <img class="spinner" src="{% static "img/logo-icon.svg" %}" alt="">
-    </div>
-
-    <h3>Licensing</h3>
-    <div class="test_box" id="test_licensing">
-        <img class="spinner" src="{% static "img/logo-icon.svg" %}" alt="">
-    </div>
-
-
+    {% for component in components %}
+        <h3>{{ component }}</h3>
+        <div class="test_box" id="test_{{ component }}">
+            <img class="spinner" src="{% static "img/logo-icon.svg" %}" alt="">
+        </div>
+    {% endfor %}
 
     <br><a href="{% url 'home' %}">Home</a>
 {% endblock %}

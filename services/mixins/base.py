@@ -15,6 +15,7 @@ class BaseACService(object):
     URL = 'http://example.com'
     API_BASE_URL = 'http://example.com/api/'
     service_id = None
+    implemented_components = None
 
     def configure(self, config):
         # Do main configuration
@@ -23,6 +24,7 @@ class BaseACService(object):
         self.set_service_id(config['service_id'])
 
         # Call all object methods that start with 'conf_' to perform mixin's configuration
+        self.implemented_components = list()  # Init implemented components to empty list
         for item in dir(self):
             if item.startswith('conf_') and callable(getattr(self, item)):
                 getattr(self, item)(config)

@@ -5,6 +5,8 @@ from services.management import get_service_by_id, get_test_service_configuratio
 from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
 from services.mixins.search import ACServiceTextSearch
 from services.mixins.licensing import ACLicensingMixin
+from services.mixins.constants import *
+
 
 @login_required
 def test_service(request, service_id):
@@ -12,9 +14,7 @@ def test_service(request, service_id):
         service = get_service_by_id(service_id)
     except ACServiceDoesNotExist:
         raise Http404
-    tvars = {'service': service}
-    # TODO: service should be able to provide a list of implemented components so the test
-    # TODO: page dynamically chooses which components to test
+    tvars = {'service': service, 'components': service.implemented_components}
     return render(request, 'services/test_service.html', tvars)
 
 
@@ -53,9 +53,9 @@ def test_service_component(request, service_id):
     test_config = get_test_service_configuration(service)
     component = request.GET.get('component', None)
     try:
-        if component == 'text_search' and isinstance(service, ACServiceTextSearch):
+        if component == SEARCH_TEXT_COMPONENT and isinstance(service, ACServiceTextSearch):
             return _test_search_component(service, test_config)
-        if component == 'licensing' and isinstance(service, ACLicensingMixin):
+        if component == LICENSING_COMPONENT and isinstance(service, ACLicensingMixin):
             return _test_licensing_component(service, test_config)
 
     except (ACException, NotImplementedError) as e:
