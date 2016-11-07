@@ -3,9 +3,10 @@ from services.mixins.utils import *
 from services.mixins.base import BaseACService
 from services.mixins.auth import ACServiceAuthMixin
 from services.mixins.search import ACServiceTextSearch, translates_field
+from services.mixins.licensing import ACLicensingMixin
 
 
-class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
+class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACLicensingMixin):
 
     # General
     NAME = 'Jamendo'
@@ -70,7 +71,18 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         # TODO: add minimum response fields?
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
-            params={'search': query, 'include': 'musicinfo'},
+            params={'search': query, 'include': 'musicinfo+licenses'},
             supported_auth_methods=[APIKEY_AUTH_METHOD]
         )
         return self.format_search_response(response)
+
+    # Licensing
+    def get_licensing_url(self, resource_id=None, resource_dict=None):
+        if resource_id is None and resource_dict is None:
+            raise Exception('Either \'resource_id\' or \'resoruce_dict\' should be provided to \'get_licensing_url\'')
+        if resource_dict:
+            if resource_dict['licenses']['prolicensing']:
+                return resource_dict['prourl']
+        # TODO: if resource_dict is not provided then we only get an id, we have to request information
+        # TODO: about the id and return url
+        return None  # No licensing url available

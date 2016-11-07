@@ -4,26 +4,27 @@
 {% block content %}
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
-            testTextSearch();
+            testComponent('text_search');
+            testComponent('licensing');
         }, false);
 
-
-        function testTextSearch() {
-            getJSON('{% url "test_service_component" service.id %}?component=text_search').then(function(xhr) {
+        function testComponent(component_name) {
+            getJSON('{% url "test_service_component" service.id %}?component=' + component_name).then(function(xhr) {
                 if ((xhr.status == 200) && (xhr.response.status == 'OK')){
-                    document.getElementById("test_text_search").innerHTML =
+                    document.getElementById("test_" + component_name).innerHTML =
                         '<i class="fa fa-check" style="color:green;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response.response, null, 4) + '</pre>';
                 } else {
                     if (xhr.response.status == 'FA'){
-                        document.getElementById("test_text_search").innerHTML =
+                        document.getElementById("test_" + component_name).innerHTML =
                             '<i class="fa fa-times" style="color:red;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response, null, 4) + '</pre>';
                     } else {
-                        document.getElementById("test_text_search").innerHTML = xhr.response.message;
+                        document.getElementById("test_" + component_name).innerHTML = xhr.response.message;
                     }
 
                 }
             });
         }
+
     </script>
 
     <h1>Test service</h1>
@@ -32,6 +33,9 @@
 
     <h3>Text search</h3>
     <div id="test_text_search"></div>
+
+    <h3>Licensing</h3>
+    <div id="test_licensing"></div>
 
     <br><a href="{% url 'home' %}">Home</a>
 {% endblock %}
