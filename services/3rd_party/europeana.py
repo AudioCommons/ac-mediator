@@ -28,7 +28,6 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     @property
     def direct_fields_mapping(self):
         return {
-            FIELD_ID: 'id',
             FIELD_URL: 'guid',
         }
 

@@ -37,7 +37,6 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     @property
     def direct_fields_mapping(self):
         return {
-            FIELD_ID: 'id',
             FIELD_URL: 'url',
             FIELD_NAME: 'name',
             FIELD_AUTHOR_NAME: 'username',

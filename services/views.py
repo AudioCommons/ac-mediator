@@ -13,6 +13,8 @@ def test_service(request, service_id):
     except ACServiceDoesNotExist:
         raise Http404
     tvars = {'service': service}
+    # TODO: service should be able to provide a list of implemented components so the test
+    # TODO: page dynamically chooses which components to test
     return render(request, 'services/test_service.html', tvars)
 
 
@@ -26,7 +28,8 @@ def _test_search_component(service, test_config):
 
 
 def _test_licensing_component(service, test_config):
-    response = service.get_licensing_url()
+    resource_id = test_config.get('ac_resource_id_for_licensing')
+    response = service.get_licensing_url(ac_resource_id=resource_id)
     return JsonResponse(
         {'status': 'OK',
          'message': 'Success',
@@ -41,8 +44,7 @@ def test_service_component(request, service_id):
     the test components for the different components of the system and display results
     accordingly.
     """
-    # TODO: this is currently just a testing implementation, we need to define all the
-    # TODO: different components and also which tests to carry out for each component...
+
     try:
         service = get_service_by_id(service_id)
     except ACServiceDoesNotExist:
@@ -56,12 +58,7 @@ def test_service_component(request, service_id):
         if component == 'licensing' and isinstance(service, ACLicensingMixin):
             return _test_licensing_component(service, test_config)
 
-    except ACException as e:
-        return JsonResponse(
-            {'component': component,
-             'status': 'FA',
-             'message': str(e)}, status=500)
-    except NotImplementedError as e:
+    except (ACException, NotImplementedError) as e:
         return JsonResponse(
             {'component': component,
              'status': 'FA',

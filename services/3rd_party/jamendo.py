@@ -1,3 +1,4 @@
+from ac_mediator.exceptions import ACLicesningException
 from services.mixins.constants import *
 from services.mixins.utils import *
 from services.mixins.base import BaseACService
@@ -37,7 +38,6 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
     @property
     def direct_fields_mapping(self):
         return {
-            FIELD_ID: 'id',
             FIELD_URL: 'shareurl',
             FIELD_NAME: 'name',
             FIELD_AUTHOR_NAME: 'artist_name',
@@ -77,12 +77,21 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
         return self.format_search_response(response)
 
     # Licensing
-    def get_licensing_url(self, resource_id=None, resource_dict=None):
-        if resource_id is None and resource_dict is None:
-            raise Exception('Either \'resource_id\' or \'resoruce_dict\' should be provided to \'get_licensing_url\'')
-        if resource_dict:
-            if resource_dict['licenses']['prolicensing']:
-                return resource_dict['prourl']
-        # TODO: if resource_dict is not provided then we only get an id, we have to request information
-        # TODO: about the id and return url
-        return None  # No licensing url available
+    def get_licensing_url(self, ac_resource_id=None, resource_dict=None):
+        if ac_resource_id is None and resource_dict is None:
+            raise ACLicesningException('Either \'resource_id\' or \'resoruce_dict\' should be provided to \'get_licensing_url\'')
+        if resource_dict is None:
+            # Translate ac resource id to Jamendo resource id
+            if not ac_resource_id.startswith(self.id_prefix):
+                raise ACLicesningException('Invalid resource id \'{0}\''.format(ac_resource_id))
+            resource_id = ac_resource_id[len(self.id_prefix):]
+            # If no resource dict is provided, make a request to Jamendo to retrieve resource data
+            response = self.send_request(
+                self.TEXT_SEARCH_ENDPOINT_URL,
+                params={'id': resource_id, 'include': 'licenses'},
+                supported_auth_methods=[APIKEY_AUTH_METHOD]
+            )
+            if response['headers']['results_count'] != 1:
+                raise ACLicesningException('Response does not contain expected results.')
+            resource_dict = response['results'][0]
+        return resource_dict.get('prourl', None)

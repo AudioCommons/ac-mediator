@@ -1,5 +1,5 @@
 from ac_mediator.exceptions import ACFieldTranslateException
-from services.mixins.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS
+from services.mixins.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS, FIELD_ID
 
 
 def translates_field(field_name):
@@ -28,6 +28,7 @@ class BaseACServiceSearch(object):
           fields using the 'translates_field' decorator
     """
 
+    SERVICE_ID_FIELDNAME = 'id'
     translate_field_methods_registry = None
 
     def conf_search(self, *args):
@@ -83,6 +84,23 @@ class BaseACServiceSearch(object):
             raise ACFieldTranslateException(
                     'Can\'t translate field \'{0}\' ({1}: {2})'.format(ac_field_name, e.__class__.__name__, e))
         raise ACFieldTranslateException('Can\'t translate field \'{0}\' (unexpected field)'.format(ac_field_name))
+
+    @property
+    def id_prefix(self):
+        return '{0}:'.format(self.name)
+
+    @translates_field(FIELD_ID)
+    def translate_field_id(self, result):
+        """
+        Default implementation for the translation of ID field. It takes the id of the resource
+        coming from the service and appends the service name. The id of the resource is taken using the
+        SERVICE_ID_FIELDNAME which defaults to 'id'. If this is not the way in which id is provided by the
+        service then either SERVICE_ID_FIELDNAME is assigned a different value or this function
+        must be overwritten.
+        :param result: dictionary representing a single result entry form a service response
+        :return: id to uniquely identify resource within the Audio Commons Ecosystem
+        """
+        return '{0}{1}'.format(self.id_prefix, result[self.SERVICE_ID_FIELDNAME])
 
     def translate_single_result(self, result, target_fields=MINIMUM_RESOURCE_DESCRIPTION_FIELDS, fail_silently=False):
         """

@@ -12,3 +12,7 @@ class ACServiceDoesNotExist(ACException):
 
 class ACFieldTranslateException(ACException):
     pass
+
+
+class ACLicesningException(ACException):
+    pass
