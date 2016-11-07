@@ -2,7 +2,7 @@ from services.mixins.constants import *
 from services.mixins.utils import *
 from services.mixins.base import BaseACService
 from services.mixins.auth import ACServiceAuthMixin
-from services.mixins.search import ACServiceTextSearch
+from services.mixins.search import ACServiceTextSearch, translates_field
 
 
 class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
@@ -43,16 +43,16 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             FIELD_STATIC_RETRIEVE: 'audiodownload',
         }
 
-    @staticmethod
-    def translate_field_tags(result):
+    @translates_field(FIELD_TAGS)
+    def translate_field_tags(self, result):
         try:
             tags = result['musicinfo']['tags']['genres'] + result['musicinfo']['tags']['instruments'] + result['musicinfo']['tags']['vartags']
         except KeyError:
             tags = []
         return tags
 
-    @staticmethod
-    def translate_field_license(result):
+    @translates_field(FIELD_LICENSE)
+    def translate_field_license(self, result):
         return translate_cc_license_url(result['license_ccurl'])
 
     def format_search_response(self, response):

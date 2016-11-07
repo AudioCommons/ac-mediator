@@ -2,7 +2,7 @@ from services.mixins.constants import *
 from services.mixins.utils import *
 from services.mixins.base import BaseACService
 from services.mixins.auth import ACServiceAuthMixin
-from services.mixins.search import ACServiceTextSearch
+from services.mixins.search import ACServiceTextSearch, translates_field
 from ac_mediator.exceptions import ImproperlyConfiguredACService
 
 
@@ -32,27 +32,27 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             FIELD_URL: 'guid',
         }
 
-    @staticmethod
-    def translate_field_name(result):
+    @translates_field(FIELD_NAME)
+    def translate_field_name(self, result):
         return result['title'][0]
 
-    @staticmethod
-    def translate_field_author_name(result):
+    @translates_field(FIELD_AUTHOR_NAME)
+    def translate_field_author_name(self, result):
         try:
             return result['dcCreator'][0]
         except KeyError:
             return None
 
-    @staticmethod
-    def translate_field_license(result):
+    @translates_field(FIELD_LICENSE)
+    def translate_field_license(self, result):
         return translate_cc_license_url(result['rights'][0])
 
-    @staticmethod
-    def translate_field_tags(result):
+    @translates_field(FIELD_TAGS)
+    def translate_field_tags(self, result):
         return []  # Explicitly return no tags
 
-    @staticmethod
-    def translate_field_static_retrieve(result):
+    @translates_field(FIELD_STATIC_RETRIEVE)
+    def translate_field_static_retrieve(self, result):
         # TODO: this field does not always return static file urls...
         return result['edmIsShownBy'][0]
 

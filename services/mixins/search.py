@@ -2,11 +2,46 @@ from ac_mediator.exceptions import ACFieldTranslateException
 from services.mixins.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS
 
 
+def translates_field(field_name):
+    def wrapper(func):
+        func._translates_field_name = field_name
+        return func
+    return wrapper
+
+
 class BaseACServiceSearch(object):
     """
     Base class for search-related mixins.
     TODO: documentation
     """
+
+    translate_field_methods_registry = None
+
+    def conf_search(self, *args):
+        """
+        Search for methods in the class that have been annotated with the property '_translates_field_name'.
+        These will be methods decorated with the 'translates_field' decorator. Then register methods
+        in self.translate_field_methods_registry so that these can be accessed later.
+        """
+        self.translate_field_methods_registry = dict()
+        for method_name in dir(self):
+            method = getattr(self, method_name)
+            if hasattr(method, '_translates_field_name'):
+                self.translate_field_methods_registry[method._translates_field_name] = method
+
+    @property
+    def direct_fields_mapping(self):
+        """
+        Return a dictionary of Audio Commons field names that can be directly mapped to
+        service resource fields. 'directly mapped' means that the value can be passed
+        to the response unchanged and only the field name needs (probably) to be changed.
+        For example, id service provider returns a result such as {'original_filename': 'audio filename'},
+        we just need to change 'original_filename' for 'name' in order to make it compatible
+        with Audio Commons format. Therefore, the direct_fields_mapping dictionary would include
+        an entry like 'AUDIO_COMMONS_TERM_FOR_FIELD_NAME': 'original_filename'.
+        :return: dictionary mapping (keys are Audio Commons field names and values are services' resource field names)
+        """
+        return {}
 
     def translate_field(self, ac_field_name, result):
         """
@@ -25,34 +60,15 @@ class BaseACServiceSearch(object):
         :param result: dictionary representing a single result entry form a service response
         :return: value of ac_field_name for the given result
         """
-        if ac_field_name in self.direct_fields_mapping:
-            try:
-                return result[self.direct_fields_mapping[ac_field_name]]
-            except Exception as e:  # Using generic catch on purpose here to notify in the frontend
-                raise ACFieldTranslateException(
-                    'Can\'t translate field \'{0}\' ({1}: {2})'.format(ac_field_name, e.__class__.__name__, e))
-        get_method_name = 'translate_field_{0}'.format(ac_field_name)
-        if get_method_name in dir(self):
-            try:
-                return getattr(self, get_method_name)(result)
-            except Exception as e:  # Using generic catch on purpose here to notify in the frontend
-                raise ACFieldTranslateException(
+        try:
+            if ac_field_name in self.direct_fields_mapping:
+                return result[self.direct_fields_mapping[ac_field_name]]  # Do direct mapping
+            if ac_field_name in self.translate_field_methods_registry:
+                return self.translate_field_methods_registry[ac_field_name](result)  # Invoke translate method
+        except Exception as e:  # Use generic catch on purpose so we can properly notify the frontend
+            raise ACFieldTranslateException(
                     'Can\'t translate field \'{0}\' ({1}: {2})'.format(ac_field_name, e.__class__.__name__, e))
         raise ACFieldTranslateException('Can\'t translate field \'{0}\' (unexpected field)'.format(ac_field_name))
-
-    @property
-    def direct_fields_mapping(self):
-        """
-        Return a dictionary of Audio Commons field names that can be directly mapped to
-        service resource fields. 'directly mapped' means that the value can be passed
-        to the response unchanged and only the field name needs (probably) to be changed.
-        For example, id service provider returns a result such as {'original_filename': 'audio filename'},
-        we just need to change 'original_filename' for 'name' in order to make it compatible
-        with Audio Commons format. Therefore, the direct_fields_mapping dictionary would include
-        an entry like 'AUDIO_COMMONS_TERM_FOR_FIELD_NAME': 'original_filename'.
-        :return: dictionary mapping (keys are Audio Commons field names and values are services' resource field names)
-        """
-        return {}
 
     def translate_single_result(self, result, target_fields=MINIMUM_RESOURCE_DESCRIPTION_FIELDS, fail_silently=False):
         """

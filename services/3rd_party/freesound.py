@@ -3,7 +3,7 @@ from services.mixins.constants import *
 from services.mixins.utils import *
 from services.mixins.base import BaseACService
 from services.mixins.auth import ACServiceAuthMixin
-from services.mixins.search import ACServiceTextSearch
+from services.mixins.search import ACServiceTextSearch, translates_field
 
 
 class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
@@ -44,12 +44,12 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             FIELD_TAGS: 'tags'
         }
 
-    @staticmethod
-    def translate_field_license(result):
+    @translates_field(FIELD_LICENSE)
+    def translate_field_license(self, result):
         return translate_cc_license_url(result['license'])
 
-    @staticmethod
-    def translate_field_static_retrievew(result):
+    @translates_field(FIELD_STATIC_RETRIEVE)
+    def translate_field_static_retrieve(self, result):
         return result['previews']['preview-hq-ogg']
 
     def format_search_response(self, response):

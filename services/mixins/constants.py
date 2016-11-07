@@ -1,17 +1,19 @@
 # Some of these concept definitions should be linked with the ontology (or be loaded from it)
+AUDIOCOMMONS_ONTOLOGY_PREFIX = 'ac:'
+
 
 # Authentication
 APIKEY_AUTH_METHOD = 'apikey_auth'
 ENDUSER_AUTH_METHOD = 'enduser_auth'
 
 # Resource fields (just using fake names here)
-FIELD_ID = 'id'
-FIELD_URL = 'url'
-FIELD_NAME = 'name'
-FIELD_LICENSE = 'license'
-FIELD_AUTHOR_NAME = 'author_name'
-FIELD_TAGS = 'tags'
-FIELD_STATIC_RETRIEVE = 'static_retrieve'
+FIELD_ID = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'id'
+FIELD_URL = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'url'
+FIELD_NAME = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'name'
+FIELD_LICENSE = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'license'
+FIELD_AUTHOR_NAME = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'author_name'
+FIELD_TAGS = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'tags'
+FIELD_STATIC_RETRIEVE = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'static_retrieve'
 
 MINIMUM_RESOURCE_DESCRIPTION_FIELDS = [
     FIELD_ID,
