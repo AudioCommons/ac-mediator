@@ -50,12 +50,13 @@ class BaseACServiceSearch(object):
         Commons API. To perform this translation first we check if the field is available in
         self.direct_fields_mapping. If that is the case, this function simply returns the corresponding
         value according to the field name mapping specified in self.direct_fields_mapping.
-        If field name is not available in self.direct_fields_mapping, then the service object is
-        expected to implement a specific method for providing the translation for the field.
-        Such method should be named 'translate_field_ACFIELDNAME', where 'ACFIELDNAME' is the name
-        of the field as defined in the Audio Commons API (see services.mixins.constants.py).
-        We check if this method exists and call it if that's the case (returning its response).
-        If method does not exist we raise an exception to inform that field could not be translated.
+        If field name is not available in self.direct_fields_mapping, then we check if it is available
+        in the registry of translate field methods self.translate_field_methods_registry which is built
+        when running self.conf_search() (see BaseACServiceSearch.conf_search(self, *args).
+        If a method for the ac_field_name exists in self.translate_field_methods_registry we call it and
+        return its response.
+        If field does not exist in self.direct_fields_mapping or self.translate_field_methods_registry
+        we raise an exception to inform that field could not be translated.
         :param ac_field_name: name of the field in the Audio Commons API domain
         :param result: dictionary representing a single result entry form a service response
         :return: value of ac_field_name for the given result
