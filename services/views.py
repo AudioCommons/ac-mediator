@@ -62,12 +62,12 @@ def test_service_component(request, service_id):
         return JsonResponse(
             {'component': component,
              'status': 'FA',
-             'message': '{0}: {1}'.format(e.__class__.__name__, e)}, status=500)
+             'message': '{0}: {1}'.format(e.__class__.__name__, e)})
     except Exception as e:
         return JsonResponse(
             {'component': component,
              'status': 'FA',
-             'message': 'Unhandled exception: {0}, {1}'.format(e.__class__.__name__, e)}, status=500)
+             'message': 'Unhandled exception: {0}, {1}'.format(e.__class__.__name__, e)})
     return JsonResponse(
         {'component': component,
          'status': 'IN',

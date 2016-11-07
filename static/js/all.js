@@ -4,7 +4,11 @@ var getJSON = function(url) {
     xhr.open('get', url, true);
     xhr.responseType = 'json';
     xhr.onload = function() {
-      resolve(xhr);
+      if (xhr.status === 200) {
+        resolve(xhr);
+      } else {
+        reject(xhr);
+      }
     };
     xhr.send();
   });

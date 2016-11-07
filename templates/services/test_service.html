@@ -9,22 +9,22 @@
         }, false);
 
         function testComponent(component_name) {
-            getJSON('{% url "test_service_component" service.id %}?component=' + component_name).then(function(xhr) {
-                if ((xhr.status == 200) && (xhr.response.status == 'OK')){
-                    document.getElementById("test_" + component_name).innerHTML =
-                        '<i class="fa fa-check" style="color:green;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response.response, null, 4) + '</pre>';
-                } else {
-                    if (xhr.response.status == 'FA'){
-                        document.getElementById("test_" + component_name).innerHTML =
-                            '<i class="fa fa-times" style="color:red;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response, null, 4) + '</pre>';
+            var html_element = document.getElementById("test_" + component_name);
+            getJSON('{% url "test_service_component" service.id %}?component=' + component_name).then(
+                function(xhr) { // Success (status = 200)
+                    if (xhr.response.status === 'OK') {
+                        html_element.innerHTML = '<i class="fa fa-check" style="color:green;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response.response, null, 4) + '</pre>';
+                    } else if (xhr.response.status == 'FA'){
+                        html_element.innerHTML = '<i class="fa fa-times" style="color:red;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response, null, 4) + '</pre>';
                     } else {
-                        document.getElementById("test_" + component_name).innerHTML = xhr.response.message;
+                        html_element.innerHTML = xhr.response.message;
                     }
-
+                },
+                function(xhr) { // Error
+                    html_element.innerHTML = xhr.status + ' ' + xhr.statusText;
                 }
-            });
+            );
         }
-
     </script>
 
     <h1>Test service</h1>
@@ -32,10 +32,16 @@
 
 
     <h3>Text search</h3>
-    <div id="test_text_search"></div>
+    <div class="test_box" id="test_text_search">
+        <img class="spinner" src="{% static "img/logo-icon.svg" %}" alt="">
+    </div>
 
     <h3>Licensing</h3>
-    <div id="test_licensing"></div>
+    <div class="test_box" id="test_licensing">
+        <img class="spinner" src="{% static "img/logo-icon.svg" %}" alt="">
+    </div>
+
+
 
     <br><a href="{% url 'home' %}">Home</a>
 {% endblock %}
