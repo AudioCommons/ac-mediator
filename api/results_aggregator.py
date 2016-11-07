@@ -14,6 +14,8 @@ class ResultsAggregator(object):
     in memory (self.current_responses). This works because there is a single instance of ResultsAggregator.
     In production we'll need some system that shares these responses across instances of the Audio Commons
     mediator. Maybe we could use some database-like backed or in-memory caching backend like memcached.
+    To use a different backend we should basically override 'create_response', 'get_response' and
+    'delete_response' methods.
     """
     current_responses = None
 
@@ -33,6 +35,9 @@ class ResultsAggregator(object):
     def get_response(self, response_id):
         return self.current_responses[response_id]
 
+    def delete_response(self, response_id):
+        del self.current_responses[response_id]
+
     def set_response_to_processing(self, response_id):
         self.get_response(response_id)['status'] = RESPONSE_STATUS_PROCESSING
 
@@ -47,7 +52,11 @@ class ResultsAggregator(object):
             self.set_response_to_finished(response_id)
 
     def collect_response(self, response_id):
-        return self.get_response(response_id)
+        response = self.get_response(response_id)
+        to_return = response.copy()
+        if response['status'] == RESPONSE_STATUS_FINISHED:
+            self.delete_response(response_id)  # If response has been all loaded, delete it from pool
+        return to_return
 
 
 results_aggregator = ResultsAggregator()
