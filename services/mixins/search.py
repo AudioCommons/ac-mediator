@@ -116,7 +116,7 @@ class BaseACServiceSearch(object):
         :param response: dictionary with json search response
         :return: dictionary with search results properly formatted
         """
-        raise NotImplementedError
+        raise NotImplementedError("Service must implement method BaseACServiceSearch.format_search_response")
 
 
 class ACServiceTextSearch(BaseACServiceSearch):
@@ -140,4 +140,4 @@ class ACServiceTextSearch(BaseACServiceSearch):
         # TODO: define which input parameters should text search support (this is part of
         # TODO: api specification). For now we only support 'query' as standard textual query.
         # TODO: calls to methods that trigger calls should be probably logged somewhere...
-        raise NotImplementedError
+        raise NotImplementedError("Service must implement method ACServiceTextSearch.text_search")

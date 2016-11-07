@@ -5,7 +5,6 @@ from services.management import get_service_by_id, get_test_service_configuratio
 from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
 from services.mixins.search import ACServiceTextSearch
 
-
 @login_required
 def test_service(request, service_id):
     try:
@@ -47,6 +46,16 @@ def test_service_component(request, service_id):
                 {'component': component,
                  'status': 'FA',
                  'message': str(e)}, status=500)
+        except NotImplementedError as e:
+            return JsonResponse(
+                {'component': component,
+                 'status': 'FA',
+                 'message': '{0}: {1}'.format(e.__class__.__name__, e)}, status=500)
+        except Exception as e:
+            return JsonResponse(
+                {'component': component,
+                 'status': 'FA',
+                 'message': 'Unhandled exception: {0}, {1}'.format(e.__class__.__name__, e)}, status=500)
     return JsonResponse(
         {'component': component,
          'status': 'IN',

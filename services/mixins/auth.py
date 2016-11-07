@@ -110,4 +110,4 @@ class ACServiceAuthMixin(object):
         :param account: user account (for enduser authentication only)
         :return: dictionary with auth information
         """
-        raise NotImplementedError
+        raise NotImplementedError("Service must implement method ACServiceAuthMixin.get_auth_info_for_request")
