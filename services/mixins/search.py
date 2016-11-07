@@ -12,7 +12,14 @@ def translates_field(field_name):
 class BaseACServiceSearch(object):
     """
     Base class for search-related mixins.
-    TODO: documentation
+    This class is in charge of providing necessary methods for handling translation of metadata field names
+    and values between the 3rd party service and the Audio Commons API and ecosystem. In this way, when
+    3rd party service returns a list of results with services particular fields and values, we can translate
+    these to a unified Audio Commons format.
+    Services that implement any of the search functionalities must at least implement:
+        - BaseACServiceSearch.direct_fields_mapping(self)
+        - BaseACServiceSearch.format_search_response(self)
+        - necessary methods for translating individual fields using the 'translates_field' decorator
     """
 
     translate_field_methods_registry = None
