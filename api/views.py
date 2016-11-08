@@ -1,11 +1,11 @@
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from api.request_distributor import get_request_distributor
-from api.results_aggregator import get_results_aggregator
+from api.response_aggregator import get_response_aggregator
 from services.mixins.constants import SEARCH_TEXT_COMPONENT
 
 request_distributor = get_request_distributor()
-results_aggregator = get_results_aggregator()
+response_aggregator = get_response_aggregator()
 
 
 class Services(GenericAPIView):
@@ -27,5 +27,5 @@ class Search(GenericAPIView):
         # collect response here and return it. Otherwise we should probably simply return the
         # response_id and the client should be in charge of iteratively checking if the response
         # is ready to be returned
-        response = results_aggregator.collect_response(response_id)
+        response = response_aggregator.collect_response(response_id)
         return Response(response)
