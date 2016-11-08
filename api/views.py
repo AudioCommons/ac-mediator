@@ -11,6 +11,11 @@ response_aggregator = get_response_aggregator()
 
 @api_view(['GET'])
 def services(request):
+    """
+    .. http:get:: /api/services/
+
+       Documentation for this resource needs to be written.
+    """
     services = get_available_services()
     return Response({
         'count': len(services),
@@ -24,6 +29,15 @@ def services(request):
 
 @api_view(['GET'])
 def text_search(request):
+    """
+    .. http:get:: /api/search/text/
+
+       Documentation for this resource needs to be written.
+
+       :query q: input query terms
+
+       :statuscode 200: no error
+    """
     response_id = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
@@ -40,6 +54,15 @@ def text_search(request):
 
 @api_view(['GET'])
 def licensing(request):
+    """
+    .. http:get:: /api/license/
+
+       Documentation for this resource needs to be written.
+
+       :query acid: Audio Commons unique resource identifier
+
+       :statuscode 200: no error
+    """
     response_id = request_distributor.process_request({
         'component': LICENSING_COMPONENT,
         'method': 'get_licensing_url',
