@@ -19,7 +19,7 @@ class RequestDistributor(object):
 
         services = get_available_services(component=request['component'])
         # Create object to store response contents
-        response_id = response_aggregator.create_response(n_expected_responses=len(services))
+        response_id = response_aggregator.create_response(len(services))
         response_aggregator.set_response_to_processing(response_id)
 
         for service in services:

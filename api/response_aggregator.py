@@ -7,31 +7,19 @@ RESPONSE_STATUS_PROCESSING = 'PR'
 RESPONSE_STATUS_NEW = 'NEW'
 
 
-class ResponseAggregator(object):
+class DictStoreBackend(object):
     """
-    The response aggregator is in charge of maintaining a pool of request responses and keep on aggregating
-    responses from different services at the moment these are received.
-    NOTE: Currently we just have a very simple implementation where responses are stored in a dictionary
-    in memory (self.current_responses). This works because there is a single instance of ResponseAggregator.
-    In production we'll need some system that shares these responses across instances of the Audio Commons
-    mediator. Maybe we could use some database-like backend or in-memory caching backend like memcached.
-    To use a different backend we should basically override 'create_response', 'get_response' and
-    'delete_response' methods.
+    Basic backend for storing current (ongoing) responses. See ResponseAggregator for more info.
     """
+
     current_responses = None
 
     def __init__(self):
         self.current_responses = dict()
 
-    def create_response(self, n_expected_responses):
+    def new_response(self, init_response_contents):
         response_id = uuid.uuid4()
-        self.current_responses[response_id] = {
-            'status': RESPONSE_STATUS_NEW,
-            'contents': dict(),
-            'errors': dict(),
-            'n_expected_responses': n_expected_responses,
-            'n_received_responses': 0,
-        }
+        self.current_responses[response_id] = init_response_contents
         return response_id
 
     def get_response(self, response_id):
@@ -40,14 +28,41 @@ class ResponseAggregator(object):
     def delete_response(self, response_id):
         del self.current_responses[response_id]
 
+
+class ResponseAggregator(object):
+    """
+    The response aggregator is in charge of maintaining a pool of request responses and keep on aggregating
+    responses from different services at the moment these are received.
+    NOTE: Currently we just have a very simple implementation where responses are stored in a dictionary
+    in memory (see DictStoreBackend). This works because there is a single instance of ResponseAggregator.
+    In production we'll need some system that shares these responses across instances of the Audio Commons
+    mediator. Maybe we could use some database-like backend or in-memory caching backend like memcached.
+    To use a different backend we should basically implement a new backend class with 'new_response',
+    'get_response' and 'delete_response' methods and pass its definition to the ReponseAggregator
+    constructor (instead of the default DictStoreBackend).
+    """
+
+    def __init__(self, store_backend=DictStoreBackend):
+        self.store = store_backend()
+
+    def create_response(self, n_expected_responses):
+        response_id = self.store.new_response({
+            'status': RESPONSE_STATUS_NEW,
+            'contents': dict(),
+            'errors': dict(),
+            'n_expected_responses': n_expected_responses,
+            'n_received_responses': 0,
+        })
+        return response_id
+
     def set_response_to_processing(self, response_id):
-        self.get_response(response_id)['status'] = RESPONSE_STATUS_PROCESSING
+        self.store.get_response(response_id)['status'] = RESPONSE_STATUS_PROCESSING
 
     def set_response_to_finished(self, response_id):
-        self.get_response(response_id)['status'] = RESPONSE_STATUS_FINISHED
+        self.store.get_response(response_id)['status'] = RESPONSE_STATUS_FINISHED
 
     def aggregate_response(self, response_id, service_name, response_contents):
-        response = self.get_response(response_id)
+        response = self.store.get_response(response_id)
         response['n_received_responses'] += 1
         if isinstance(response_contents, ACException):
             # If response content is error, add to errors dict
@@ -63,10 +78,10 @@ class ResponseAggregator(object):
             self.set_response_to_finished(response_id)
 
     def collect_response(self, response_id):
-        response = self.get_response(response_id)
+        response = self.store.get_response(response_id)
         to_return = response.copy()
         if response['status'] == RESPONSE_STATUS_FINISHED:
-            self.delete_response(response_id)  # If response has been all loaded, delete it from pool
+            self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
         return to_return
 
 
