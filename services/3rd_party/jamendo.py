@@ -77,21 +77,23 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
         return self.format_search_response(response)
 
     # Licensing
-    def get_licensing_url(self, ac_resource_id=None, resource_dict=None):
-        if ac_resource_id is None and resource_dict is None:
-            raise ACLicesningException('Either \'resource_id\' or \'resoruce_dict\' should be provided to \'get_licensing_url\'')
+    def get_licensing_url(self, acid=None, resource_dict=None):
+        if acid is None and resource_dict is None:
+            raise ACLicesningException(
+                'Either \'acid\' or \'resoruce_dict\' should be provided to \'get_licensing_url\'', 400)
         if resource_dict is None:
             # Translate ac resource id to Jamendo resource id
-            if not ac_resource_id.startswith(self.id_prefix):
-                raise ACLicesningException('Invalid resource id \'{0}\''.format(ac_resource_id))
-            resource_id = ac_resource_id[len(self.id_prefix):]
+            if not acid.startswith(self.id_prefix):
+                raise ACLicesningException('Invalid resource id \'{0}\''.format(acid), 400)
+            resource_id = acid[len(self.id_prefix):]
             # If no resource dict is provided, make a request to Jamendo to retrieve resource data
             response = self.send_request(
                 self.TEXT_SEARCH_ENDPOINT_URL,
                 params={'id': resource_id, 'include': 'licenses'},
                 supported_auth_methods=[APIKEY_AUTH_METHOD]
             )
+            print(response)
             if response['headers']['results_count'] != 1:
-                raise ACLicesningException('Response does not contain expected results.')
+                raise ACLicesningException('Response does not contain expected results.', 500)
             resource_dict = response['results'][0]
         return resource_dict.get('prourl', None)

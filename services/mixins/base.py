@@ -94,12 +94,13 @@ class BaseACService(object):
         Otherwise return response as dictionary object loaded from json contents.
         This base class contains a basic implementation of this method that raises
         generic exceptions without explanation or details. Services will want to override
-        this method to better interpret the way errors are returned.
+        this method to better interpret the way errors are returned (and provide clearer response
+        to users).
         :param response: response object (of type requests.models.Response)
         :return: dictioanry including json contents of the response
         """
         if response.status_code != 200:
-            raise ACException('Returned wrong status code, {0}'.format(response.status_code))
+            raise ACException('Returned wrong status code, {0}'.format(response.status_code), response.status_code)
         return response.json()
 
     @property

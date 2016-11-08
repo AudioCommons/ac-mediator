@@ -16,7 +16,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     @staticmethod
     def validate_response_status_code(response):
         if response.status_code != 200:
-            raise ACException('{0} error: {1}'.format(response.status_code, response.json()['detail']))
+            raise ACException(response.json()['detail'], response.status_code)
         return response.json()
 
     # Auth

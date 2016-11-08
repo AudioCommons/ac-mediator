@@ -1,4 +1,5 @@
 import uuid
+from ac_mediator.exceptions import ACException
 
 
 RESPONSE_STATUS_FINISHED = 'FI'
@@ -27,6 +28,7 @@ class ResponseAggregator(object):
         self.current_responses[response_id] = {
             'status': RESPONSE_STATUS_NEW,
             'contents': dict(),
+            'errors': dict(),
             'n_expected_responses': n_expected_responses,
             'n_received_responses': 0,
         }
@@ -46,8 +48,17 @@ class ResponseAggregator(object):
 
     def aggregate_response(self, response_id, service_name, response_contents):
         response = self.get_response(response_id)
-        response['contents'][service_name] = response_contents
         response['n_received_responses'] += 1
+        if isinstance(response_contents, ACException):
+            # If response content is error, add to errors dict
+            response['errors'][service_name] = {
+                'status': response_contents.status,
+                'type': response_contents.__class__.__name__,
+                'message': response_contents.msg,
+            }
+        else:
+            # If response content is ok, add to contents dict
+            response['contents'][service_name] = response_contents
         if response['n_received_responses'] == response['n_expected_responses']:
             self.set_response_to_finished(response_id)
 

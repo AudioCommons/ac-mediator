@@ -83,7 +83,7 @@ def get_service_by_id(service_id):
     for service in available_services:
         if service.id == service_id:
             return service
-    raise ACServiceDoesNotExist
+    raise ACServiceDoesNotExist('Service with id {0} does not exist'.format(service_id))
 
 
 test_services_configuration = None

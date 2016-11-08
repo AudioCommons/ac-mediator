@@ -10,10 +10,14 @@ class ACLicensingMixin(object):
     def conf_licensing(self, conf):
         self.implemented_components.append(LICENSING_COMPONENT)
 
-    def get_licensing_url(self, *args, **kwargs):
+    def get_licensing_url(self, acid, *args, **kwargs):
         """
-        Given some input data about a specific resource, this functionr returns the url where the
-        resource can be licensed.
+        Given an Audio Commons unique resource identifier (acid), this function returns a url
+        where the resource can be licensed. If the 3rd party service can't license that resource or
+        some other errors occur during the collection of the url, an ACLicesningException should be raised.
+        Individual services can extend this method with extra parameters to make it more suitable to their
+        needs (e.g., to call the method given an already retrieved resource and avoid in this way an
+        extra request).
         :return: url to license the input resource
         """
         # TODO: this is just a proposal of how licensing service could be handled

@@ -29,7 +29,7 @@ def _test_search_component(service, test_config):
 
 def _test_licensing_component(service, test_config):
     resource_id = test_config.get('ac_resource_id_for_licensing')
-    response = service.get_licensing_url(ac_resource_id=resource_id)
+    response = service.get_licensing_url(acid=resource_id)
     return JsonResponse(
         {'status': 'OK',
          'message': 'Success',
@@ -58,7 +58,12 @@ def test_service_component(request, service_id):
         if component == LICENSING_COMPONENT and isinstance(service, ACLicensingMixin):
             return _test_licensing_component(service, test_config)
 
-    except (ACException, NotImplementedError) as e:
+    except ACException as e:
+        return JsonResponse(
+            {'component': component,
+             'status': 'FA',
+             'message': '{0}: {1}'.format(e.__class__.__name__, e.msg)})
+    except NotImplementedError as e:
         return JsonResponse(
             {'component': component,
              'status': 'FA',

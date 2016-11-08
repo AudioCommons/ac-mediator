@@ -27,7 +27,9 @@ class RequestDistributor(object):
             try:
                 service_response = getattr(service, request['method'])(**request['kwargs'])
             except ACException as e:
-                continue  # Skip response from service that fails
+                # Aggregate error response in response aggregator and continue with next service
+                response_aggregator.aggregate_response(response_id, service.name, e)
+                continue
             response_aggregator.aggregate_response(response_id, service.name, service_response)
             """
             NOTE: current implementation is synchronous and blocking, it calls every service
