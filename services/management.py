@@ -3,7 +3,7 @@ import pkgutil
 import configparser
 import os
 from django.conf import settings
-from services.mixins.base import BaseACService
+from services.acservice.base import BaseACService
 from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException, ACServiceDoesNotExist
 
 SERVICES_CONFIGURATION_FILE = os.path.join(settings.BASE_DIR, 'services/services_conf.cfg')

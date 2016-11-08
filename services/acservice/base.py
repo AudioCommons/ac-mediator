@@ -1,5 +1,5 @@
 from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException
-from services.mixins.constants import *
+from services.acservice.constants import *
 import requests
 
 

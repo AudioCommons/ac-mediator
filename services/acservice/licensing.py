@@ -1,4 +1,4 @@
-from services.mixins.constants import LICENSING_COMPONENT
+from services.acservice.constants import LICENSING_COMPONENT
 
 
 class ACLicensingMixin(object):

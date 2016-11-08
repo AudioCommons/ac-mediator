@@ -1,8 +1,8 @@
-from services.mixins.constants import *
-from services.mixins.utils import *
-from services.mixins.base import BaseACService
-from services.mixins.auth import ACServiceAuthMixin
-from services.mixins.search import ACServiceTextSearch, translates_field
+from services.acservice.constants import *
+from services.acservice.utils import *
+from services.acservice.base import BaseACService
+from services.acservice.auth import ACServiceAuthMixin
+from services.acservice.search import ACServiceTextSearch, translates_field
 from ac_mediator.exceptions import ImproperlyConfiguredACService
 
 

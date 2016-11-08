@@ -3,7 +3,7 @@ from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import requests
-from services.mixins.constants import *
+from services.acservice.constants import *
 
 
 class ACServiceAuthMixin(object):

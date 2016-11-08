@@ -1,5 +1,5 @@
 from ac_mediator.exceptions import ACFieldTranslateException
-from services.mixins.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS, FIELD_ID, SEARCH_TEXT_COMPONENT
+from services.acservice.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS, FIELD_ID, SEARCH_TEXT_COMPONENT
 
 
 def translates_field(field_name):

@@ -3,9 +3,9 @@ from django.http import Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
 from services.management import get_service_by_id, get_test_service_configuration
 from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
-from services.mixins.search import ACServiceTextSearch
-from services.mixins.licensing import ACLicensingMixin
-from services.mixins.constants import *
+from services.acservice.search import ACServiceTextSearch
+from services.acservice.licensing import ACLicensingMixin
+from services.acservice.constants import *
 
 
 @login_required

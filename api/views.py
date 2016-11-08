@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
 from services.management import get_available_services
-from services.mixins.constants import SEARCH_TEXT_COMPONENT, LICENSING_COMPONENT
+from services.acservice.constants import SEARCH_TEXT_COMPONENT, LICENSING_COMPONENT
 
 request_distributor = get_request_distributor()
 response_aggregator = get_response_aggregator()
