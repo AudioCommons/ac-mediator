@@ -39,6 +39,13 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+# Documentation
+
+Documentaiton is located in the `docs` folder and can generated using Sphinx:
+```
+cd docs
+make html
+```
 
 # License
 Apache License 2.0
