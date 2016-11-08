@@ -41,6 +41,16 @@ extensions = [
     'sphinxcontrib.httpdomain',
 ]
 
+# Really ugly hack to remove function definitions in API docs
+from sphinx.ext import autodoc
+def my_add_directive_header(self, sig):
+    sourcename = self.get_sourcename()
+    if 'api.views' in sourcename:
+        pass#self.add_line(u'..', '')
+    else:
+        autodoc.Documenter.add_directive_header(self, sig)
+autodoc.ModuleLevelDocumenter.add_directive_header = my_add_directive_header
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -139,7 +149,8 @@ html_theme_options = {
     'collapse_navigation': False,
     'display_version': False,
     'navigation_depth': 3,
-    'prev_next_buttons_location': None
+    'prev_next_buttons_location': None,
+    'logo_only': True,
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -157,7 +168,7 @@ html_title = 'Audio Commons services and API documentation'
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 #
-# html_logo = None
+html_logo = 'project_logo_h.png'
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
