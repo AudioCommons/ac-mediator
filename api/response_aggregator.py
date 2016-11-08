@@ -25,6 +25,9 @@ class DictStoreBackend(object):
     def get_response(self, response_id):
         return self.current_responses[response_id]
 
+    def set_response(self, response_id, response_contents):
+        self.current_responses[response_id] = response_contents
+
     def delete_response(self, response_id):
         del self.current_responses[response_id]
 
@@ -56,10 +59,14 @@ class ResponseAggregator(object):
         return response_id
 
     def set_response_to_processing(self, response_id):
-        self.store.get_response(response_id)['status'] = RESPONSE_STATUS_PROCESSING
+        response = self.store.get_response(response_id)
+        response['status'] = RESPONSE_STATUS_PROCESSING
+        self.store.set_response(response_id, response)
 
     def set_response_to_finished(self, response_id):
-        self.store.get_response(response_id)['status'] = RESPONSE_STATUS_FINISHED
+        response = self.store.get_response(response_id)
+        response['status'] = RESPONSE_STATUS_FINISHED
+        self.store.set_response(response_id, response)
 
     def aggregate_response(self, response_id, service_name, response_contents):
         response = self.store.get_response(response_id)
@@ -75,7 +82,8 @@ class ResponseAggregator(object):
             # If response content is ok, add to contents dict
             response['contents'][service_name] = response_contents
         if response['n_received_responses'] == response['n_expected_responses']:
-            self.set_response_to_finished(response_id)
+            response['status'] = RESPONSE_STATUS_FINISHED
+        self.store.set_response(response_id, response)
 
     def collect_response(self, response_id):
         response = self.store.get_response(response_id)
