@@ -41,7 +41,7 @@ class ResponseAggregator(object):
     In production we'll need some system that shares these responses across instances of the Audio Commons
     mediator. Maybe we could use some database-like backend or in-memory caching backend like memcached.
     To use a different backend we should basically implement a new backend class with 'new_response',
-    'get_response' and 'delete_response' methods and pass its definition to the ReponseAggregator
+    'get_response', 'set_response' and 'delete_response' methods and pass its definition to the ReponseAggregator
     constructor (instead of the default DictStoreBackend).
     """
 
