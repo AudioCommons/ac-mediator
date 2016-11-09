@@ -25,4 +25,7 @@ urlpatterns = [
 
     # Admin
     url(r'^admin/', admin.site.urls),
+
+    # Documentation
+    url(r'^docs/', include('docs.urls')),
 ]

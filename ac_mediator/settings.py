@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'developers',
     'services',
+    'docs',
 ]
 
 MIDDLEWARE = [
@@ -149,6 +150,9 @@ LOGIN_REDIRECT_URL = '/'
 # Site
 BASE_URL = 'https://audiocommons.org'
 
+# Documentation
+DOCS_ROOT = os.path.join(BASE_DIR, 'docs/_build/html')
+DOCS_ACCESS = 'public'
 
 try:
     from ac_mediator.local_settings import *
