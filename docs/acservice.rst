@@ -45,12 +45,3 @@ Util functions
     :members:
     :undoc-members:
     :show-inheritance:
-
-
-Constants
----------
-
-.. automodule:: acservice.constants
-    :members:
-    :undoc-members:
-    :show-inheritance:
