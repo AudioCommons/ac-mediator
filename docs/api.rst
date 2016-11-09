@@ -6,16 +6,16 @@ The Audio Commons mediator provides a web API for interacting with Audio Commons
 Service discovery endpoints
 ---------------------------
 
-.. autofunction:: api.views.services
+.. autoapiview:: api.views.services
 
 
 Search endpoints
 ----------------
 
-.. autofunction:: api.views.text_search
+.. autoapiview:: api.views.text_search
 
 
 Licensing endpoints
 -------------------
 
-.. autofunction:: api.views.licensing
+.. autoapiview:: api.views.licensing

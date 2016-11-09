@@ -41,15 +41,20 @@ extensions = [
     'sphinxcontrib.httpdomain',
 ]
 
-# Really ugly hack to remove function definitions in API docs
+
+# Define ApiViewDocumenter class to automatically document
+# api methods without adding function name and parameters
 from sphinx.ext import autodoc
-def my_add_directive_header(self, sig):
-    sourcename = self.get_sourcename()
-    if 'api.views' in sourcename:
-        pass#self.add_line(u'..', '')
-    else:
-        autodoc.Documenter.add_directive_header(self, sig)
-autodoc.ModuleLevelDocumenter.add_directive_header = my_add_directive_header
+
+class ApiViewDocumenter(autodoc.FunctionDocumenter):
+    objtype='apiview'
+    content_indent=u''
+    def add_directive_header(self, sig):
+        return
+
+def setup(app):
+    app.add_autodocumenter(ApiViewDocumenter)
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
