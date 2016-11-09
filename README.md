@@ -41,11 +41,20 @@ python manage.py runserver
 
 # Documentation
 
-Documentaiton is located in the `docs` folder and can generated using Sphinx:
+Documentation is located in the `docs` folder and can generated using Sphinx:
 ```
 cd docs
-make html
+make clean html
 ```
+
+For the documentation style we use a customized version of the 
+[Read the Docs sphinx theme](https://github.com/snide/sphinx_rtd_theme/blob/master/README.rst).
+The customized theme is already bundled with this repository in
+[docs/_themes/ac_sphinx_rtd_theme](https://github.com/AudioCommons/ac-mediator/tree/master/docs/_themes/ac_sphinx_rtd_theme),
+but if you want to edit it, you'll need to get the source from 
+[https://github.com/AudioCommons/sphinx_rtd_theme](https://github.com/AudioCommons/sphinx_rtd_theme) 
+and follow instructions in there.
+
 
 # License
 Apache License 2.0

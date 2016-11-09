@@ -144,6 +144,10 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 
+# We use a customized version of sphinx_rtd_theme that can be found in this
+# repository: https://github.com/AudioCommons/sphinx_rtd_theme
+# To install it you should copy the contents of the folder 'sphinx_rtd_theme'
+# from the repository to docs/_themes/ac_sphinx_rtd_theme
 html_theme = "ac_sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
