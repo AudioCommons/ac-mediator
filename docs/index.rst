@@ -1,5 +1,5 @@
-Audio Commons services and API documentation
-============================================
+Services and API documentation
+==============================
 
 .. toctree::
    :maxdepth: 2
