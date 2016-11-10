@@ -1,0 +1,34 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ac_mediator
+  nginx:
+    build: ./docker/nginx/
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes_from:
+      - web
+    links:
+      - web:web
+  web:
+    build: .
+    environment:
+      DOCKER_DB_HOST: db
+      DOCKER_STATIC_ROOT: /static/
+      DOCKER_DJANGO_BASE_URL: https://localhost
+    expose:
+      - "8000"
+    links:
+      - db:db
+    volumes:
+      - .:/code
+      - /static/
+      - /logs/
+    command: bash -c "python manage.py migrate && /usr/local/bin/gunicorn ac_mediator.wsgi:application -w 1 -b :8000 --reload --log-file=/logs/gunicorn.log --access-logfile=/logs/gunicorn-access.log"
+    depends_on:
+      - db
