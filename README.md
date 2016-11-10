@@ -35,7 +35,6 @@ cp ac_mediator/local_settings.example.py ac_mediator/local_settings.py
 
 - Build and run Docker containers for required services
 ```
-docker-compose build
 docker-compose up
 ```
 
