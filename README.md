@@ -19,7 +19,35 @@ certificates to be able to properly test the API via https. Below you'll
 find instructions for setting up the development environment with and
 without Docker:
 
+
 ## Setting up dev environment using Docker
+
+- Clone repository and cd into it
+```
+git clone git@github.com:AudioCommons/ac-mediator.git
+cd ac_mediator
+```
+
+- Rename ac_mediator/local_settings.example.py
+```
+cp ac_mediator/local_settings.example.py ac_mediator/local_settings.py
+```
+
+- Build and run Docker containers for required services
+```
+docker-compose build
+docker-compose up
+```
+
+- You'll probably want to create a superuser too:
+```
+docker-compose run web python manage.py createsuperuser
+```
+
+Now you should be able to access your server at `https://localhost`
+
+
+## Setting up dev environment without Docker
 
 First you should make sure that you have PostgreSQL (>=9.2) installed and
 running in your system. Then the following commands should set a local 
@@ -56,32 +84,6 @@ python manage.py createsuperuser
 ```
 python manage.py runserver
 ```
-
-## Setting up dev environment without Docker
-
-- Clone repository and cd into it
-```
-git clone git@github.com:AudioCommons/ac-mediator.git
-cd ac_mediator
-```
-
-- Rename ac_mediator/local_settings.example.py
-```
-cp ac_mediator/local_settings.example.py ac_mediator/local_settings.py
-```
-
-- Build and run Docker containers for required services
-```
-docker-compose build
-docker-compose up
-```
-
-- You'll probably want to create a superuser too:
-```
-docker-compose run web python manage.py createsuperuser
-```
-
-Now you should be able to access your server at `https://localhost`
 
 
 # Documentation
