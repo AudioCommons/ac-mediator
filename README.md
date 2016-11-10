@@ -7,10 +7,23 @@ Mediator component of the Audio Commons Ecosystem.
 
 # Development
 
-The Audio Commons mediator is a web service written in Python 3 using the Django framework.
-We use the PostgreSQL database backend with the JSON fields, therefore you'll need PostgreSQL >= 9.2 installed in your system. 
+The Audio Commons mediator is a web service written in Python 3 using 
+the Django framework. We use the PostgreSQL database backend with the 
+JSON fields (PostgreSQL >= 9.2).
 
-Running the following commands should set a local installation of the Audio Commons mediator up and running:
+To have a local development version you can either do a standard manual
+install or use our Docker container definitions. When using Docker, the
+development environment includes PostgreSQL, an Nginx webserver and the 
+Django application running behind Gunicorn. It also includes custom SSL
+certificates to be able to properly test the API via https. Below you'll
+find instructions for setting up the development environment with and
+without Docker:
+
+## Setting up dev environment using Docker
+
+First you should make sure that you have PostgreSQL (>=9.2) installed and
+running in your system. Then the following commands should set a local 
+installation of the Audio Commons mediator up and running:
 
 - Clone repository and cd into it
 ```
@@ -18,7 +31,12 @@ git clone git@github.com:AudioCommons/ac-mediator.git
 cd ac_mediator
 ```
 
-- Install requirements (we recommed using vrtualenv)
+- Rename ac_mediator/local_settings.example.py
+```
+cp ac_mediator/local_settings.example.py ac_mediator/local_settings.py
+```
+
+- Install requirements (we recommend using virtualenv)
 ```
 pip install -r requirements.txt
 ```
@@ -39,6 +57,33 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+## Setting up dev environment without Docker
+
+- Clone repository and cd into it
+```
+git clone git@github.com:AudioCommons/ac-mediator.git
+cd ac_mediator
+```
+
+- Rename ac_mediator/local_settings.example.py
+```
+cp ac_mediator/local_settings.example.py ac_mediator/local_settings.py
+```
+
+- Build and run Docker containers for required services
+```
+docker-compose build
+docker-compose up
+```
+
+- You'll probably want to create a superuser too:
+```
+docker-compose run web python manage.py createsuperuser
+```
+
+Now you should be able to access your server at `https://localhost`
+
+
 # Documentation
 
 Documentation is located in the `docs` folder and can generated using Sphinx:
@@ -46,6 +91,12 @@ Documentation is located in the `docs` folder and can generated using Sphinx:
 cd docs
 make clean html
 ```
+
+If you're using Docker you'll need to run these commands from the container:
+```
+docker-compose run web bash -c "cd docs && make clean html"
+```
+
 
 For the documentation style we use a customized version of the 
 [Read the Docs sphinx theme](https://github.com/snide/sphinx_rtd_theme/blob/master/README.rst).
