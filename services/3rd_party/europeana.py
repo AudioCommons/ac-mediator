@@ -76,6 +76,5 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
                     'qf': 'TYPE:SOUND',
                     'profile': 'rich'
                     },
-            supported_auth_methods=[APIKEY_AUTH_METHOD]
         )
         return self.format_search_response(response)

@@ -53,7 +53,7 @@ class BaseACService(object):
         :param url: endpoint api url
         :param params: request parameters in a dictionary
         :param data: dictionary of data to be included as json body
-        :param supported_auth_methods: auth methods supported by the api endpoint
+        :param supported_auth_methods: auth methods supported by the api endpoint (defaults to those defined for the service)
         :param account: user account (for enduser authentication only)
         :return: dictionary of json response (can raise exception if status_code!=200)
         """
@@ -64,7 +64,7 @@ class BaseACService(object):
         if data is None:
             data = {}
         if supported_auth_methods is None:
-            supported_auth_methods = [APIKEY_AUTH_METHOD, ENDUSER_AUTH_METHOD]
+            supported_auth_methods = self.SUPPORTED_AUTH_METHODS
         if use_authentication_method is None:
             if ENDUSER_AUTH_METHOD not in supported_auth_methods:
                 auth_method = APIKEY_AUTH_METHOD

@@ -72,7 +72,6 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
             params={'search': query, 'include': 'musicinfo+licenses'},
-            supported_auth_methods=[APIKEY_AUTH_METHOD]
         )
         return self.format_search_response(response)
 
@@ -90,7 +89,6 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
             response = self.send_request(
                 self.TEXT_SEARCH_ENDPOINT_URL,
                 params={'id': resource_id, 'include': 'licenses'},
-                supported_auth_methods=[APIKEY_AUTH_METHOD]
             )
             if response['headers']['results_count'] != 1:
                 raise ACLicesningException('Response does not contain expected results.', 500)

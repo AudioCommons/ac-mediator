@@ -68,6 +68,5 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             self.TEXT_SEARCH_ENDPOINT_URL,
             params={'query': query,
                     'fields': 'id,url,name,license,previews,username,tags'},
-            supported_auth_methods=[APIKEY_AUTH_METHOD, ENDUSER_AUTH_METHOD]
         )
         return self.format_search_response(response)
