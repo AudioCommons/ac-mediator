@@ -92,7 +92,6 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
                 params={'id': resource_id, 'include': 'licenses'},
                 supported_auth_methods=[APIKEY_AUTH_METHOD]
             )
-            print(response)
             if response['headers']['results_count'] != 1:
                 raise ACLicesningException('Response does not contain expected results.', 500)
             resource_dict = response['results'][0]
