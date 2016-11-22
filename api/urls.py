@@ -3,6 +3,7 @@ from api import views
 
 urlpatterns = [
     url(r'^services/$', views.services),
+    url(r'^collect/$', views.collect_response),
     url(r'^search/text/$', views.text_search),
     url(r'^license/$', views.licensing),
 

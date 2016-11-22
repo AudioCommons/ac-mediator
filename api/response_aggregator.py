@@ -51,7 +51,10 @@ class RedisStoreBackend(object):
         return response_id
 
     def get_response(self, response_id):
-        return json.loads(self.r.get(response_id).decode("utf-8"))
+        response = self.r.get(response_id)
+        if response is None:
+            return None
+        return json.loads(response.decode("utf-8"))
 
     def set_response(self, response_id, response_contents):
         self.r.set(response_id, json.dumps(response_contents))
@@ -115,6 +118,8 @@ class ResponseAggregator(object):
 
     def collect_response(self, response_id):
         response = self.store.get_response(response_id)
+        if response is None:
+            return None
         to_return = response.copy()
         if response['status'] == RESPONSE_STATUS_FINISHED:
             self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool

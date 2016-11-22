@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import NotFound
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
 from services.management import get_available_services
@@ -28,6 +29,23 @@ def services(request):
 
 
 @api_view(['GET'])
+def collect_response(request):
+    """
+    .. http:get:: /api/collect/
+
+       Return the contents of the response designated by the query parameter rid
+
+       :query rid: response id to collect
+
+       :statuscode 200: no error
+    """
+    response = response_aggregator.collect_response(request.GET.get('rid'))
+    if response is None:
+        raise NotFound
+    return Response(response)
+
+
+@api_view(['GET'])
 def text_search(request):
     """
     .. http:get:: /api/search/text/
@@ -35,20 +53,21 @@ def text_search(request):
        Documentation for this resource needs to be written.
 
        :query q: input query terms
+       :query async: whether to return a response id or return the actual contents of the reponse
 
        :statuscode 200: no error
     """
+    async = request.GET.get('async', False)
     response_id = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
         'kwargs': {'query': request.GET.get('q')}
-    })
+    }, async=async)
 
-    # Because current implementation of request_distributor is synchronous, we can simply
-    # collect response here and return it. Otherwise we should probably simply return the
-    # response_id and the client should be in charge of iteratively checking if the response
-    # is ready to be returned
-    response = response_aggregator.collect_response(response_id)
+    if not async:
+        response = response_aggregator.collect_response(response_id)  # Collect actual response
+    else:
+        response = {'response_id': response_id}  # Only return reference response id
     return Response(response)
 
 
@@ -60,18 +79,19 @@ def licensing(request):
        Documentation for this resource needs to be written.
 
        :query acid: Audio Commons unique resource identifier
+       :query async: whether to return a response id or return the actual contents of the reponse
 
        :statuscode 200: no error
     """
+    async = request.GET.get('async', False)
     response_id = request_distributor.process_request({
         'component': LICENSING_COMPONENT,
         'method': 'get_licensing_url',
         'kwargs': {'acid': request.GET.get('acid')}
-    })
+    }, async=async)
 
-    # Because current implementation of request_distributor is synchronous, we can simply
-    # collect response here and return it. Otherwise we should probably simply return the
-    # response_id and the client should be in charge of iteratively checking if the response
-    # is ready to be returned
-    response = response_aggregator.collect_response(response_id)
+    if not async:
+        response = response_aggregator.collect_response(response_id)  # Collect actual response
+    else:
+        response = {'response_id': response_id}  # Only return reference response id
     return Response(response)
