@@ -1,5 +1,8 @@
 import uuid
+import redis
+import json
 from ac_mediator.exceptions import ACException
+from django.conf import settings
 
 
 RESPONSE_STATUS_FINISHED = 'FI'
@@ -32,6 +35,31 @@ class DictStoreBackend(object):
         del self.current_responses[response_id]
 
 
+class RedisStoreBackend(object):
+    """
+    Basic backend for storing current (ongoing) responses. See ResponseAggregator for more info.
+    """
+
+    r = None
+
+    def __init__(self):
+        self.r = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
+
+    def new_response(self, init_response_contents):
+        response_id = uuid.uuid4()
+        self.r.set(response_id, json.dumps(init_response_contents))
+        return response_id
+
+    def get_response(self, response_id):
+        return json.loads(self.r.get(response_id).decode("utf-8"))
+
+    def set_response(self, response_id, response_contents):
+        self.r.set(response_id, json.dumps(response_contents))
+
+    def delete_response(self, response_id):
+        self.r.delete(response_id)
+
+
 class ResponseAggregator(object):
     """
     The response aggregator is in charge of maintaining a pool of request responses and keep on aggregating
@@ -45,7 +73,7 @@ class ResponseAggregator(object):
     constructor (instead of the default DictStoreBackend).
     """
 
-    def __init__(self, store_backend=DictStoreBackend):
+    def __init__(self, store_backend=RedisStoreBackend):
         self.store = store_backend()
 
     def create_response(self, n_expected_responses):

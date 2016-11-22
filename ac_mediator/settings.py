@@ -155,6 +155,10 @@ BASE_URL = 'https://audiocommons.org'
 DOCS_ROOT = os.path.join(BASE_DIR, 'docs/_build/html')
 DOCS_ACCESS = 'public'
 
+# Redis
+REDIS_HOST = 'redis'  # Host where redis is running (we use docker alias here)
+REDIS_PORT = 6379
+
 try:
     from ac_mediator.local_settings import *
 except ImportError:

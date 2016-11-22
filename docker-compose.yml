@@ -15,6 +15,10 @@ services:
       - web
     links:
       - web:web
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
   web:
     build: .
     environment:
@@ -25,6 +29,7 @@ services:
       - "8000"
     links:
       - db:db
+      - redis:redis
     volumes:
       - .:/code
       - /static/
@@ -32,3 +37,4 @@ services:
     command: bash -c "python manage.py collectstatic --no-input && python manage.py migrate && /usr/local/bin/gunicorn ac_mediator.wsgi:application -w 1 -b :8000 --reload --log-file=/logs/gunicorn.log --access-logfile=/logs/gunicorn-access.log"
     depends_on:
       - db
+      - redis
