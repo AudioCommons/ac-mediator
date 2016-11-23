@@ -161,6 +161,7 @@ REDIS_PORT = 6379
 
 # Celery
 CELERY_BROKER_URL = "redis://redis"
+CELERY_RESULT_BACKEND = "redis://redis"
 CELERY_ACCEPT_CONTENT = ['json']
 
 # Shared respones backend and async responses

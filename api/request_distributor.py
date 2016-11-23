@@ -45,11 +45,23 @@ class RequestDistributor(object):
         response_id = response_aggregator.create_response(len(services))
         response_aggregator.set_response_to_processing(response_id)
         # Iterate over services and perform queries
+        async_response_refs = list()
         for service in services:
             if async:
                 get_service_response_and_aggregate.delay(request, response_id, service.id)
             else:
-                get_service_response_and_aggregate(request, response_id, service.id)
+                async_response_refs.append(
+                    get_service_response_and_aggregate.delay(request, response_id, service.id)
+                )
+        if not async:
+            # TODO: document this and update docstrings above
+            all_done = False
+            while not all_done:
+                all_done = True
+                for async_response_ref in async_response_refs:
+                    if not async_response_ref.ready():
+                        all_done = False
+                        break
         # Return current results (will be empty in async mode)
         return response_aggregator.collect_response(response_id)
 
