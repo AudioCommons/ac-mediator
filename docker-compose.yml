@@ -19,6 +19,15 @@ services:
     image: redis
     ports:
       - "6379:6379"
+  celery:
+    build: .
+    links:
+      - redis:redis
+    volumes:
+      - .:/code
+    command: celery worker -A ac_mediator --concurrency=100
+    depends_on:
+      - redis
   web:
     build: .
     environment:

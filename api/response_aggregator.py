@@ -121,7 +121,8 @@ class ResponseAggregator(object):
         if response is None:
             return None
         to_return = response.copy()
-        if response['status'] == RESPONSE_STATUS_FINISHED:
+        to_return.update({'response_id': response_id})
+        if response['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
             self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
         return to_return
 

@@ -5,6 +5,7 @@ from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
 from services.management import get_available_services
 from services.acservice.constants import SEARCH_TEXT_COMPONENT, LICENSING_COMPONENT
+from django.conf import settings
 
 request_distributor = get_request_distributor()
 response_aggregator = get_response_aggregator()
@@ -57,17 +58,11 @@ def text_search(request):
 
        :statuscode 200: no error
     """
-    async = request.GET.get('async', False)
-    response_id = request_distributor.process_request({
+    response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
         'kwargs': {'query': request.GET.get('q')}
-    }, async=async)
-
-    if not async:
-        response = response_aggregator.collect_response(response_id)  # Collect actual response
-    else:
-        response = {'response_id': response_id}  # Only return reference response id
+    }, async=request.GET.get('async', settings.DEFAULT_ASYNC_VALUE) == '1')
     return Response(response)
 
 
@@ -83,15 +78,9 @@ def licensing(request):
 
        :statuscode 200: no error
     """
-    async = request.GET.get('async', False)
     response_id = request_distributor.process_request({
         'component': LICENSING_COMPONENT,
         'method': 'get_licensing_url',
         'kwargs': {'acid': request.GET.get('acid')}
-    }, async=async)
-
-    if not async:
-        response = response_aggregator.collect_response(response_id)  # Collect actual response
-    else:
-        response = {'response_id': response_id}  # Only return reference response id
+    }, async=request.GET.get('async', settings.DEFAULT_ASYNC_VALUE) == '1')
     return Response(response)
