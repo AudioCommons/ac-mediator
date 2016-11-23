@@ -10,34 +10,9 @@ RESPONSE_STATUS_PROCESSING = 'PR'
 RESPONSE_STATUS_NEW = 'NEW'
 
 
-class DictStoreBackend(object):
-    """
-    Basic backend for storing current (ongoing) responses. See ResponseAggregator for more info.
-    """
-
-    current_responses = None
-
-    def __init__(self):
-        self.current_responses = dict()
-
-    def new_response(self, init_response_contents):
-        response_id = uuid.uuid4()
-        self.current_responses[response_id] = init_response_contents
-        return response_id
-
-    def get_response(self, response_id):
-        return self.current_responses[response_id]
-
-    def set_response(self, response_id, response_contents):
-        self.current_responses[response_id] = response_contents
-
-    def delete_response(self, response_id):
-        del self.current_responses[response_id]
-
-
 class RedisStoreBackend(object):
     """
-    Basic backend for storing current (ongoing) responses. See ResponseAggregator for more info.
+    Redis-bases backend for storing current (ongoing) responses. See ResponseAggregator for more info.
     """
 
     r = None
@@ -66,14 +41,8 @@ class RedisStoreBackend(object):
 class ResponseAggregator(object):
     """
     The response aggregator is in charge of maintaining a pool of request responses and keep on aggregating
-    responses from different services at the moment these are received.
-    NOTE: Currently we just have a very simple implementation where responses are stored in a dictionary
-    in memory (see DictStoreBackend). This works because there is a single instance of ResponseAggregator.
-    In production we'll need some system that shares these responses across instances of the Audio Commons
-    mediator. Maybe we could use some database-like backend or in-memory caching backend like memcached.
-    To use a different backend we should basically implement a new backend class with 'new_response',
-    'get_response', 'set_response' and 'delete_response' methods and pass its definition to the ReponseAggregator
-    constructor (instead of the default DictStoreBackend).
+    responses from different services at the moment these are received. It uses a redis-based store
+    (RedisStoreBackend) to share response data within all ac_mediator processes and celery workers.
     """
 
     def __init__(self, store_backend=RedisStoreBackend):
