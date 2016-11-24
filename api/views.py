@@ -54,7 +54,6 @@ def text_search(request):
        Documentation for this resource needs to be written.
 
        :query q: input query terms
-       :query async: whether to return a response id or return the actual contents of the reponse
 
        :statuscode 200: no error
     """
@@ -62,7 +61,7 @@ def text_search(request):
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
         'kwargs': {'query': request.GET.get('q')}
-    }, async=request.GET.get('async', settings.DEFAULT_ASYNC_VALUE) == '1')
+    })
     return Response(response)
 
 
@@ -74,7 +73,6 @@ def licensing(request):
        Documentation for this resource needs to be written.
 
        :query acid: Audio Commons unique resource identifier
-       :query async: whether to return a response id or return the actual contents of the reponse
 
        :statuscode 200: no error
     """
@@ -82,5 +80,5 @@ def licensing(request):
         'component': LICENSING_COMPONENT,
         'method': 'get_licensing_url',
         'kwargs': {'acid': request.GET.get('acid')}
-    }, async=request.GET.get('async', settings.DEFAULT_ASYNC_VALUE) == '1')
+    })
     return Response(response)

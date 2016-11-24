@@ -166,7 +166,6 @@ CELERY_ACCEPT_CONTENT = ['json']
 
 # Shared respones backend and async responses
 DELETE_RESPONSES_AFTER_CONSUMED = False
-DEFAULT_ASYNC_VALUE = '1'  # Use '1' to make async requests by default
 
 try:
     from ac_mediator.local_settings import *

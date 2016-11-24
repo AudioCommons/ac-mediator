@@ -1,6 +1,7 @@
 import uuid
 import redis
 import json
+import datetime
 from ac_mediator.exceptions import ACException
 from django.conf import settings
 
@@ -43,6 +44,11 @@ class ResponseAggregator(object):
     The response aggregator is in charge of maintaining a pool of request responses and keep on aggregating
     responses from different services at the moment these are received. It uses a redis-based store
     (RedisStoreBackend) to share response data within all ac_mediator processes and celery workers.
+    The ReponseAggregator implement a ResponseAggregator.collect_response method which is given
+    a 'response_id' object and will return the current responses that have been aggregated for the
+    given response_id at the time of calling the method. This is used for the /api/collect endpoint
+    and this is how API clients can iterativelly pull results as soon as these are received (NOTE: this
+    only makes sense when wait_until_complete=False in the RequestDistributor)
     """
 
     def __init__(self, store_backend=RedisStoreBackend):
@@ -50,27 +56,31 @@ class ResponseAggregator(object):
 
     def create_response(self, n_expected_responses):
         response_id = self.store.new_response({
-            'status': RESPONSE_STATUS_NEW,
+            'meta': {
+                'response_id': None,  # Will be filled in self.collect_response
+                'status': RESPONSE_STATUS_NEW,
+                'n_expected_responses': n_expected_responses,
+                'n_received_responses': 0,
+                'timestamp': str(datetime.datetime.now())
+            },
             'contents': dict(),
             'errors': dict(),
-            'n_expected_responses': n_expected_responses,
-            'n_received_responses': 0,
         })
         return response_id
 
     def set_response_to_processing(self, response_id):
         response = self.store.get_response(response_id)
-        response['status'] = RESPONSE_STATUS_PROCESSING
+        response['meta']['status'] = RESPONSE_STATUS_PROCESSING
         self.store.set_response(response_id, response)
 
     def set_response_to_finished(self, response_id):
         response = self.store.get_response(response_id)
-        response['status'] = RESPONSE_STATUS_FINISHED
+        response['meta']['status'] = RESPONSE_STATUS_FINISHED
         self.store.set_response(response_id, response)
 
     def aggregate_response(self, response_id, service_name, response_contents):
         response = self.store.get_response(response_id)
-        response['n_received_responses'] += 1
+        response['meta']['n_received_responses'] += 1
         if isinstance(response_contents, ACException):
             # If response content is error, add to errors dict
             response['errors'][service_name] = {
@@ -81,8 +91,8 @@ class ResponseAggregator(object):
         else:
             # If response content is ok, add to contents dict
             response['contents'][service_name] = response_contents
-        if response['n_received_responses'] == response['n_expected_responses']:
-            response['status'] = RESPONSE_STATUS_FINISHED
+        if response['meta']['n_received_responses'] == response['meta']['n_expected_responses']:
+            response['meta']['status'] = RESPONSE_STATUS_FINISHED
         self.store.set_response(response_id, response)
 
     def collect_response(self, response_id):
@@ -90,8 +100,8 @@ class ResponseAggregator(object):
         if response is None:
             return None
         to_return = response.copy()
-        to_return.update({'response_id': response_id})
-        if response['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
+        to_return['meta']['response_id'] = response_id  # Add response_id to returned dictionary
+        if response['meta']['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
             self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
         return to_return
 

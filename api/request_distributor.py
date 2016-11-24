@@ -7,7 +7,7 @@ response_aggregator = get_response_aggregator()
 
 
 @shared_task
-def get_service_response_and_aggregate(request, response_id, service_id):
+def perform_request_and_aggregate(request, response_id, service_id):
     service = get_service_by_id(service_id)
     try:
         print('Requesting response from {0} ({1})'.format(service.name, response_id))
@@ -21,48 +21,53 @@ def get_service_response_and_aggregate(request, response_id, service_id):
 class RequestDistributor(object):
 
     @staticmethod
-    def process_request(request, async):
+    def process_request(request, wait_until_complete=False):
         """
         Process incoming request, and propagate it to corresponding services.
-        Requests to 3rd party services can be done synchornously or asynchronously.
-        When done synchronously this function will be blocking and won't return anything until
-        responses are obtained from all services (this is not desired). In other words, when running
-        synchronously this function will call every service sequentially and add the results to
-        the created response object. Once all have finished, the response status will be set to
-        finished and the aggregated contents of the response returned.
-        When running requests asynchronously this function will make all requests and return a
-        response before waiting for the requests to finish. The returned response will therefore be
-        almost empty, but will include a response id field that can be used later in the response
-        aggregator to pull the (complete or partial) responses returned from services.
+        Requests to 3rd party services are made asynchronously. We send requests to all 3rd
+        party services and as soon as a response is received it is added to a response object
+        which aggregates the responses from all services.
+        In the normal functioaning mode (wait_until_complete=False) this method will immediately
+        return a response right after all requests have been sent. This response will mainly
+        include a response_id parameter that can be later used to pull the actual responses
+        from the 3rd party services (see ResponseAggregator.collect_response).
+        If wait_until_complete is set to False, then this method will wait untill a response is
+        received for all requests and only then will return an aggregated response including the
+        contents of all 3rd party services individual responses.
 
-        :param request: incoming request
-        :param async: whether to perform asynchronous requests
-        :return: response dictionary (with no content from responses with async is on)
+        :param request: incoming request object
+        :param wait_until_complete: whether to return immediately after all requests are sent or wait untill all responses are received
+        :return: dictionary with response (as returned by ResponseAggregator.collect_response)
         """
 
+        # Get available services for the given component (e.g. services that do `text search')
         services = get_available_services(component=request['component'])
-        # Create object to store response contents
+
+        # Create object to store responses from services
         response_id = response_aggregator.create_response(len(services))
         response_aggregator.set_response_to_processing(response_id)
-        # Iterate over services and perform queries
-        async_response_refs = list()
+
+        # Iterate over services, perform requests and aggregate responses
+        async_response_objects = list()
         for service in services:
-            if async:
-                get_service_response_and_aggregate.delay(request, response_id, service.id)
-            else:
-                async_response_refs.append(
-                    get_service_response_and_aggregate.delay(request, response_id, service.id)
-                )
-        if not async:
-            # TODO: document this and update docstrings above
-            all_done = False
-            while not all_done:
-                all_done = True
-                for async_response_ref in async_response_refs:
-                    if not async_response_ref.ready():
-                        all_done = False
-                        break
-        # Return current results (will be empty in async mode)
+            # Requests are performed asynchronously in Celery workers
+            async_response_objects.append(
+                perform_request_and_aggregate.delay(request, response_id, service.id)
+            )
+
+        # Wait until all responses are received (only if wait_until_complete == True)
+        if wait_until_complete:
+            # We wait until we get a response for all the requests we sent
+            # We do that by continuously iterating over all async_response_objetcs in a while
+            # loop and only exit when all of them have been flagged as ready
+            # TODO: we should add some control over timeouts, etc as this operation is blocking
+            while True:
+                if all([item.ready() for item in async_response_objects]):
+                    break
+
+        # Return object including responses received so far (if wait_until_complete == False the
+        # response returned here will almost only contain the response_id field which can be later
+        # used to retreive further responses.
         return response_aggregator.collect_response(response_id)
 
 
