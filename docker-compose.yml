@@ -31,7 +31,7 @@ services:
       - .env
     volumes:
       - .:/code
-    command: celery worker -A ac_mediator --concurrency=100
+    command: celery worker -A ac_mediator --concurrency=${CELERY_CONCURRENCY}
     depends_on:
       - redis
   flower:  #  Django app to monitor Celery status
