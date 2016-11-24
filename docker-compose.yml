@@ -56,4 +56,14 @@ services:
     expose:
       - "5555"
     depends_on:
+      - celery
+    links:
+      - db:db
+      - redis:redis
+  redmon:  #  Redis monitoring
+    build: ./docker/redmon/
+    command: redmon --port=4567 --redis=redis://redis --base-path=/redmon --secure=user:password
+    expose:
+      - "4567"
+    depends_on:
       - redis
