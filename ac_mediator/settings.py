@@ -22,13 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-if SECRET_KEY is None:
-    raise Exception("Please configure your secret key by setting DJANGO_SECRET_KEY environment variable")
-
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'default_secret_key')
 
 # Debug, allowed hosts and database
 if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
+    if SECRET_KEY == 'default_secret_key':
+        print("Please configure your secret key by setting DJANGO_SECRET_KEY environment variable")
     DEBUG = False
     ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu']
 else:
