@@ -4,6 +4,7 @@ import json
 import datetime
 from ac_mediator.exceptions import ACException
 from django.conf import settings
+from django.urls import reverse
 
 
 RESPONSE_STATUS_FINISHED = 'FI'
@@ -61,7 +62,7 @@ class ResponseAggregator(object):
                 'status': RESPONSE_STATUS_NEW,
                 'n_expected_responses': n_expected_responses,
                 'n_received_responses': 0,
-                'timestamp': str(datetime.datetime.now())
+                'sent_timestamp': str(datetime.datetime.now())
             },
             'contents': dict(),
             'errors': dict(),
@@ -101,6 +102,7 @@ class ResponseAggregator(object):
             return None
         to_return = response.copy()
         to_return['meta']['response_id'] = response_id  # Add response_id to returned dictionary
+        to_return['meta']['collect_url'] = settings.BASE_URL + '{0}?rid={1}'.format(reverse('api-collect'), response_id)  # Add collect url for convinience
         if response['meta']['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
             self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
         return to_return
