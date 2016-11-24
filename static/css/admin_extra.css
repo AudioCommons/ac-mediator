@@ -1,0 +1,76 @@
+body {
+    font-weight: 300;
+}
+
+#header {
+    background: #1E5055;
+}
+
+.button.default, input[type=submit].default, .submit-row input.default {
+    background: #1E5055;
+}
+
+.object-tools a:focus, .object-tools a:hover {
+    background-color: #1E5055;
+}
+
+div.breadcrumbs {
+    background: #2e7d84;
+}
+
+#user-tools a:focus, #user-tools a:hover {
+    border-bottom-color: #0F783C;
+    color: #0F783C;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: #0F783C;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: white;
+    font-size: 1.4em;
+    font-family: "Rajdhani", sans-serif;
+}
+
+a:link, a:visited {
+    color: #0F783C;
+}
+
+a:focus, a:hover {
+    color: #1E5055;
+}
+
+a.section:link, a.section:visited {
+    color: #991933;
+}
+
+th {
+    font-weight: 400;
+}
+
+#branding h1 {
+    text-transform: uppercase;
+    font-family: "Rajdhani", sans-serif;
+    font-weight: 700;
+    color: #1E5055;
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+    color: white;
+}
+
+h1 {
+    font-family: "Rajdhani", sans-serif;
+    color: gray;
+    font-size: 2em;
+    font-weight: 100;
+}
+
+h2 {
+    text-transform: uppercase;
+    color: #991933;
+    font-size: 1.4em;
+    font-family: "Rajdhani", sans-serif;
+    font-weight: 400;
+}

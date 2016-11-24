@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+{% load staticfiles %}
+
+{% block title %}{{ title }} | AC mediator admin{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static "css/admin_extra.css" %}" />
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Audio Commons mediator administration</a></h1>
+{% endblock %}
+
+{% block nav-global %}<a href="{% url 'admin-monitor' %}">Go to monitor</a>{% endblock %}

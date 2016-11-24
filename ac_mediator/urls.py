@@ -3,6 +3,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from accounts.views import registration
+from ac_mediator.views import monitor
 
 
 urlpatterns = [
@@ -24,6 +25,7 @@ urlpatterns = [
     url(r'^api/', include('api.urls')),
 
     # Admin
+    url(r'^admin/monitor/$', monitor, name="admin-monitor"),
     url(r'^admin/', admin.site.urls),
 
     # Documentation
