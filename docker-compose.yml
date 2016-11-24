@@ -15,6 +15,7 @@ services:
       - web
     links:
       - web:web
+      - flower:flower
   redis:
     image: redis
     ports:
@@ -46,4 +47,13 @@ services:
     command: bash -c "python manage.py collectstatic --no-input && python manage.py migrate && /usr/local/bin/gunicorn ac_mediator.wsgi:application -w 1 -b :8000 --reload --log-file=/logs/gunicorn.log --access-logfile=/logs/gunicorn-access.log"
     depends_on:
       - db
+      - redis
+  flower:  #  Django app to monitor Celery status
+    build: ./docker/flower/
+    environment:
+      FLOWER_BASIC_AUTH: user:password
+    command: flower --address=0.0.0.0 --port=5555 --broker=redis://redis --url_prefix=flower
+    expose:
+      - "5555"
+    depends_on:
       - redis
