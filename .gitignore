@@ -1,6 +1,4 @@
 .DS_Store
 __pycache__
 .idea/*
-.env
-local_settings.py
 services_conf.cfg

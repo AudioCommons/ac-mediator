@@ -16,7 +16,7 @@
 <h2>Redis</h2>
 <p>
     To monitor celery state please use the <a href="/redmon/" target="_blank">Redmon interface</a>.
-    <br>If asked for user and password in a development environment, use user <b>user</b> and password <b>password</b>.
+    <br>If asked for user and password in a development environment, use user <b>{{ redmon_auth.0 }}</b> and password <b>{{ redmon_auth.1 }}</b>.
 </p>
 
 
@@ -24,7 +24,7 @@
 <h2>Celery</h2>
 <p>
     To monitor celery state please use the <a href="/flower/" target="_blank">Flower interface</a>.
-    <br>If asked for user and password in a development environment, use user <b>user</b> and password <b>password</b>.
+    <br>If asked for user and password in a development environment, use user <b>{{ flower_auth.0 }}</b> and password <b>{{ flower_auth.1 }}</b>.
 </p>
 
 {% endblock %}

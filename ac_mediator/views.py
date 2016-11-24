@@ -1,12 +1,12 @@
+import os
 from django.shortcuts import render
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
 @login_required
 def monitor(request):
-    return render(request, 'admin/monitor.html', {})
-
-
-@login_required
-def get_monitor_status(request):
-    return JsonResponse({'test': 123})
+    flower_auth = os.getenv('FLOWER_BASIC_AUTH', ':').split(':')
+    redmon_auth = os.getenv('FLOWER_BASIC_AUTH', ':').split(':')
+    return render(request, 'admin/monitor.html', {
+        'flower_auth': flower_auth,
+        'redmon_auth': redmon_auth,
+    })

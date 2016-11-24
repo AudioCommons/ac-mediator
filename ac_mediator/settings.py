@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import dj_database_url
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,13 +22,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '090d2#wtg&q2@o+l%cvc&4)r4x5fr9o#r^qz3%0bemyecshn31'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if SECRET_KEY is None:
+    raise Exception("Please configure your secret key by setting DJANGO_SECRET_KEY environment variable")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
-ALLOWED_HOSTS = ['www.audiocommons.org']
-
+# Debug, allowed hosts and database
+if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
+    DEBUG = False
+    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu']
+else:
+    DEBUG = True
+DATABASE_URL_ENV_NAME = 'DJANGO_DATABASE_URL'
+DATABASES = {'default': dj_database_url.config(
+    DATABASE_URL_ENV_NAME, default='postgres://postgres:postgres@db/ac_mediator')}
 
 # Application definition
 
@@ -78,17 +87,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ac_mediator.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -126,7 +124,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
-STATIC_ROOT = os.getenv('DOCKER_STATIC_ROOT', None)
+STATIC_ROOT = os.getenv('DJANGO_STATIC_ROOT', '/static/')
 
 # Django rest framework (API)
 REST_FRAMEWORK = {
@@ -149,7 +147,7 @@ LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
 # Site
-BASE_URL = 'https://audiocommons.org'
+BASE_URL = os.getenv('DJANGO_BASE_URL', 'http://example.com')
 
 # Documentation
 DOCS_ROOT = os.path.join(BASE_DIR, 'docs/_build/html')
@@ -166,8 +164,3 @@ CELERY_ACCEPT_CONTENT = ['json']
 
 # Shared respones backend and async responses
 DELETE_RESPONSES_AFTER_CONSUMED = False
-
-try:
-    from ac_mediator.local_settings import *
-except ImportError:
-    pass
