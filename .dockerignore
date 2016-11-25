@@ -1,5 +1,2 @@
-.DS_Store
-__pycache__
-.idea/*
-services_conf.cfg
+services/services_conf.cfg
 .env
