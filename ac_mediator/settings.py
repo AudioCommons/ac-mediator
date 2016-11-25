@@ -29,7 +29,7 @@ if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
     if SECRET_KEY == 'default_secret_key':
         print("Please configure your secret key by setting DJANGO_SECRET_KEY environment variable")
     DEBUG = False
-    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu']
+    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'm.audiocommons.org', 'asplab-web1.s.upf.edu']
 else:
     DEBUG = True
 DATABASE_URL_ENV_NAME = 'DJANGO_DATABASE_URL'
