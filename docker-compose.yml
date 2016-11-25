@@ -23,7 +23,7 @@ services:
     volumes:
       - .:/code
       - /static/
-      - /logs/
+      - ./services/services_conf.cfg:/code/services/services_conf.cfg
     command: bash -c "python manage.py migrate && uwsgi uwsgi.ini"
     depends_on:
       - db
@@ -32,8 +32,8 @@ services:
     build: .
     env_file:
       - .env
-    volumes:
-      - .:/code
+    volumes_from:
+      - web
     command: celery worker -A ac_mediator --concurrency=${CELERY_CONCURRENCY}
     depends_on:
       - redis
