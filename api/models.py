@@ -25,6 +25,4 @@ class ApiClient(AbstractApplication):
         """
         if not self.authorization_grant_type:
             self.authorization_grant_type = AbstractApplication.GRANT_PASSWORD
-        if not self.client_type:
-            self.client_type = AbstractApplication.CLIENT_PUBLIC
         super(ApiClient, self).save(*args, **kwargs)
