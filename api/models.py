@@ -14,3 +14,17 @@ class ApiClient(AbstractApplication):
 
     def get_absolute_url(self):
         return reverse('developers-app-detail', args=[self.id])
+
+    def save(self, *args, **kwargs):
+        """
+        We override save method so we can set `authorization_grant_type` and `client_type`
+        to default values. Current API clients can only use the password grant authorization
+        type, therefore these fields are not included in the API client form and we need
+        to set them automatically. In the future if we allow other authorization types such as
+        the code grant and let users choose then this won't be necessary.
+        """
+        if not self.authorization_grant_type:
+            self.authorization_grant_type = AbstractApplication.GRANT_PASSWORD
+        if not self.client_type:
+            self.client_type = AbstractApplication.CLIENT_PUBLIC
+        super(ApiClient, self).save(*args, **kwargs)

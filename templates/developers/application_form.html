@@ -13,9 +13,12 @@
 
         {% for field in form %}
             <div class="control-group {% if field.errors %}error{% endif %}">
-                <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}:</label>
                 <div class="controls">
+                    {% if not field.field.is_checkbox and field.help_text %}{{ field.help_text }}<br>{% endif %}
                     {{ field }}
+                    {% if field.field.is_checkbox and field.help_text %}{{ field.help_text }}{% endif %}
+                    <br>
                     {% for error in field.errors %}
                         <span class="help-inline">{{ error }}</span>
                     {% endfor %}
@@ -28,7 +31,7 @@
                 <span class="help-inline">{{ error }}</span>
             {% endfor %}
         </div>
-
+        <br>
         <div class="control-group">
             <div class="controls">
                 <a class="btn" href="{% block app-form-back-url %}{% url "developers-app-detail" application.id %}{% endblock app-form-back-url %}">
