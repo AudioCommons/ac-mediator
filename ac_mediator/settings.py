@@ -124,12 +124,18 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = '/static/'
+ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG = True
+
 
 # Django rest framework (API)
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated' if not DEBUG or not ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG
+        else 'rest_framework.permissions.AllowAny',
     )
 }
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'api.ApiClient'
