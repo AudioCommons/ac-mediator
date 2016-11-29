@@ -100,5 +100,23 @@ h3 {
 }
 
 .control-group {
+    margin-bottom: 10px;
+}
+
+.control-group select {
+    border: 1px solid #ccc;
+}
+
+/* API client detail */
+
+.client_detail {
     margin-bottom: 20px;
+}
+
+.client_detail .input-block-level {
+    width: 100%;
+}
+
+.client_detail ul li {
+    margin-bottom: 10px;
 }

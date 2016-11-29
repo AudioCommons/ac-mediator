@@ -15,14 +15,11 @@ class ApiClient(AbstractApplication):
     def get_absolute_url(self):
         return reverse('developers-app-detail', args=[self.id])
 
-    def save(self, *args, **kwargs):
+    def clean(self):
         """
-        We override save method so we can set `authorization_grant_type` and `client_type`
-        to default values. Current API clients can only use the password grant authorization
-        type, therefore these fields are not included in the API client form and we need
-        to set them automatically. In the future if we allow other authorization types such as
-        the code grant and let users choose then this won't be necessary.
+        The AbstractApplication model includes a clean method that raises a ValidationError
+        if the redirect_uri is empty and is required by the authorization_grant_type. We have
+        implemented a custom version of this check (with a custom message) in api.forms.ApiClientForm
+        therefore we don't need model's clean method to do anything.
         """
-        if not self.authorization_grant_type:
-            self.authorization_grant_type = AbstractApplication.GRANT_PASSWORD
-        super(ApiClient, self).save(*args, **kwargs)
+        pass
