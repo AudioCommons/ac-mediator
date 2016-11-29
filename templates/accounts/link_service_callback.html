@@ -39,7 +39,7 @@
 </head>
 <body onload="
         {% if complete %}
-            window.opener.location.reload();
+            window.top.location.reload();
             {% if not errors %}
                 window.close();
             {% endif %}
