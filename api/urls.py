@@ -11,5 +11,5 @@ urlpatterns = [
     url(r'^o/', include('api.oauth2_urls', namespace='oauth2_provider')),
 
     # Invalid url
-    url(r'$', views.invalid_url),
+    url(r'/$', views.invalid_url),
 ]
