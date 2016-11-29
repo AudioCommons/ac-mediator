@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from accounts.views import registration
 from ac_mediator.views import monitor
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 
 urlpatterns = [
@@ -31,3 +32,8 @@ urlpatterns = [
     # Documentation
     url(r'^docs/', include('docs.urls')),
 ]
+
+if settings.DEBUG:
+    # We need to explicitly add staticfiles urls because we don't use runserver
+    # https://docs.djangoproject.com/en/1.10/ref/contrib/staticfiles/#django.contrib.staticfiles.urls.staticfiles_urlpatterns
+    urlpatterns += staticfiles_urlpatterns()

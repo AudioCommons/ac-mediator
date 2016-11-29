@@ -1,3 +1,5 @@
+/* General */
+
 body {
     font-weight: 300;
     font-family: "Roboto", sans-serif;
@@ -50,6 +52,8 @@ h3 {
 }
 
 
+/* Test services */
+
 .block-center {
     max-width: 800px;
     padding: 19px 29px 29px;
@@ -89,3 +93,12 @@ h3 {
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
+/* Forms */
+
+.help-inline {
+    color: #991933;
+}
+
+.control-group {
+    margin-bottom: 20px;
+}
