@@ -16,12 +16,9 @@ class ApiClientForm(ModelForm):
     )
     authorization_grant_type = forms.ChoiceField(choices=ALLOWED_GRANT_TYPES)
 
-    # Provide default option for client type
-    client_type = forms.ChoiceField(choices=AbstractApplication.CLIENT_TYPES)
-
     class Meta:
         model = ApiClient
-        fields = ['name', 'agree_tos', 'client_type', 'authorization_grant_type', 'redirect_uris']
+        fields = ['name', 'agree_tos', 'authorization_grant_type', 'redirect_uris']
         labels = {
             'name': 'Name of your application',
             'agree_tos': 'Terms of service',

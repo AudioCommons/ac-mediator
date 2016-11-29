@@ -23,3 +23,10 @@ class ApiClient(AbstractApplication):
         therefore we don't need model's clean method to do anything.
         """
         pass
+
+    def save(self, *args, **kwargs):
+        # Set client type to 'CLIENT_PUBLIC'. This will allow password grant using client_id as
+        # body parameter
+        if not self.client_type:
+            self.client_type = AbstractApplication.CLIENT_PUBLIC
+        super(ApiClient, self).save(*args, **kwargs)
