@@ -143,6 +143,8 @@ OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 60*60*24,  # 1 day
     'REFRESH_TOKEN_EXPIRE_SECONDS': 60*60*15,  # 2 weeks
     'AUTHORIZATION_CODE_EXPIRE_SECONDS': 10*60,  # 10 minutes
+    'SCOPES': {'read': 'Read scope'},
+    'OAUTH2_VALIDATOR_CLASS': 'api.utils.ACOAuth2Validator',
 }
 
 # Registration

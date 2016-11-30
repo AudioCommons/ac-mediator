@@ -9,6 +9,7 @@ class ApiClient(AbstractApplication):
     """
 
     agree_tos = models.BooleanField(default=False)
+    password_grant_is_allowed = models.BooleanField(default=False)  # Enable password grant in OAuth2 authentication
     created = models.DateTimeField(auto_now_add=True)
     #  Add more custom fields here like description, logo, preferred services...
 
