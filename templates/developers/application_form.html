@@ -19,7 +19,7 @@
         }
     }
     </script>
-    <form class="form-horizontal" method="post" action="{% block app-form-action-url %}{% url 'developers-app-update' application.id %}{% endblock app-form-action-url %}">
+    <form id="app_registration_form" class="form-horizontal" method="post" action="{% block app-form-action-url %}{% url 'developers-app-update' application.id %}{% endblock app-form-action-url %}">
         <h1>
             {% block app-form-title %}
                 {% trans "Edit application" %} {{ application.name }}
