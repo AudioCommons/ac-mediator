@@ -78,6 +78,8 @@ Key                     Value
 ======================  =====================================================
 
 
+.. warning:: Because password grant is used with public client, it **must not** use ``client_secret`
+
 
 Authorization code grant
 ************************
@@ -119,7 +121,8 @@ Make a **POST** request to ``https://m.audiocommons.org/api/o/token/``, and incl
 Key                     Value
 ======================  =====================================================
 ``client_id``           Client id of your API credentials
-``grant_type``          ``password``
+``client_secret``       Client secret of your API credentials
+``grant_type``          ``authorization_code``
 ``code``                The code obtained in the previous step
 ``redirect_uri``        One of the valid redirect URIs introduced when creating the credentials
 ======================  =====================================================
@@ -199,6 +202,8 @@ Key                     Value
 ======================  =====================================================
 
 The implicit grant does not require the third step of the authorization code grant.
+
+.. warning:: Because password grant is used with public client, it **must not** use ``client_secret`
 
 .. warning:: As indicated in RFC 6749, the implicit grant **does not** issue a refresh token!
 
