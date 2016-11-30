@@ -34,10 +34,14 @@
                     {% if not field.field.is_checkbox and field.help_text %}<p>{{ field.help_text }}</p>{% endif %}
                     {{ field }}
                     {% if field.field.is_checkbox and field.help_text %}{{ field.help_text }}{% endif %}
-                    <br>
-                    {% for error in field.errors %}
-                        <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
+                    {% if field.errors %}
+                        <br>
+                        <ul class="error-list">
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
             </div>
             {% if field.name == 'application_type' %}
@@ -73,11 +77,13 @@
              <div style="display:none;">{{ field }}</div>
         {% endfor %}
 
-        <div class="control-group {% if form.non_field_errors %}error{% endif %}">
+        {% if form.non_field_errors %}
+            <ul class="error-list">
             {% for error in form.non_field_errors %}
-                <span class="help-inline">{{ error }}</span>
+                <li>{{ error }}</li>
             {% endfor %}
-        </div>
+            </ul>
+        {% endif %}
         <br>
         <div class="control-group">
             <div class="controls">
