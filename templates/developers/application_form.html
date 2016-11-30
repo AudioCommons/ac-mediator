@@ -3,6 +3,22 @@
 {% load i18n %}
 {% load url from compat %}
 {% block content %}
+    <script>
+    window.onload=function(){
+        document.getElementById("id_application_type").onchange=function(){
+            showOrHideGrantWarning();
+        };
+        showOrHideGrantWarning();
+    };
+    function showOrHideGrantWarning(){
+        var currentValue = document.getElementById("id_application_type").value;
+        if (currentValue == "{{ form.PUBLIC_PASSWORD }}"){
+            document.getElementById("password_grant_warning").style.display = 'block';
+        } else {
+            document.getElementById("password_grant_warning").style.display = 'none';
+        }
+    }
+    </script>
     <form class="form-horizontal" method="post" action="{% block app-form-action-url %}{% url 'developers-app-update' application.id %}{% endblock app-form-action-url %}">
         <h1>
             {% block app-form-title %}
@@ -11,11 +27,11 @@
         </h1>
         {% csrf_token %}
 
-        {% for field in form %}
+        {% for field in form.visible_fields %}
             <div class="control-group {% if field.errors %}error{% endif %}">
                 <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}:</label>
                 <div class="controls">
-                    {% if not field.field.is_checkbox and field.help_text %}{{ field.help_text }}<br>{% endif %}
+                    {% if not field.field.is_checkbox and field.help_text %}<p>{{ field.help_text }}</p>{% endif %}
                     {{ field }}
                     {% if field.field.is_checkbox and field.help_text %}{{ field.help_text }}{% endif %}
                     <br>
@@ -24,6 +40,37 @@
                     {% endfor %}
                 </div>
             </div>
+            {% if field.name == 'application_type' %}
+                <div id="password_grant_warning" style="display:none;">
+                {% if application %}
+                    {% if application.password_grant_is_allowed %}
+                        <div class="alert alert-success" role="alert">
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            <b>Password grant</b> is allowed for this application.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning" role="alert">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            <b>Password grant</b> has not been enabled for this application and won't be allowed.
+                            To enable password grant please request it by sending an email to <a href="mailto:audiocommons@upf.edu">
+                            audiocommons@upf.edu</a>.
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <b>Password grant</b> needs to be enabled for this application before it can be used.
+                        <br>To enable password grant please finish registering your application and then send an
+                        email to <a href="mailto:audiocommons@upf.edu">audiocommons@upf.edu</a> including your
+                        application details.
+                    </div>
+                {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
+             <div style="display:none;">{{ field }}</div>
         {% endfor %}
 
         <div class="control-group {% if form.non_field_errors %}error{% endif %}">

@@ -117,6 +117,11 @@ h3 {
     width: 100%;
 }
 
+.client_detail ul {
+    list-style-type: none;
+}
+
 .client_detail ul li {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    margin-left: -40px;
 }

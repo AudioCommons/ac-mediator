@@ -8,42 +8,63 @@
     <div class="client_detail">
         <ul class="unstyled">
             <li>
-                <b>{% trans "Name" %}</b>:
-                {{ application.name }}
+                <p><b>{% trans "Name" %}</b>:</p>
+                <p>{{ application.name }}<p>
             </li>
 
             <li>
-                <b>{% trans "Client id" %}</b><br>
-                <input class="input-block-level" type="text" value="{{ application.client_id }}" readonly>
+                <p><b>{% trans "Client id" %}</b>:</p>
+                <p><input class="input-block-level" type="text" value="{{ application.client_id }}" readonly></p>
             </li>
 
             <li>
-                <b>{% trans "Client secret" %}</b><br>
-                <input class="input-block-level" type="text" value="{{ application.client_secret }}" readonly>
+                <p><b>{% trans "Client type" %}</b>:</p>
+                <p>{{ application.client_type }}</p>
             </li>
 
             <li>
-                <b>{% trans "Client type" %}</b>:
-                {{ application.client_type }}
-            </li>
-
-            <li>
-                <b>{% trans "Authorization Grant Type" %}</b>:
-                {% if application.authorization_grant_type == 'authorization-code' %}
-                    three-legged
-                {% elif application.authorization_grant_type == 'password' %}
-                    user and password
-                {% else %}
-                    {{ application.authorization_grant_type }}
+                <p><b>{% trans "Client secret" %}</b>:</p>
+                <p><input class="input-block-level" type="text" value="{{ application.client_secret }}" readonly></p>
+                {% if application.client_type == application.CLIENT_PUBLIC %}
+                    <div class="alert alert-warning" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        Your client type is set to public, therefore you <b>should never use client secret</b>
+                        in your authentication flow. Client secret is reserved for confidential applications only.
+                    </div>
                 {% endif %}
             </li>
 
-            {% if application.authorization_grant_type == 'authorization-code' %}
-                <li>
-                    <b>{% trans "Redirect URIs" %}</b> (separated by spaces)
-                    <br><textarea class="input-block-level" readonly>{{ application.redirect_uris }}</textarea>
-                </li>
-            {% endif %}
+            <li>
+                <p><b>{% trans "Authorization Grant Type" %}</b>:</p><p>{{ application.authorization_grant_type }}</p>
+                {% if application.authorization_grant_type == application.GRANT_PASSWORD %}
+                    {% if application.password_grant_is_allowed %}
+                        <div class="alert alert-success" role="alert">
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            <b>Password grant</b> is allowed for this application.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning" role="alert">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            <b>Password grant</b> has not been enabled for this application and won't be allowed.
+                            To enable password grant please request it by sending an email to <a href="mailto:audiocommons@upf.edu">
+                            audiocommons@upf.edu</a>.
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </li>
+
+            <li>
+                <p><b>{% trans "Redirect URIs" %}</b></p>
+                <p><textarea class="input-block-level" readonly>{{ application.redirect_uris }}</textarea></p>
+                {% if application.authorization_grant_type == application.GRANT_PASSWORD %}
+                    <div class="alert alert-warning" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        Your client is set to use <b>password grant</b>  therefore no redirect URIs are employed
+                        during the authorization flow.
+                    </div>
+                {% endif %}
+            </li>
+
         </ul>
     </div>
 
