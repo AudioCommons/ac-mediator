@@ -14,6 +14,5 @@ class ACOAuth2Validator(OAuth2Validator):
         # has password grant enabled (see api.models.ApiClient).
         if grant_type == AbstractApplication.GRANT_PASSWORD and not client.password_grant_is_allowed:
             return False
-
         # In either case perform validation as implemented in OAuth2Validator
-        super().validate_grant_type(self, client_id, grant_type, client, request, *args, **kwargs)
+        return super().validate_grant_type(client_id, grant_type, client, request, *args, **kwargs)
