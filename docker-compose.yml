@@ -12,6 +12,10 @@ services:
     volumes:
       - ./docker/nginx/ac_mediator.conf:/etc/nginx/conf.d/default.conf
       - ./docker/nginx/ssl_certificates:/ssl
+    depends_on:
+      - web
+      - flower
+      - redmon
   redis:
     image: redis
   web:
