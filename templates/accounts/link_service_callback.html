@@ -36,12 +36,26 @@
         @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
         @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
     </style>
+    <script>
+    function reloadParentWindow() {
+        if (!window.opener) {
+            // Try to reload parent window using opener property
+            // NOTE: in some situations window.opener seems to be undefined. For this reason
+            // the script in link_services.html will also automatically reload the page if it
+            // detects that the opened popup is closed.
+            window.opener.location.reload();
+        }
+    }
+    function closePopup() {
+        window.close();
+    }
+    </script>
 </head>
 <body onload="
         {% if complete %}
-            window.top.location.reload();
+            reloadParentWindow();
             {% if not errors %}
-                window.close();
+                closePopup();
             {% endif %}
         {% endif %}
         {% if not errors and not complete %}

@@ -2,6 +2,18 @@
 {% block title %}Link Services{% endblock title %}
 
 {% block content %}
+    <script>
+    function openServiceAuthPopup(url, name, popupSpecs) {
+        var popupWin = window.open(url, name, popupSpecs);
+        var timer = setInterval(function() {
+            if(popupWin.closed) {
+                clearInterval(timer);
+                window.location.reload();
+            }
+        }, 200);
+    }
+    </script>
+
     <h1>Link services</h1>
 
     <b>Linkable services</b>
@@ -15,9 +27,9 @@
                 >unlink</a>
             {% else %}
                 <button class="btn btn-success"
-                        onclick="window.open('{{ service.get_authorize_url }}',
-                                             '{{ service.name }} authorization',
-                                             '{{ service.get_authorize_popup_specs }}')"
+                        onclick="openServiceAuthPopup('{{ service.get_authorize_url }}',
+                                                      '{{ service.name }} authorization',
+                                                      '{{ service.get_authorize_popup_specs }}')"
                 >link</button>
             {% endif %}
         </li>
