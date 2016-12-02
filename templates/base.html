@@ -24,6 +24,9 @@
             <div class="pull-right">
                 {% if request.user.is_authenticated %}
                     {{ request.user.username }} (<a href="{% url 'logout' %}">Logout</a>)
+                    {% if request.user.is_staff %}
+                        - <a href="{% url 'admin:index' %}">admin</a>
+                    {% endif %}
                 {% else %}
                     {% if user and user.is_authenticated %}
                         {{ user }} (<a href="{% url 'logout' %}">Logout</a>)
