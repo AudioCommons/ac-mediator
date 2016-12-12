@@ -2,7 +2,7 @@
 
 Mediator component of the Audio Commons Ecosystem.
 
-**NOTE:** What's hosted here is work in progress, no functional component is provided yet.
+**Note:** What's hosted here is work in progress, no functional component is provided yet.
 
 
 # Development
@@ -23,7 +23,6 @@ manually by installing all dependencies (including PostgreSQL and Redis).
 This works like a standard Django application but you'll have to manually
 connect all components. We do not instructions for this but it should not be
 too complicated.
-
 
 ## Setting up dev environment
 
@@ -52,6 +51,12 @@ docker-compose run web python manage.py createsuperuser
 ```
 
 Now you should be able to access your server at `https://localhost`
+
+
+**Note on API development:** to facilitate API development, unauthenticated
+requests to the API are allowed when running ac-mediator locally. 
+This behaviour can be changed editing the `ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG`
+setting in `ac_mediator/settings.py`.
 
 
 # Documentation
