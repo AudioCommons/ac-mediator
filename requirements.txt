@@ -1,4 +1,5 @@
 Django==1.10.2
+docutils==0.12
 djangorestframework==3.5.1
 django-oauth-toolkit==0.10.0
 django-extensions==1.7.4
