@@ -79,7 +79,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
     def get_licensing_url(self, acid=None, resource_dict=None):
         if acid is None and resource_dict is None:
             raise ACLicesningException(
-                'Either \'acid\' or \'resoruce_dict\' should be provided to \'get_licensing_url\'', 400)
+                'Either \'acid\' or \'resource_dict\' should be provided to \'get_licensing_url\'', 400)
         if resource_dict is None:
             # Translate ac resource id to Jamendo resource id
             if not acid.startswith(self.id_prefix):
@@ -90,7 +90,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
                 self.TEXT_SEARCH_ENDPOINT_URL,
                 params={'id': resource_id, 'include': 'licenses'},
             )
-            if response['headers']['results_count'] != 1:
-                raise ACLicesningException('Response does not contain expected results.', 500)
+            if response['headers']['results_count'] == 0:
+                raise ACLicesningException('Resource not found', 404)
             resource_dict = response['results'][0]
         return resource_dict.get('prourl', None)
