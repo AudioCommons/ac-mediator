@@ -39,7 +39,7 @@ Using the ``acservice`` package
 -------------------------------
 
 
-.. tip:: Check the `example implementation for the Freesound <https://github.com/AudioCommons/ac-mediator/blob/master/services/3rd_party/freesound.py>`_ service
+.. tip:: Check the `example implementation for the Freesound <https://github.com/AudioCommons/ac-mediator/blob/master/services/3rd_party/freesound.py>`_ service.
 
 
 .. toctree::

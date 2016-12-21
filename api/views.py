@@ -19,11 +19,44 @@ def invalid_url(request):
 @api_view(['GET'])
 def services(request):
     """
-    .. http:get:: /api/services/
+    .. http:get:: /services/
 
-       Documentation for this resource needs to be written.
+        This endpoint returns information about all third party services available in the Audio
+        Commons Ecosystem. For each service, a list of components is provided informing of what
+        parts of the Audio Commons API are supported.
+
+        Returned services can be filtered using the ``component`` query parameter.
+
+        :query component: only return services that implement this component
+
+        :statuscode 200: no error
+
+        **Example response**:
+
+        .. code:: json
+
+            {
+                "services": {
+                    "Freesound": {
+                        "id": "aaa099c0",
+                        "components": [
+                            "text_search"
+                        ],
+                        "url": "http://www.freesound.org"
+                    },
+                    "Jamendo": {
+                        "id": "tya056c0",
+                        "components": [
+                            "licensing",
+                            "text_search"
+                        ],
+                        "url": "http://www.jamendo.com"
+                    }
+                },
+                "count": 2
+            }
     """
-    services = get_available_services()
+    services = get_available_services(component=request.GET.get('component', None))
     return Response({
         'count': len(services),
         'services': {service.name: {
@@ -37,7 +70,7 @@ def services(request):
 @api_view(['GET'])
 def collect_response(request):
     """
-    .. http:get:: /api/collect/
+    .. http:get:: /collect/
 
        Return the contents of the response designated by the query parameter rid
 
@@ -54,7 +87,7 @@ def collect_response(request):
 @api_view(['GET'])
 def text_search(request):
     """
-    .. http:get:: /api/search/text/
+    .. http:get:: /search/text/
 
        Documentation for this resource needs to be written.
 
@@ -73,7 +106,7 @@ def text_search(request):
 @api_view(['GET'])
 def licensing(request):
     """
-    .. http:get:: /api/license/
+    .. http:get:: /license/
 
        Documentation for this resource needs to be written.
 

@@ -78,7 +78,7 @@ Key                     Value
 ======================  =====================================================
 
 
-.. warning:: Because password grant is used with public client, it **must not** use ``client_secret``
+.. warning:: Because password grant is used with public client, it **must not** use ``client_secret``.
 
 
 Authorization code grant
@@ -203,7 +203,7 @@ Key                     Value
 
 The implicit grant does not require the third step of the authorization code grant.
 
-.. warning:: Because password grant is used with public client, it **must not** use ``client_secret``
+.. warning:: Because password grant is used with public client, it **must not** use ``client_secret``.
 
 .. warning:: As indicated in RFC 6749, the implicit grant **does not** issue a refresh token!
 
