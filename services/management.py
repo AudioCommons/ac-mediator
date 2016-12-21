@@ -69,7 +69,7 @@ available_services = _load_and_configure_services()
 
 def get_available_services(component=None):
     """
-    Get alla avilable services which implement a particular component (or all services if
+    Get alla available services which implement a particular component (or all services if
     'component' is None).
     :param component: component (mixin) that should be implemented
     :return: list of matching services (can be empty)
