@@ -1,5 +1,5 @@
-Audio Commons API
-=================
+Audio Commons API documentation
+===============================
 
 The Audio Commons mediator provides a web API for interacting with Audio Commons services.
 
