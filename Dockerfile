@@ -10,5 +10,5 @@ RUN pip install -r requirements.txt
 ADD . /code/
 RUN python manage.py collectstatic --no-input
 WORKDIR /code/docs
-RUN make html
+RUN make clean html
 WORKDIR /code
