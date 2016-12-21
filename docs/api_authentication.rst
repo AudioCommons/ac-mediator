@@ -1,8 +1,8 @@
-API Authentication
-==================
+Authentication
+==============
 
 All requests made to the Audio Commons API must be authenticated using OAuth2.
-However, the Audio Commons API offers two authorization grants that developers
+However, the Audio Commons API offers different authorization grants that developers
 can choose from at the time of creating an API client:
 
 .. warning:: All requests must be done over **HTTPS**!
@@ -78,7 +78,7 @@ Key                     Value
 ======================  =====================================================
 
 
-.. warning:: Because password grant is used with public client, it **must not** use ``client_secret`
+.. warning:: Because password grant is used with public client, it **must not** use ``client_secret``
 
 
 Authorization code grant
@@ -203,7 +203,7 @@ Key                     Value
 
 The implicit grant does not require the third step of the authorization code grant.
 
-.. warning:: Because password grant is used with public client, it **must not** use ``client_secret`
+.. warning:: Because password grant is used with public client, it **must not** use ``client_secret``
 
 .. warning:: As indicated in RFC 6749, the implicit grant **does not** issue a refresh token!
 

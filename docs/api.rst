@@ -3,6 +3,19 @@ Audio Commons API documentation
 
 The Audio Commons mediator provides a web API for interacting with Audio Commons services.
 
+
+
+.. toctree::
+   :maxdepth: 3
+
+   api_overview
+
+.. toctree::
+   :maxdepth: 3
+
+   api_tos
+
+
 .. toctree::
    :maxdepth: 3
 

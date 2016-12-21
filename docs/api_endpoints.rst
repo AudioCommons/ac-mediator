@@ -1,5 +1,5 @@
-API Endpoints
-=============
+Endpoints documentation
+=======================
 
 Service discovery endpoints
 ---------------------------
