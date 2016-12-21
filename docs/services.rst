@@ -1,5 +1,5 @@
-Audio Commons Services
-======================
+Audio Commons Services documentation
+====================================
 
 Here you'll find documentation and guidelines for making your existing online audio services available in the
 **Audio Commons Ecosystem** (ACE).
@@ -23,18 +23,43 @@ still provide instruction on how to access the services.
 In order to make service available in the ACE you'll have to implement the Audio Commons Mediator component that will
 deal with the **translation of requests and interpretation responses** of your specific service API to make it
 compatible with the Audio Commons API. In order for this component to be plugged into the Audio Commons Mediator,
-it must be implemented in Python using the ``acservice`` package that we provide. The following sections show how to
-use this package to make your service available in the ACE.
+it must be implemented in Python using the ``acservice`` package that we provide.
 
+
+
+Types of services
+-----------------
+
+
+Getting an ``ACServiceId`` from Audio Commons
+---------------------------------------------
 
 
 Using the ``acservice`` package
 -------------------------------
 
-.. tip:: See the example implementation for the Freesound service: ``https://github.com/AudioCommons/ac-mediator/blob/master/services/3rd_party/freesound.py``
+
+.. tip:: Check the `example implementation for the Freesound <https://github.com/AudioCommons/ac-mediator/blob/master/services/3rd_party/freesound.py>`_ service
 
 
 .. toctree::
    :maxdepth: 2
 
    acservice
+
+
+Testing your service component
+------------------------------
+
+
+Managing your service
+---------------------
+
+Monitoring usage
+****************
+
+Limiting access
+***************
+
+Retrieving provenance information
+*********************************
