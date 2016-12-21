@@ -32,6 +32,14 @@ h4 {
   font-weight: 300 !important;
 }
 
+.wy-nav-top {
+  background-color: #1E5055 !important;
+}
+
+.wy-nav-top a {
+  color: white !important;
+}
+
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
