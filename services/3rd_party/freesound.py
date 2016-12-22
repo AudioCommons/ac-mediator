@@ -62,11 +62,11 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             RESULTS_LIST: results,
         }
 
-    def text_search(self, query):
+    def text_search(self, q):
         # TODO: add minimum response fields?
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
-            params={'query': query,
+            params={'query': q,
                     'fields': 'id,url,name,license,previews,username,tags'},
         )
         return self.format_search_response(response)

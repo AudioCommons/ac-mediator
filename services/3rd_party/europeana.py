@@ -66,11 +66,11 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             RESULTS_LIST: results,
         }
 
-    def text_search(self, query):
+    def text_search(self, q):
         # TODO: add minimum response fields?
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
-            params={'query': query,
+            params={'query': q,
                     'reusability': 'open',
                     'media': 'true',
                     'qf': 'TYPE:SOUND',

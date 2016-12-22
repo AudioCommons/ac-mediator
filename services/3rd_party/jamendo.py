@@ -67,11 +67,11 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
             RESULTS_LIST: results,
         }
 
-    def text_search(self, query):
+    def text_search(self, q):
         # TODO: add minimum response fields?
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
-            params={'search': query, 'include': 'musicinfo+licenses'},
+            params={'search': q, 'include': 'musicinfo+licenses'},
         )
         return self.format_search_response(response)
 

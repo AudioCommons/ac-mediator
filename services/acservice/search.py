@@ -148,14 +148,14 @@ class ACServiceTextSearch(BaseACServiceSearch):
     def conf_textsearch(self, *args):
         self.implemented_components.append(SEARCH_TEXT_COMPONENT)
 
-    def text_search(self, query):
+    def text_search(self, q):
         """
         This function takes as input parameters those defined in the Audio Commons API
         specification for text search and translates them to the corresponding parameters
         of the specific service endpoint.
         Then it makes the corresponding request and returns a json response as a dictionary
         if the response status code is 200 or raises an exception otherwise.
-        :param query: textual input query
+        :param q: textual input query
         :return: text search response as dictionary
         """
         # TODO: define which input parameters should text search support (this is part of

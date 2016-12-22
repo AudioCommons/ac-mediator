@@ -5,7 +5,7 @@ from ac_mediator.exceptions import ACAPIInvalidUrl
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
 from services.management import get_available_services
-from services.acservice.constants import SEARCH_TEXT_COMPONENT, LICENSING_COMPONENT
+from services.acservice.constants import SEARCH_TEXT_COMPONENT, LICENSING_COMPONENT, MINIMUM_RESOURCE_DESCRIPTION_FIELDS
 
 request_distributor = get_request_distributor()
 response_aggregator = get_response_aggregator()
@@ -20,10 +20,19 @@ def parse_request_distributor_query_params(request):
     if exclude is not None:
         exclude = exclude.split(',')
 
-    return {
-        'include': include,
-        'exclude': exclude,
-    }
+    return {key: value for key, value in locals().items() if key in
+            ['include', 'exclude']}
+
+
+def parse_common_search_query_params(request):
+    s = request.GET.get('s', None)
+    fields = request.GET.get('fields', MINIMUM_RESOURCE_DESCRIPTION_FIELDS)
+    size = request.GET.get('size', 15)
+    page = request.GET.get('page', 1)
+    offset = request.GET.get('offset', None)
+
+    return {key: value for key, value in locals().items() if key in
+            ['s', 'fields', 'size', 'page', 'offset']}
 
 
 @api_view(['GET'])
@@ -131,6 +140,11 @@ def text_search(request):
             the provided ``collect_url``. See the :ref:`aggregated-responses` section for more information.
 
        :query q: input query terms
+       :query s: sorting criteria
+       :query fields: metadata fields to include in each result (names separated by commas)
+       :query size: number of results to be included in an individual search response
+       :query page: number of results page to retrieve
+       :query offset: number of results to skip (this is incompatible with page)
        :query include: services to include in query (names separated by commas)
        :query exclude: services to exclude in query (names separated by commas)
 
@@ -138,10 +152,14 @@ def text_search(request):
     """
 
     distributor_qp = parse_request_distributor_query_params(request)
+    search_qp = parse_common_search_query_params(request)
+    q = request.GET.get('q', None)  # Textual input query parameter
+    if q is None:
+        raise ParseError('Missing required query parameter: q')
     response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
-        'kwargs': {'query': request.GET.get('q')}
+        'kwargs': dict(q=q),  # , **search_qp),
     }, **distributor_qp)
     return Response(response)
 
@@ -196,8 +214,7 @@ def licensing(request):
     distributor_qp = parse_request_distributor_query_params(request)
     acid = request.GET.get('acid', None)
     if acid is None:
-        msg = 'Please include the required query parameters'
-        raise ParseError(msg)
+        raise ParseError('Missing required query parameter: acid')
     response = request_distributor.process_request({
         'component': LICENSING_COMPONENT,
         'method': 'get_licensing_url',
