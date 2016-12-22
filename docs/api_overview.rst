@@ -58,6 +58,20 @@ individual service indicating that end user authentication is required.
 TODO: illustrate this part with some diagrams might make it clearer
 
 
+Third party services to be queried
+**********************************
+
+All Audio Commons API endpoints that must forward requests to third party services, allow an application
+to restrict the pool of available of services to which requests should be forwarded. This can be done using
+the following query parameters:
+
+========================    =====================================================
+Key                         Value
+========================    =====================================================
+``include``                 List of service names (separated by commas) to consider for forwarding the request.
+``exclude``                 List of service names (separated by commas) to NOT consider for forwarding the request.
+========================    =====================================================
+
 
 Responses
 ---------
