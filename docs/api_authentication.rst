@@ -1,11 +1,13 @@
+.. _api_authentication:
+
 Authentication
 ==============
 
-All requests made to the Audio Commons API must be authenticated using OAuth2.
+All requests made to the Audio Commons API must be authenticated using **OAuth2**.
 However, the Audio Commons API offers different authorization grants that developers
-can choose from at the time of creating an API client:
+can choose from at the time of creating an API client.
 
-.. warning:: All requests must be done over **HTTPS**!
+.. warning:: All authentication requests must be done over **HTTPS**!
 
 
 Register new API application
