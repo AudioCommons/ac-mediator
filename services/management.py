@@ -67,16 +67,28 @@ def _load_and_configure_services():
 available_services = _load_and_configure_services()
 
 
-def get_available_services(component=None):
+def get_available_services(component=None, exclude=None, include=None):
     """
-    Get alla available services which implement a particular component (or all services if
-    'component' is None).
-    :param component: component (mixin) that should be implemented
+    Get all available services which implement a particular component (or all services if
+    'component' is None). Allows excluding particular services and restricting those from which to filter.
+    :param component: component (mixin) that should be implemented by returned services
+    :param exclude: exclude services passed through this parameter (should be a list of service names)
+    :param include: consider only services passed through this parameter (should be a list of service names)
     :return: list of matching services (can be empty)
     """
-    if component is None:
-        return available_services
-    return [service for service in available_services if component in service.implemented_components]
+    out_services = list()
+    for service in available_services:
+        if component is not None:
+            if component not in service.implemented_components:
+                continue
+        if exclude is not None:
+            if service.name in exclude:
+                continue
+        if include is not None:
+            if service.name not in include:
+                continue
+        out_services.append(service)
+    return out_services
 
 
 def get_service_by_id(service_id):
