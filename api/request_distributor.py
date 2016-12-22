@@ -21,7 +21,7 @@ def perform_request_and_aggregate(request, response_id, service_id):
 class RequestDistributor(object):
 
     @staticmethod
-    def process_request(request, wait_until_complete=False):
+    def process_request(request, wait_until_complete=False, include=None, exclude=None):
         """
         Process incoming request, and propagate it to corresponding services.
         Requests to 3rd party services are made asynchronously. We send requests to all 3rd
@@ -41,11 +41,15 @@ class RequestDistributor(object):
         """
 
         # Get available services for the given component (e.g. services that do `text search')
-        services = get_available_services(component=request['component'])
+        services = get_available_services(component=request['component'], include=include, exclude=exclude)
 
         # Create object to store responses from services
         response_id = response_aggregator.create_response(len(services))
-        response_aggregator.set_response_to_processing(response_id)
+        if not services:
+            # No services will be queries, response can be set to finished
+            response_aggregator.set_response_to_finished(response_id)
+        else:
+            response_aggregator.set_response_to_processing(response_id)
 
         # Iterate over services, perform requests and aggregate responses
         async_response_objects = list()

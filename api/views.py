@@ -11,6 +11,21 @@ request_distributor = get_request_distributor()
 response_aggregator = get_response_aggregator()
 
 
+def parse_request_distributor_query_params(request):
+    include = request.GET.get('include', None)
+    if include is not None:
+        include = include.split(',')
+
+    exclude = request.GET.get('exclude', None)
+    if exclude is not None:
+        exclude = exclude.split(',')
+
+    return {
+        'include': include,
+        'exclude': exclude,
+    }
+
+
 @api_view(['GET'])
 def invalid_url(request):
     raise ACAPIInvalidUrl
@@ -116,14 +131,18 @@ def text_search(request):
             the provided ``collect_url``. See the :ref:`aggregated-responses` section for more information.
 
        :query q: input query terms
+       :query include: services to include in query (names separated by commas)
+       :query exclude: services to exclude in query (names separated by commas)
 
        :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
     """
+
+    distributor_qp = parse_request_distributor_query_params(request)
     response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
         'kwargs': {'query': request.GET.get('q')}
-    })
+    }, **distributor_qp)
     return Response(response)
 
 
@@ -141,6 +160,8 @@ def licensing(request):
             the provided ``collect_url``. See the :ref:`aggregated-responses` section for more information.
 
         :query acid: Audio Commons unique resource identifier
+        :query include: services to include in query (names separated by commas)
+        :query exclude: services to exclude in query (names separated by commas)
 
         :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
         :statuscode 400: wrong query parameters provided
@@ -157,7 +178,8 @@ def licensing(request):
 
             {
                 "meta": {
-                    "sent_timestamp": "2016-12-21 16:05:14.696306",
+                    sent_timestamp": "2016-12-22 16:58:55.128886",
+                    "current_timestamp": "2016-12-22 16:58:55.158931",
                     "n_received_responses": 1,
                     "status": "FI",
                     "response_id": "9097e3bb-2cc8-4f99-89ec-2dfbe1739e67",
@@ -170,6 +192,8 @@ def licensing(request):
                 "errors": { }
             }
     """
+
+    distributor_qp = parse_request_distributor_query_params(request)
     acid = request.GET.get('acid', None)
     if acid is None:
         msg = 'Please include the required query parameters'
@@ -178,5 +202,5 @@ def licensing(request):
         'component': LICENSING_COMPONENT,
         'method': 'get_licensing_url',
         'kwargs': {'acid': acid}
-    })
+    }, **distributor_qp)
     return Response(response)
