@@ -91,6 +91,7 @@ Will be a dictionary with the following contents:
 Key                         Value
 ========================    =====================================================
 ``sent_timestamp``          Timestamp corresponding to the moment the request was forwarded by the mediator to the third party services
+``current_timestamp``       Timestamp corresponding to the moment when the response is collected (current time)
 ``n_expected_responses``    Number of expected responses (number of third party services that have been queried)
 ``n_received_responses``    Number of received responses so far
 ``status``                  Processing (``PR``) when there are still responses to receive, or Finished (``FI``) when all expected responses have been received
@@ -152,7 +153,8 @@ Example of a full aggregated response dictionary:
 
     {
         "meta": {
-            "sent_timestamp": "2016-12-21 16:05:14.696306",
+            "sent_timestamp": "2016-12-22 16:58:55.128886",
+            "current_timestamp": "2016-12-22 16:58:55.158931",
             "n_received_responses": 3,
             "status": "FI",
             "response_id": "9097e3bb-2cc8-4f99-89ec-2dfbe1739e67",
