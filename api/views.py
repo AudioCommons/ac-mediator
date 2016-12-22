@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import NotFound, APIException, ParseError
-from rest_framework import status
+from rest_framework.exceptions import NotFound, ParseError
+from ac_mediator.exceptions import ACAPIInvalidUrl
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
 from services.management import get_available_services
@@ -13,7 +13,7 @@ response_aggregator = get_response_aggregator()
 
 @api_view(['GET'])
 def invalid_url(request):
-    raise APIException(detail="Invalid URL", code=status.HTTP_400_BAD_REQUEST)
+    raise ACAPIInvalidUrl
 
 
 @api_view(['GET'])
@@ -117,7 +117,7 @@ def text_search(request):
 
        :query q: input query terms
 
-       :statuscode 200: no error (should check individual service responses)
+       :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
     """
     response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
@@ -142,7 +142,7 @@ def licensing(request):
 
         :query acid: Audio Commons unique resource identifier
 
-        :statuscode 200: no error (should check individual service responses)
+        :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
         :statuscode 400: wrong query parameters provided
 
 

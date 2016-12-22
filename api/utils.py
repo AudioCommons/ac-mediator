@@ -1,5 +1,6 @@
 from oauth2_provider.oauth2_validators import OAuth2Validator
 from oauth2_provider.models import AbstractApplication
+from rest_framework.views import exception_handler
 
 
 class ACOAuth2Validator(OAuth2Validator):
@@ -16,3 +17,17 @@ class ACOAuth2Validator(OAuth2Validator):
             return False
         # In either case perform validation as implemented in OAuth2Validator
         return super().validate_grant_type(client_id, grant_type, client, request, *args, **kwargs)
+
+
+def custom_exception_handler(exc, context):
+    """
+    Custom django rest framework exception handler that includes 'status_code' field in the
+    responses.
+    """
+    # Call REST framework's default exception handler first
+    response = exception_handler(exc, context)
+
+    # Now add the HTTP status code to the response.
+    if response is not None:
+        response.data['status_code'] = response.status_code
+    return response

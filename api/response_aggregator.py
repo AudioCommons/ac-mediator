@@ -85,9 +85,9 @@ class ResponseAggregator(object):
         if isinstance(response_contents, ACException):
             # If response content is error, add to errors dict
             response['errors'][service_name] = {
-                'status': response_contents.status,
-                'type': response_contents.__class__.__name__,
-                'message': response_contents.msg,
+                'status_code': response_contents.status,
+                #  'type': response_contents.__class__.__name__,
+                'detail': response_contents.msg,
             }
         else:
             # If response content is ok, add to contents dict

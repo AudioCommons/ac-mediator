@@ -136,7 +136,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated' if not DEBUG or not ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG
         else 'rest_framework.permissions.AllowAny',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'api.utils.custom_exception_handler'
 }
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'api.ApiClient'
 OAUTH2_PROVIDER = {
