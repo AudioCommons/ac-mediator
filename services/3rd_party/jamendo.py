@@ -63,12 +63,13 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
         return None  # Jamendo does not return the total number of results
 
     def prepare_search_request(self, q, common_search_params):
-        args = [self.TEXT_SEARCH_ENDPOINT_URL]
-        kwargs = {'params': {
+        warnings = list()
+        # Process size parameter
+        warnings.append('Parameter size not supported')
+        return warnings, {'params': {
             'search': q,
             'include': 'musicinfo+licenses'
         }}
-        return args, kwargs
 
     # Licensing
     def get_licensing_url(self, acid=None, resource_dict=None):

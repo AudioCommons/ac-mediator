@@ -58,13 +58,20 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         return response['count']
 
     def prepare_search_request(self, q, common_search_params):
-        args = [self.TEXT_SEARCH_ENDPOINT_URL]
-        kwargs = {'params': {
+        warnings = list()
+
+        # Process size parameter
+        page_size = int(common_search_params['size'])
+        if page_size > 150:  # This is Freesound's maximum page size
+            warnings.append('Max page size for Freesound is 150 items')
+            page_size = 150
+
+        return warnings, {'params': {
             'query': q,
-            'fields': 'id,url,name,license,previews,username,tags'
+            'fields': 'id,url,name,license,previews,username,tags',
+            'page_size': page_size,
         }}
         # NOTE: we include 'fields' parameter with all Freesound fields that are needed to provide any of the supported
         # Audio Commons fields. This is not optimal in the sense that even if an Audio Commons query only requires field
         # ac:id, the forwarded query to Freesound will request all potential fields. It could be optimized in the future
         # by setting 'fields' depending on what's in common_search_params['fields'].
-        return args, kwargs

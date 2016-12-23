@@ -119,7 +119,7 @@ class BaseACServiceSearch(object):
         """
         raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
 
-    def get_num_results_from_response(self, respomnse):
+    def get_num_results_from_response(self, response):
         """
         Given the complete response of a search request to the end service, return the total number of results.
         :param response: dictionary with the full json response of the request
@@ -167,7 +167,7 @@ class BaseACServiceSearch(object):
         """
         results = list()
         warnings = list()
-        for result in self.get_results_list_from_response():
+        for result in self.get_results_list_from_response(response):
             translation_warnings, translated_result = \
                 self.translate_single_result(result, target_fields=common_search_params.get('fields', None))
             results.append(translated_result)
@@ -206,9 +206,11 @@ class ACServiceTextSearch(BaseACServiceSearch):
         This function takes as input parameters those defined in the Audio Commons API
         specification for text search and translates them to the corresponding parameters
         of the specific service endpoint.
+        It returns a list of warnings generated during the preparation of the request as well as the
+        keyword arguments that should be used in 'BaseACService.send_request'.
         :param q: textual input query
         :param common_search_params: dictionary with other search parameters commons to all kinds of search
-        :return: tuple with (args, kwargs) to be used in 'BaseACService.send_request' to make the actual request
+        :return: tuple with (warnings, kwargs to be used in 'BaseACService.send_request' to make the actual request)
         """
         raise NotImplementedError("Service must implement method ACServiceTextSearch.prepare_search_request")
 
@@ -236,8 +238,8 @@ class ACServiceTextSearch(BaseACServiceSearch):
         :param common_search_params: dictionary with other search parameters commons to all kinds of search
         :return: tuple with (warnings, text search response as dictionary)
         """
-        args, kwargs = self.prepare_search_request(q, common_search_params)
-        response = self.send_request(*args, **kwargs)
-        formatted_response_warnings, formatted_response = self.format_search_response(response, common_search_params)
-        warnings = formatted_response_warnings  # In the future we might add warnings coming from other places too
+        request_warnings, kwargs = self.prepare_search_request(q, common_search_params)
+        response = self.send_request(self.TEXT_SEARCH_ENDPOINT_URL, **kwargs)
+        response_warnings, formatted_response = self.format_search_response(response, common_search_params)
+        warnings = request_warnings + response_warnings
         return warnings, formatted_response
