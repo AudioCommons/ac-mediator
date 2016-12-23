@@ -102,18 +102,20 @@ class BaseACServiceSearch(object):
         """
         return '{0}{1}'.format(self.id_prefix, result[self.SERVICE_ID_FIELDNAME])
 
-    def translate_single_result(self, result, target_fields=MINIMUM_RESOURCE_DESCRIPTION_FIELDS, fail_silently=False):
+    def translate_single_result(self, result, target_fields, fail_silently=False):
         """
         Take an individual search result from a service response in the form of a dictionary
         and translate its keys and values to an Audio Commons API compatible format.
         This method iterates over a given set of target ac_fields and computes the value
         that each field should have in the Audio Commons API context.
         :param result: dictionary representing a single result entry form a service response
-        :param target_fields: list of Audio Commons fields to return (default: MINIMUM_RESOURCE_DESCRIPTION_FIELDS)
+        :param target_fields: list of Audio Commons fields to return
         :param fail_silently: whether to raise an exception if a particular field can not be translated or use a value of 'None'
-        :return: dictionary representing the single result with keys and values comparible with Audio Commons API
+        :return: dictionary representing the single result with keys and values compatible with Audio Commons API
         """
         translated_result = dict()
+        if target_fields is None:
+            target_fields = list()  # Avoid non iterable error
         for ac_field_name in target_fields:
             try:
                 trans_field_value = self.translate_field(ac_field_name, result)
@@ -127,11 +129,12 @@ class BaseACServiceSearch(object):
             translated_result[ac_field_name] = trans_field_value
         return translated_result
 
-    def format_search_response(self, response):
+    def format_search_response(self, response, common_search_params):
         """
         Take the search request response returned from the service and transform it
         to the unified Audio Commons search response definition
         :param response: dictionary with json search response
+        :param common_search_params: common search parameters passed here in case these are needed somewhere
         :return: dictionary with search results properly formatted
         """
         raise NotImplementedError("Service must implement method BaseACServiceSearch.format_search_response")
@@ -148,14 +151,19 @@ class ACServiceTextSearch(BaseACServiceSearch):
     def conf_textsearch(self, *args):
         self.implemented_components.append(SEARCH_TEXT_COMPONENT)
 
-    def text_search(self, q):
+    def text_search(self, q, common_search_params):
         """
         This function takes as input parameters those defined in the Audio Commons API
         specification for text search and translates them to the corresponding parameters
         of the specific service endpoint.
         Then it makes the corresponding request and returns a json response as a dictionary
         if the response status code is 200 or raises an exception otherwise.
+
+        Common search parameters include:
+        TODO: write common params when decided
+
         :param q: textual input query
+        :param common_search_params: dictionary with other search parameters commons to all kinds of search
         :return: text search response as dictionary
         """
         # TODO: define which input parameters should text search support (this is part of

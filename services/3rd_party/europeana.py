@@ -55,10 +55,10 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         # TODO: this field does not always return static file urls...
         return result['edmIsShownBy'][0]
 
-    def format_search_response(self, response):
+    def format_search_response(self, response, common_search_params):
         results = list()
         for result in response['items']:
-            results.append(self.translate_single_result(result))
+            results.append(self.translate_single_result(result, target_fields=common_search_params.get('fields', None)))
         return {
             NUM_RESULTS_PROP: response['totalResults'],
             NEXT_PAGE_PROP: None,  # TODO: work out this param
@@ -66,8 +66,7 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             RESULTS_LIST: results,
         }
 
-    def text_search(self, q):
-        # TODO: add minimum response fields?
+    def text_search(self, q, common_search_params):
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
             params={'query': q,
@@ -77,4 +76,4 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
                     'profile': 'rich'
                     },
         )
-        return self.format_search_response(response)
+        return self.format_search_response(response, common_search_params)

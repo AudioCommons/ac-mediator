@@ -20,13 +20,17 @@ def parse_request_distributor_query_params(request):
     if exclude is not None:
         exclude = exclude.split(',')
 
+    wait_until_complete = request.GET.get('wuc', False),  # This option is left intentionally undocumented
+
     return {key: value for key, value in locals().items() if key in
-            ['include', 'exclude']}
+            ['include', 'exclude', 'wait_until_complete']}
 
 
 def parse_common_search_query_params(request):
     s = request.GET.get('s', None)
-    fields = request.GET.get('fields', MINIMUM_RESOURCE_DESCRIPTION_FIELDS)
+    fields = request.GET.get('fields', None).split(',')
+    if fields is None:
+        fields = MINIMUM_RESOURCE_DESCRIPTION_FIELDS
     size = request.GET.get('size', 15)
     page = request.GET.get('page', 1)
     offset = request.GET.get('offset', None)
@@ -159,7 +163,7 @@ def text_search(request):
     response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
-        'kwargs': dict(q=q),  # , **search_qp),
+        'kwargs': dict(q=q, common_search_params=search_qp),
     }, **distributor_qp)
     return Response(response)
 

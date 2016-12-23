@@ -20,7 +20,9 @@ def test_service(request, service_id):
 
 def _test_search_component(service, test_config):
     query = test_config.get('text_search_query', 'dogs')
-    response = service.text_search(query=query)
+    response = service.text_search(q=query, common_search_params={
+        'fields': MINIMUM_RESOURCE_DESCRIPTION_FIELDS,
+    })
     return JsonResponse(
         {'status': 'OK',
          'message': 'Success',
