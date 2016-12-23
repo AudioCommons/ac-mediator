@@ -60,8 +60,8 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
         results = list()
         for result in response['results']:
             results.append(self.translate_single_result(result, target_fields=common_search_params.get('fields', None)))
-        notes = list()
-        return notes, {
+        warnings = list()
+        return warnings, {
             NUM_RESULTS_PROP: None,  # TODO: work out this param
             RESULTS_LIST: results,
         }

@@ -20,23 +20,23 @@ def test_service(request, service_id):
 
 def _test_search_component(service, test_config):
     query = test_config.get('text_search_query', 'dogs')
-    notes, response = service.text_search(q=query, common_search_params={
+    warnings, response = service.text_search(q=query, common_search_params={
         'fields': MINIMUM_RESOURCE_DESCRIPTION_FIELDS,
     })
     return JsonResponse(
-        {'status': 'OK' if len(notes) == 0 else 'WR',
+        {'status': 'OK' if len(warnings) == 0 else 'WR',
          'message': 'Success',
-         'notes': notes,
+         'warnings': warnings,
          'response': response})
 
 
 def _test_licensing_component(service, test_config):
     resource_id = test_config.get('ac_resource_id_for_licensing')
-    notes, response = service.license(acid=resource_id)
+    warnings, response = service.license(acid=resource_id)
     return JsonResponse(
-        {'status': 'OK' if len(notes) == 0 else 'WR',
+        {'status': 'OK' if len(warnings) == 0 else 'WR',
          'message': 'Success',
-         'notes': notes,
+         'warnings': warnings,
          'response': response})
 
 

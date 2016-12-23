@@ -65,7 +65,7 @@ class ResponseAggregator(object):
                 'sent_timestamp': str(datetime.datetime.now())
             },
             'contents': dict(),
-            'notes': dict(),
+            'warnings': dict(),
             'errors': dict(),
         })
         return response_id
@@ -80,7 +80,7 @@ class ResponseAggregator(object):
         response['meta']['status'] = RESPONSE_STATUS_FINISHED
         self.store.set_response(response_id, response)
 
-    def aggregate_response(self, response_id, service_name, response_contents, response_notes=None):
+    def aggregate_response(self, response_id, service_name, response_contents, warnings=None):
         response = self.store.get_response(response_id)
         response['meta']['n_received_responses'] += 1
         if isinstance(response_contents, ACException):
@@ -93,9 +93,9 @@ class ResponseAggregator(object):
         else:
             # If response content is ok, add to contents dict
             response['contents'][service_name] = response_contents
-            # If response content has notes, add them to the notes dict
-            if response_notes:
-                response['notes'][service_name] = response_notes
+            # If response content has warnings, add them to the warnings dict
+            if warnings:
+                response['warnings'][service_name] = warnings
         if response['meta']['n_received_responses'] == response['meta']['n_expected_responses']:
             response['meta']['status'] = RESPONSE_STATUS_FINISHED
         self.store.set_response(response_id, response)

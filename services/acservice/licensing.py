@@ -24,11 +24,11 @@ class ACLicensingMixin(object):
 
     def license(self, acid, *args, **kwargs):
         """
-        This endpoint returns a license url along with a list of notes that might contain relevant
+        This endpoint returns a license url along with a list of warnings that might contain relevant
         information for the application. To get the URL, it uses 'get_licensing_url' method, therefore
         'get_licensing_url' is the main method that should be overwritten by third party services.
         :param acid: Audio Commons unique resource identifier
-        :return: tuple with (notes, url where to get a license)
+        :return: tuple with (warnings, url where to get a license)
         """
-        notes = list()
-        return notes, self.get_licensing_url(acid, *args, **kwargs)
+        warnings = list()
+        return warnings, self.get_licensing_url(acid, *args, **kwargs)

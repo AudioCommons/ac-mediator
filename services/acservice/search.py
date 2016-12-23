@@ -143,13 +143,13 @@ class BaseACServiceSearch(object):
         Take the search request response returned from the service and transform it
         to the unified Audio Commons search response definition.
 
-        The formatted response is returned along with a complementary 'notes' list which
+        The formatted response is returned along with a complementary 'warnings' list which
         contains additional relevant information that should be shown to the application.
-        'notes' can be an empty list.
+        'warnings' can be an empty list.
 
         :param response: dictionary with json search response
         :param common_search_params: common search parameters passed here in case these are needed somewhere
-        :return: tuple with (notes, dictionary with search results properly formatted)
+        :return: tuple with (warnings, dictionary with search results properly formatted)
         """
         raise NotImplementedError("Service must implement method BaseACServiceSearch.format_search_response")
 
@@ -195,7 +195,7 @@ class ACServiceTextSearch(BaseACServiceSearch):
         Note that to implement text search services do not typically need to overwrite this method
         but the `prepare_search_request` one.
 
-        The response is returned along with a complementary 'notes' list which contains additional
+        The response is returned along with a complementary 'warnings' list which contains additional
         relevant information that should be shown to the application. This can be for example if a
         request wants to retrieve a number of metadata fields and one of these is not
         supported by the third party service. In that case, we want to return the other supported
@@ -207,10 +207,10 @@ class ACServiceTextSearch(BaseACServiceSearch):
 
         :param q: textual input query
         :param common_search_params: dictionary with other search parameters commons to all kinds of search
-        :return: tuple with (notes, text search response as dictionary)
+        :return: tuple with (warnings, text search response as dictionary)
         """
         args, kwargs = self.prepare_search_request(q, common_search_params)
         response = self.send_request(*args, **kwargs)
-        formatted_response_notes, formatted_response = self.format_search_response(response, common_search_params)
-        notes = formatted_response_notes  # In the future we might add notes coming from other places too
-        return notes, formatted_response
+        formatted_response_warnings, formatted_response = self.format_search_response(response, common_search_params)
+        warnings = formatted_response_warnings  # In the future we might add warnings coming from other places too
+        return warnings, formatted_response

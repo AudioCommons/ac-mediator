@@ -59,8 +59,8 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         results = list()
         for result in response['items']:
             results.append(self.translate_single_result(result, target_fields=common_search_params.get('fields', None)))
-        notes = list()
-        return notes, {
+        warnings = list()
+        return warnings, {
             NUM_RESULTS_PROP: response['totalResults'],
             RESULTS_LIST: results,
         }
