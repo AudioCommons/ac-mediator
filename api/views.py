@@ -127,7 +127,8 @@ def services(request):
         'services': {service.name: {
             'id': service.id,
             'url': service.url,
-            'components': service.implemented_components
+            'components': service.implemented_components,
+            'description': service.get_service_description(),
         } for service in services}
     })
 

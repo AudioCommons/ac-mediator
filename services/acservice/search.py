@@ -102,6 +102,15 @@ class BaseACServiceSearch(object):
         """
         return '{0}{1}'.format(self.id_prefix, result[self.SERVICE_ID_FIELDNAME])
 
+    def get_supported_fields(self):
+        """
+        Checks which AudioCommons fields can be translated to the third party service fields.
+        These are the fields supported in 'direct_fields_mapping' and those added in the
+        'translate_field_methods_registry' using the @translates_field decorator.
+        :return: list of available AudioCommons field names
+        """
+        return list(self.direct_fields_mapping.keys()) + list(self.translate_field_methods_registry.keys())
+
     def translate_single_result(self, result, target_fields, fail_silently=False):
         """
         Take an individual search result from a service response in the form of a dictionary
@@ -150,6 +159,15 @@ class ACServiceTextSearch(BaseACServiceSearch):
 
     def conf_textsearch(self, *args):
         self.implemented_components.append(SEARCH_TEXT_COMPONENT)
+
+    def describe_textsearch(self):
+        """
+        Returns structured representation of component capabilities
+        :return: tuple with (component name, dictionary with component capabilities)
+        """
+        return SEARCH_TEXT_COMPONENT, {
+            'supported_fields': self.get_supported_fields(),
+        }
 
     def text_search(self, q, common_search_params):
         """

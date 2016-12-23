@@ -23,8 +23,11 @@ class BaseACService(object):
             raise ImproperlyConfiguredACService('Missing item \'service_id\'')
         self.set_service_id(config['service_id'])
 
+        # Init implemented components to empty list
+        # Each configuration method from every component is responsible for filling this list
+        self.implemented_components = list()
+
         # Call all object methods that start with 'conf_' to perform mixin's configuration
-        self.implemented_components = list()  # Init implemented components to empty list
         for item in dir(self):
             if item.startswith('conf_') and callable(getattr(self, item)):
                 getattr(self, item)(config)
@@ -34,9 +37,22 @@ class BaseACService(object):
         This should be a unique id for the service.
         The id is provided by the Audio Commons consortium.
         :param service_id: 8 character alphanumeric string (e.g. ef21b9ad)
-        :return:
         """
         self.service_id = service_id
+
+    def get_service_description(self):
+        """
+        Returns a structured description of the capabilities of each component implemented
+        by the service. Uses each component's 'component_description' method.
+        :return: dict with components as keys
+        """
+        description = dict()
+        # Call all object methods that start with 'describe_' to get description of components
+        for item in dir(self):
+            if item.startswith('describe_') and callable(getattr(self, item)):
+                name, component_description = getattr(self, item)()
+                description[name] = component_description
+        return description
 
     def send_request(self,
                      url,
