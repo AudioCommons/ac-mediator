@@ -107,6 +107,15 @@ def services(request):
                         "components": [
                             "text_search"
                         ],
+                        "description": {
+                            "text_search": {
+                                "supported_fields": [
+                                    "ac:url",
+                                    "ac:author_name",
+                                    "ac:id"
+                                ]
+                            }
+                        },
                         "url": "http://www.freesound.org"
                     },
                     "Jamendo": {
@@ -115,6 +124,16 @@ def services(request):
                             "licensing",
                             "text_search"
                         ],
+                        "description": {
+                            "text_search": {
+                                "supported_fields": [
+                                    "ac:url",
+                                    "ac:author_name",
+                                    "ac:id",
+                                    "ac:license"
+                                ]
+                            }
+                        },
                         "url": "http://www.jamendo.com"
                     }
                 },
