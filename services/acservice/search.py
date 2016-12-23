@@ -184,7 +184,4 @@ class ACServiceTextSearch(BaseACServiceSearch):
         :param common_search_params: dictionary with other search parameters commons to all kinds of search
         :return: text search response as dictionary
         """
-        # TODO: define which input parameters should text search support (this is part of
-        # TODO: api specification). For now we only support 'query' as standard textual query.
-        # TODO: calls to methods that trigger calls should be probably logged somewhere...
         raise NotImplementedError("Service must implement method ACServiceTextSearch.text_search")
