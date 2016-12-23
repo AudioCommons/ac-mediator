@@ -20,21 +20,23 @@ def test_service(request, service_id):
 
 def _test_search_component(service, test_config):
     query = test_config.get('text_search_query', 'dogs')
-    response = service.text_search(q=query, common_search_params={
+    notes, response = service.text_search(q=query, common_search_params={
         'fields': MINIMUM_RESOURCE_DESCRIPTION_FIELDS,
     })
     return JsonResponse(
-        {'status': 'OK',
+        {'status': 'OK' if len(notes) == 0 else 'WR',
          'message': 'Success',
+         'notes': notes,
          'response': response})
 
 
 def _test_licensing_component(service, test_config):
     resource_id = test_config.get('ac_resource_id_for_licensing')
-    response = service.get_licensing_url(acid=resource_id)
+    notes, response = service.license(acid=resource_id)
     return JsonResponse(
-        {'status': 'OK',
+        {'status': 'OK' if len(notes) == 0 else 'WR',
          'message': 'Success',
+         'notes': notes,
          'response': response})
 
 
@@ -54,12 +56,12 @@ def test_service_component(request, service_id):
 
     test_config = get_test_service_configuration(service)
     component = request.GET.get('component', None)
+
     try:
         if component == SEARCH_TEXT_COMPONENT and isinstance(service, ACServiceTextSearch):
             return _test_search_component(service, test_config)
         if component == LICENSING_COMPONENT and isinstance(service, ACLicensingMixin):
             return _test_licensing_component(service, test_config)
-
     except ACException as e:
         return JsonResponse(
             {'component': component,

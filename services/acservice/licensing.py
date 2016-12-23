@@ -18,7 +18,17 @@ class ACLicensingMixin(object):
         Individual services can extend this method with extra parameters to make it more suitable to their
         needs (e.g., to call the method given an already retrieved resource and avoid in this way an
         extra request).
-        :return: url to license the input resource
+        :return: url to license the input resource (string)
         """
-        # TODO: this is just a proposal of how licensing service could be handled
         raise NotImplementedError("Service must implement method ACLicensingMixin.get_licensing_url")
+
+    def license(self, acid, *args, **kwargs):
+        """
+        This endpoint returns a license url along with a list of notes that might contain relevant
+        information for the application. To get the URL, it uses 'get_licensing_url' method, therefore
+        'get_licensing_url' is the main method that should be overwritten by third party services.
+        :param acid: Audio Commons unique resource identifier
+        :return: tuple with (notes, url where to get a license)
+        """
+        notes = list()
+        return notes, self.get_licensing_url(acid, *args, **kwargs)

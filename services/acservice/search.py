@@ -141,10 +141,15 @@ class BaseACServiceSearch(object):
     def format_search_response(self, response, common_search_params):
         """
         Take the search request response returned from the service and transform it
-        to the unified Audio Commons search response definition
+        to the unified Audio Commons search response definition.
+
+        The formatted response is returned along with a complementary 'notes' list which
+        contains additional relevant information that should be shown to the application.
+        'notes' can be an empty list.
+
         :param response: dictionary with json search response
         :param common_search_params: common search parameters passed here in case these are needed somewhere
-        :return: dictionary with search results properly formatted
+        :return: tuple with (notes, dictionary with search results properly formatted)
         """
         raise NotImplementedError("Service must implement method BaseACServiceSearch.format_search_response")
 
@@ -206,4 +211,6 @@ class ACServiceTextSearch(BaseACServiceSearch):
         """
         args, kwargs = self.prepare_search_request(q, common_search_params)
         response = self.send_request(*args, **kwargs)
-        return self.format_search_response(response, common_search_params)
+        formatted_response_notes, formatted_response = self.format_search_response(response, common_search_params)
+        notes = formatted_response_notes  # In the future we might add notes coming from other places too
+        return notes, formatted_response

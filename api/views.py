@@ -253,7 +253,7 @@ def licensing(request):
         raise ParseError('Missing required query parameter: acid')
     response = request_distributor.process_request({
         'component': LICENSING_COMPONENT,
-        'method': 'get_licensing_url',
+        'method': 'license',
         'kwargs': {'acid': acid}
     }, **distributor_qp)
     return Response(response)
