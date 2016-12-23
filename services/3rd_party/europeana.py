@@ -46,10 +46,6 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     def translate_field_license(self, result):
         return translate_cc_license_url(result['rights'][0])
 
-    @translates_field(FIELD_TAGS)
-    def translate_field_tags(self, result):
-        return []  # Explicitly return no tags
-
     @translates_field(FIELD_STATIC_RETRIEVE)
     def translate_field_static_retrieve(self, result):
         # TODO: this field does not always return static file urls...
@@ -57,9 +53,15 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
 
     def format_search_response(self, response, common_search_params):
         results = list()
-        for result in response['items']:
-            results.append(self.translate_single_result(result, target_fields=common_search_params.get('fields', None)))
         warnings = list()
+        for result in response['items']:
+            translation_warnings, translated_result = \
+                self.translate_single_result(result, target_fields=common_search_params.get('fields', None))
+            results.append(translated_result)
+            if translation_warnings:
+                warnings.append(translation_warnings)
+        warnings = [item for sublist in warnings for item in sublist]  # Flatten warnings
+        warnings = list(set(warnings))  # We don't want duplicated warnings
         return warnings, {
             NUM_RESULTS_PROP: response['totalResults'],
             RESULTS_LIST: results,

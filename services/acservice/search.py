@@ -111,7 +111,7 @@ class BaseACServiceSearch(object):
         """
         return list(self.direct_fields_mapping.keys()) + list(self.translate_field_methods_registry.keys())
 
-    def translate_single_result(self, result, target_fields, fail_silently=False):
+    def translate_single_result(self, result, target_fields):
         """
         Take an individual search result from a service response in the form of a dictionary
         and translate its keys and values to an Audio Commons API compatible format.
@@ -119,24 +119,22 @@ class BaseACServiceSearch(object):
         that each field should have in the Audio Commons API context.
         :param result: dictionary representing a single result entry form a service response
         :param target_fields: list of Audio Commons fields to return
-        :param fail_silently: whether to raise an exception if a particular field can not be translated or use a value of 'None'
-        :return: dictionary representing the single result with keys and values compatible with Audio Commons API
+        :return: tuple with (list of translation warnings, dictionary representing the single result with keys and values compatible with Audio Commons API)
         """
         translated_result = dict()
+        translation_warnings = list()
         if target_fields is None:
             target_fields = list()  # Avoid non iterable error
         for ac_field_name in target_fields:
             try:
                 trans_field_value = self.translate_field(ac_field_name, result)
             except ACFieldTranslateException as e:
-                if not fail_silently:
-                    raise e  # Propagate exception
-                else:
-                    translated_result[ac_field_name] = None
-                    print(e)  # Simply print exception message and continue
+                # Uncomment following line if we want to set field to None if can't be translated
+                # translated_result[ac_field_name] = None
+                translation_warnings.append("Can't return unsupported field {0}".format(ac_field_name))
                 continue
             translated_result[ac_field_name] = trans_field_value
-        return translated_result
+        return translation_warnings, translated_result
 
     def format_search_response(self, response, common_search_params):
         """
