@@ -57,15 +57,10 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             results.append(self.translate_single_result(result, target_fields=common_search_params.get('fields', None)))
         return {
             NUM_RESULTS_PROP: response['count'],
-            NEXT_PAGE_PROP: None,  # TODO: work out this param
-            PREV_PAGE_PROP: None,  # TODO: work out this param
             RESULTS_LIST: results,
         }
 
     def text_search(self, q, common_search_params):
-
-
-
         response = self.send_request(
             self.TEXT_SEARCH_ENDPOINT_URL,
             params={'query': q,

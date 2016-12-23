@@ -62,8 +62,6 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
             results.append(self.translate_single_result(result, target_fields=common_search_params.get('fields', None)))
         return {
             NUM_RESULTS_PROP: None,  # TODO: work out this param
-            NEXT_PAGE_PROP: None,  # TODO: work out this param
-            PREV_PAGE_PROP: None,  # TODO: work out this param
             RESULTS_LIST: results,
         }
 
