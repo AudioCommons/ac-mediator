@@ -66,4 +66,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             params={'query': q,
                     'fields': 'id,url,name,license,previews,username,tags'},
         )
+        # NOTE: we include 'fields' parameter with all Freesound fields that are needed to provide any of the supported
+        # Audio Commons fields. This is not optimal in the sense that even if an Audio Commons query only requires field
+        # ac:id, the forwarded query to Freesound will request all potential fields. It could be optimized in the future
+        # by setting 'fields' depending on what's in common_search_params['fields'].
         return self.format_search_response(response, common_search_params)
