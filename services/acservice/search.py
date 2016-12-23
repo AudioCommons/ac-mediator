@@ -169,19 +169,41 @@ class ACServiceTextSearch(BaseACServiceSearch):
             'supported_fields': self.get_supported_fields(),
         }
 
-    def text_search(self, q, common_search_params):
+    def prepare_search_request(self, q, common_search_params):
         """
         This function takes as input parameters those defined in the Audio Commons API
         specification for text search and translates them to the corresponding parameters
         of the specific service endpoint.
-        Then it makes the corresponding request and returns a json response as a dictionary
-        if the response status code is 200 or raises an exception otherwise.
+        :param q: textual input query
+        :param common_search_params: dictionary with other search parameters commons to all kinds of search
+        :return: tuple with (args, kwargs) to be used in 'BaseACService.send_request' to make the actual request
+        """
+        raise NotImplementedError("Service must implement method ACServiceTextSearch.prepare_search_request")
+
+    def text_search(self, q, common_search_params):
+        """
+        This function a search request to the third party service and returns a formatted json
+        response as a dictionary if the response status code is 200 or raises an exception otherwise.
+        It uses the `prepare_search_request` method to get the corresponding arguments and keyword
+        arguments to be used for making the actual request.
+
+        Note that to implement text search services do not typically need to overwrite this method
+        but the `prepare_search_request` one.
+
+        The response is returned along with a complementary 'notes' list which contains additional
+        relevant information that should be shown to the application. This can be for example if a
+        request wants to retrieve a number of metadata fields and one of these is not
+        supported by the third party service. In that case, we want to return the other supported
+        fields but also a note that says that field X was not returned because it is not supported
+        by the service.
 
         Common search parameters include:
         TODO: write common params when decided
 
         :param q: textual input query
         :param common_search_params: dictionary with other search parameters commons to all kinds of search
-        :return: text search response as dictionary
+        :return: tuple with (notes, text search response as dictionary)
         """
-        raise NotImplementedError("Service must implement method ACServiceTextSearch.text_search")
+        args, kwargs = self.prepare_search_request(q, common_search_params)
+        response = self.send_request(*args, **kwargs)
+        return self.format_search_response(response, common_search_params)

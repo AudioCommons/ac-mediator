@@ -64,14 +64,13 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             RESULTS_LIST: results,
         }
 
-    def text_search(self, q, common_search_params):
-        response = self.send_request(
-            self.TEXT_SEARCH_ENDPOINT_URL,
-            params={'query': q,
-                    'reusability': 'open',
-                    'media': 'true',
-                    'qf': 'TYPE:SOUND',
-                    'profile': 'rich'
-                    },
-        )
-        return self.format_search_response(response, common_search_params)
+    def prepare_search_request(self, q, common_search_params):
+        args = [self.TEXT_SEARCH_ENDPOINT_URL]
+        kwargs = {'params': {
+            'query': q,
+            'reusability': 'open',
+            'media': 'true',
+            'qf': 'TYPE:SOUND',
+            'profile': 'rich'
+        }}
+        return args, kwargs

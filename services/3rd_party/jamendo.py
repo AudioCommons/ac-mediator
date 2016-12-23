@@ -65,12 +65,13 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
             RESULTS_LIST: results,
         }
 
-    def text_search(self, q, common_search_params):
-        response = self.send_request(
-            self.TEXT_SEARCH_ENDPOINT_URL,
-            params={'search': q, 'include': 'musicinfo+licenses'},
-        )
-        return self.format_search_response(response, common_search_params)
+    def prepare_search_request(self, q, common_search_params):
+        args = [self.TEXT_SEARCH_ENDPOINT_URL]
+        kwargs = {'params': {
+            'search': q,
+            'include': 'musicinfo+licenses'
+        }}
+        return args, kwargs
 
     # Licensing
     def get_licensing_url(self, acid=None, resource_dict=None):
