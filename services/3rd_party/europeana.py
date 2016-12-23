@@ -51,21 +51,11 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         # TODO: this field does not always return static file urls...
         return result['edmIsShownBy'][0]
 
-    def format_search_response(self, response, common_search_params):
-        results = list()
-        warnings = list()
-        for result in response['items']:
-            translation_warnings, translated_result = \
-                self.translate_single_result(result, target_fields=common_search_params.get('fields', None))
-            results.append(translated_result)
-            if translation_warnings:
-                warnings.append(translation_warnings)
-        warnings = [item for sublist in warnings for item in sublist]  # Flatten warnings
-        warnings = list(set(warnings))  # We don't want duplicated warnings
-        return warnings, {
-            NUM_RESULTS_PROP: response['totalResults'],
-            RESULTS_LIST: results,
-        }
+    def get_results_list_from_response(self, response):
+        return response['items']
+
+    def get_num_results_from_response(self, response):
+        return response['totalResults']
 
     def prepare_search_request(self, q, common_search_params):
         args = [self.TEXT_SEARCH_ENDPOINT_URL]

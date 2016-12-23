@@ -51,20 +51,11 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     def translate_field_static_retrieve(self, result):
         return result['previews']['preview-hq-ogg']
 
-    def format_search_response(self, response, common_search_params):
-        results = list()
-        warnings = list()
-        for result in response['results']:
-            translation_warnings, translated_result = self.translate_single_result(result, target_fields=common_search_params.get('fields', None))
-            results.append(translated_result)
-            if translation_warnings:
-                warnings.append(translation_warnings)
-        warnings = [item for sublist in warnings for item in sublist]  # Flatten warnings
-        warnings = list(set(warnings))  # We don't want duplicated warnings
-        return warnings, {
-            NUM_RESULTS_PROP: response['count'],
-            RESULTS_LIST: results,
-        }
+    def get_results_list_from_response(self, response):
+        return response['results']
+
+    def get_num_results_from_response(self, response):
+        return response['count']
 
     def prepare_search_request(self, q, common_search_params):
         args = [self.TEXT_SEARCH_ENDPOINT_URL]

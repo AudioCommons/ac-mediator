@@ -1,5 +1,5 @@
 from ac_mediator.exceptions import ACFieldTranslateException
-from services.acservice.constants import MINIMUM_RESOURCE_DESCRIPTION_FIELDS, FIELD_ID, SEARCH_TEXT_COMPONENT
+from services.acservice.constants import *
 
 
 def translates_field(field_name):
@@ -111,6 +111,22 @@ class BaseACServiceSearch(object):
         """
         return list(self.direct_fields_mapping.keys()) + list(self.translate_field_methods_registry.keys())
 
+    def get_results_list_from_response(self, response):
+        """
+        Given the complete response of a search request to the end service, return the list of results.
+        :param response: dictionary with the full json response of the request
+        :return: list of dict where each dict is a single result
+        """
+        raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
+
+    def get_num_results_from_response(self, respomnse):
+        """
+        Given the complete response of a search request to the end service, return the total number of results.
+        :param response: dictionary with the full json response of the request
+        :return: number of total results (integer)
+        """
+        raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
+
     def translate_single_result(self, result, target_fields):
         """
         Take an individual search result from a service response in the form of a dictionary
@@ -149,7 +165,20 @@ class BaseACServiceSearch(object):
         :param common_search_params: common search parameters passed here in case these are needed somewhere
         :return: tuple with (warnings, dictionary with search results properly formatted)
         """
-        raise NotImplementedError("Service must implement method BaseACServiceSearch.format_search_response")
+        results = list()
+        warnings = list()
+        for result in self.get_results_list_from_response():
+            translation_warnings, translated_result = \
+                self.translate_single_result(result, target_fields=common_search_params.get('fields', None))
+            results.append(translated_result)
+            if translation_warnings:
+                warnings.append(translation_warnings)
+        warnings = [item for sublist in warnings for item in sublist]  # Flatten warnings
+        warnings = list(set(warnings))  # We don't want duplicated warnings
+        return warnings, {
+            NUM_RESULTS_PROP: self.get_num_results_from_response(response),
+            RESULTS_LIST: results,
+        }
 
 
 class ACServiceTextSearch(BaseACServiceSearch):
