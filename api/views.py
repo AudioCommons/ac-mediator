@@ -68,6 +68,7 @@ def collect_response(request):
         ======================  =====================================================
         ``meta``                Information about the request such as timestamp and status.
         ``contents``            Dictionary with successfully returned responses from individual services. Keys in the dictionary correspond to service names.
+        ``warnings``            Dictionary with a list of warnings from each individual services. Keys in the dictionary correspond to service names.
         ``errors``              Dictionary with error responses from the individual services. Keys in the dictionary correspond to service names.
         ======================  =====================================================
     """
