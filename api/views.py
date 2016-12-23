@@ -157,22 +157,34 @@ def text_search(request):
     """
     .. http:get:: /search/text/
 
-       Documentation for this resource needs to be written.
+        This endpoint allows to perform textual queries in third party content providers.
+        It takes an input parameter ``q`` where the textual query is specified plus a number of other
+        optional query parameters to define other query aspects (see below).
 
-       .. warning::
+        .. warning::
             This endpoint returns an aggregated response that needs to be updated by following
             the provided ``collect_url``. See the :ref:`aggregated-responses` section for more information.
 
-       :query q: input query terms
-       :query s: sorting criteria
-       :query fields: metadata fields to include in each result (names separated by commas)
-       :query size: number of results to be included in an individual search response
-       :query page: number of results page to retrieve
-       :query offset: number of results to skip (this is incompatible with page)
-       :query include: services to include in query (names separated by commas)
-       :query exclude: services to exclude in query (names separated by commas)
+        :query q: input query terms
+        :query s: sorting criteria
+        :query fields: metadata fields to include in each result (names separated by commas)
+        :query size: number of results to be included in an individual search response
+        :query page: number of results page to retrieve
+        :query offset: number of results to skip (this is incompatible with page)
+        :query include: services to include in query (names separated by commas)
+        :query exclude: services to exclude in query (names separated by commas)
 
-       :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
+        :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
+
+        **Using the** ``fields`` **parameter**
+
+        Use this parameter to specify the metadata fields that should be included for each item returned
+        in the individual search responses. By default only a number of fields will be included (TODO: indicate which
+        ones). List needed filter names separated by commas as in the following example:
+
+        .. code-block:: none
+
+            fields=ac:id,ac:name,ac:static_retrieve
     """
 
     distributor_qp = parse_request_distributor_query_params(request)
@@ -220,7 +232,7 @@ def licensing(request):
 
             {
                 "meta": {
-                    sent_timestamp": "2016-12-22 16:58:55.128886",
+                    "sent_timestamp": "2016-12-22 16:58:55.128886",
                     "current_timestamp": "2016-12-22 16:58:55.158931",
                     "n_received_responses": 1,
                     "status": "FI",
