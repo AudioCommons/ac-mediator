@@ -57,14 +57,13 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     def get_num_results_from_response(self, response):
         return response['totalResults']
 
-    def prepare_search_request(self, q, common_search_params):
-        warnings = list()
-        # Process size parameter
-        warnings.append('Parameter size not supported')
-        return warnings, {'params': {
-            'query': q,
+    def process_q_query_parameter(self, q):
+        return list(), {'query': q}
+
+    def add_extra_search_query_params(self):
+        return {
             'reusability': 'open',
             'media': 'true',
             'qf': 'TYPE:SOUND',
             'profile': 'rich'
-        }}
+        }

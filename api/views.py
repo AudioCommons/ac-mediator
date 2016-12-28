@@ -4,39 +4,53 @@ from rest_framework.exceptions import NotFound, ParseError
 from ac_mediator.exceptions import ACAPIInvalidUrl
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
+from api.constants import *
 from services.management import get_available_services
 from services.acservice.constants import SEARCH_TEXT_COMPONENT, LICENSING_COMPONENT, MINIMUM_RESOURCE_DESCRIPTION_FIELDS
+
 
 request_distributor = get_request_distributor()
 response_aggregator = get_response_aggregator()
 
 
 def parse_request_distributor_query_params(request):
-    include = request.GET.get('include', None)
+    include = request.GET.get(QUERY_PARAM_INCLUDE, None)
     if include is not None:
         include = include.split(',')
-
-    exclude = request.GET.get('exclude', None)
+    exclude = request.GET.get(QUERY_PARAM_EXCLUDE, None)
     if exclude is not None:
         exclude = exclude.split(',')
+    wait_until_complete = \
+        request.GET.get(QUERY_PARAM_WAIT_UNTIL_COMPLETE, False),  # This option is left intentionally undocumented
 
-    wait_until_complete = request.GET.get('wuc', False),  # This option is left intentionally undocumented
-
-    return {key: value for key, value in locals().items() if key in
-            ['include', 'exclude', 'wait_until_complete']}
+    return {
+        QUERY_PARAM_INCLUDE: include,
+        QUERY_PARAM_EXCLUDE: exclude,
+        'wait_until_complete': wait_until_complete,
+    }
 
 
 def parse_common_search_query_params(request):
-    s = request.GET.get('s', None)
-    fields = request.GET.get('fields', None).split(',')
+    fields = request.GET.get(QUERY_PARAM_FIELDS, None).split(',')
     if fields is None:
         fields = MINIMUM_RESOURCE_DESCRIPTION_FIELDS
-    size = request.GET.get('size', 15)
-    page = request.GET.get('page', 1)
-    offset = request.GET.get('offset', None)
-
-    return {key: value for key, value in locals().items() if key in
-            ['s', 'fields', 'size', 'page', 'offset']}
+    size = request.GET.get(QUERY_PARAM_SIZE, 15)
+    try:
+        size = int(size)
+    except ValueError:
+        raise ParseError("Invalid '{0}' value".format(QUERY_PARAM_SIZE))
+    page = request.GET.get(QUERY_PARAM_PAGE, None)
+    if page is not None:
+        try:
+            page = int(page)
+        except ValueError:
+            raise ParseError("Invalid '{0}' value".format(QUERY_PARAM_PAGE))
+    return {
+        QUERY_PARAM_SORT: request.GET.get(QUERY_PARAM_SORT, None),  # TODO: check that sort is valid value
+        QUERY_PARAM_SIZE: size,
+        QUERY_PARAM_PAGE: page,
+        QUERY_PARAM_FIELDS: fields,
+    }
 
 
 @api_view(['GET'])
@@ -171,7 +185,6 @@ def text_search(request):
         :query fields: metadata fields to include in each result (names separated by commas)
         :query size: number of results to be included in an individual search response
         :query page: number of results page to retrieve
-        :query offset: number of results to skip (this is incompatible with page)
         :query include: services to include in query (names separated by commas)
         :query exclude: services to exclude in query (names separated by commas)
 
@@ -190,9 +203,9 @@ def text_search(request):
 
     distributor_qp = parse_request_distributor_query_params(request)
     search_qp = parse_common_search_query_params(request)
-    q = request.GET.get('q', None)  # Textual input query parameter
+    q = request.GET.get(QUERY_PARAM_QUERY, None)  # Textual input query parameter
     if q is None:
-        raise ParseError('Missing required query parameter: q')
+        raise ParseError("Missing required query parameter: '{0}'".format(QUERY_PARAM_QUERY))
     response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',

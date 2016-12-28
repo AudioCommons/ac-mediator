@@ -4,6 +4,7 @@ from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearch, translates_field
+from api.constants import *
 
 
 class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
@@ -57,21 +58,24 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     def get_num_results_from_response(self, response):
         return response['count']
 
-    def prepare_search_request(self, q, common_search_params):
+    def process_q_query_parameter(self, q):
+        return list(), {'query': q}
+
+    def process_size_query_parameter(self, size):
         warnings = list()
+        size = int(size)
+        if size > 150:  # This is Freesound's maximum page size
+            warnings.append("Maximum '{0}' for Freesound is 150 items".format(QUERY_PARAM_SIZE))
+            size = 150
+        return warnings, {'page_size': size}
 
-        # Process size parameter
-        page_size = int(common_search_params['size'])
-        if page_size > 150:  # This is Freesound's maximum page size
-            warnings.append('Max page size for Freesound is 150 items')
-            page_size = 150
+    def process_page_query_parameter(self, page):
+        return list(), {'page': page}
 
-        return warnings, {'params': {
-            'query': q,
-            'fields': 'id,url,name,license,previews,username,tags',
-            'page_size': page_size,
-        }}
+    def add_extra_search_query_params(self):
         # NOTE: we include 'fields' parameter with all Freesound fields that are needed to provide any of the supported
         # Audio Commons fields. This is not optimal in the sense that even if an Audio Commons query only requires field
         # ac:id, the forwarded query to Freesound will request all potential fields. It could be optimized in the future
         # by setting 'fields' depending on what's in common_search_params['fields'].
+        return {'fields': 'id,url,name,license,previews,username,tags'}
+

@@ -1,5 +1,6 @@
 from ac_mediator.exceptions import ACFieldTranslateException
 from services.acservice.constants import *
+from api.constants import *
 
 
 def translates_field(field_name):
@@ -180,6 +181,67 @@ class BaseACServiceSearch(object):
             RESULTS_LIST: results,
         }
 
+    def process_size_query_parameter(self, size):
+        """
+        Process 'size' search query parameter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param size: number of desired results per page (int)
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SIZE))
+
+    def process_page_query_parameter(self, page):
+        """
+        Process 'page' search query parameter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param page: requested page number (int)
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_PAGE))
+
+    def process_common_search_params(self, common_search_params):
+        """
+        This method calls all the functions that process common search parameters (i.e. process_x_query_parameter) and
+        aggregates their returned query parameters for the third party service request and warnings.
+        :param common_search_params: common search query parameters as parsed in the corresponding API view
+        :return: tuple with (warnings, query parameters dict)
+        """
+        params = dict()
+        warnings = list()
+
+        # Process 'size' query parameter
+        size = common_search_params[QUERY_PARAM_SIZE]
+        if size is not None:  # size defaults to 15 so it should never be 'None'
+            try:
+                p_warnings, p_params = self.process_size_query_parameter(size)
+                params.update(p_params)
+                if p_warnings:
+                    warnings += p_warnings
+            except NotImplementedError as e:
+                warnings.append(str(e))
+
+        # Process 'page' query parameter
+        page = common_search_params[QUERY_PARAM_PAGE]
+        if page is not None:
+            try:
+                p_warnings, p_params = self.process_page_query_parameter(page)
+                params.update(p_params)
+                if p_warnings:
+                    warnings += p_warnings
+            except NotImplementedError as e:
+                warnings.append(str(e))
+
+        return warnings, params
+
+    def add_extra_search_query_params(self):
+        return dict()
+
 
 class ACServiceTextSearch(BaseACServiceSearch):
     """
@@ -201,28 +263,25 @@ class ACServiceTextSearch(BaseACServiceSearch):
             'supported_fields': self.get_supported_fields(),
         }
 
-    def prepare_search_request(self, q, common_search_params):
+    def process_q_query_parameter(self, q):
         """
-        This function takes as input parameters those defined in the Audio Commons API
-        specification for text search and translates them to the corresponding parameters
-        of the specific service endpoint.
-        It returns a list of warnings generated during the preparation of the request as well as the
-        keyword arguments that should be used in 'BaseACService.send_request'.
+        Process contents of textual query input parameter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
         :param q: textual input query
-        :param common_search_params: dictionary with other search parameters commons to all kinds of search
-        :return: tuple with (warnings, kwargs to be used in 'BaseACService.send_request' to make the actual request)
+        :return: tuple with (warnings, query parameters dict)
         """
-        raise NotImplementedError("Service must implement method ACServiceTextSearch.prepare_search_request")
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_QUERY))
 
     def text_search(self, q, common_search_params):
         """
         This function a search request to the third party service and returns a formatted json
         response as a dictionary if the response status code is 200 or raises an exception otherwise.
-        It uses the `prepare_search_request` method to get the corresponding arguments and keyword
-        arguments to be used for making the actual request.
 
         Note that to implement text search services do not typically need to overwrite this method
-        but the `prepare_search_request` one.
+        but the individual `process_x_query_parameter` methods.
 
         The response is returned along with a complementary 'warnings' list which contains additional
         relevant information that should be shown to the application. This can be for example if a
@@ -238,8 +297,27 @@ class ACServiceTextSearch(BaseACServiceSearch):
         :param common_search_params: dictionary with other search parameters commons to all kinds of search
         :return: tuple with (warnings, text search response as dictionary)
         """
-        request_warnings, kwargs = self.prepare_search_request(q, common_search_params)
-        response = self.send_request(self.TEXT_SEARCH_ENDPOINT_URL, **kwargs)
+        # Process 'q' query parameter
+        query_params = dict()
+        request_warnings = list()
+        try:
+            p_warnings, p_params = self.process_q_query_parameter(q)
+            query_params.update(p_params)
+            if p_warnings:
+                request_warnings += p_warnings
+        except NotImplementedError as e:
+            request_warnings.append(str(e))
+
+        # Process commons search parameters
+        c_warnings, c_params = self.process_common_search_params(common_search_params)
+        query_params.update(c_params)
+        request_warnings += c_warnings
+
+        # Add extra query parameters
+        query_params.update(self.add_extra_search_query_params())
+
+        # Send request and process response
+        response = self.send_request(self.TEXT_SEARCH_ENDPOINT_URL, params=query_params)
         response_warnings, formatted_response = self.format_search_response(response, common_search_params)
         warnings = request_warnings + response_warnings
         return warnings, formatted_response

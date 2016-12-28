@@ -22,6 +22,8 @@ def _test_search_component(service, test_config):
     query = test_config.get('text_search_query', 'dogs')
     warnings, response = service.text_search(q=query, common_search_params={
         'fields': MINIMUM_RESOURCE_DESCRIPTION_FIELDS,
+        'size': 10,
+        'page': 1,
     })
     return JsonResponse(
         {'status': 'OK' if len(warnings) == 0 else 'WR',
