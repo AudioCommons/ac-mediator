@@ -1,6 +1,7 @@
+from api.constants import *
+
 # Some of these concept definitions should be linked with the ontology (or be loaded from it)
 AUDIOCOMMONS_ONTOLOGY_PREFIX = 'ac:'
-
 
 # Component names
 SEARCH_TEXT_COMPONENT = 'text_search'

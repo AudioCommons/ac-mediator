@@ -3,13 +3,25 @@ from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearch, translates_field
-from ac_mediator.exceptions import ImproperlyConfiguredACService
+from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException, ACPageNotFound
+import json
 
 
 class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     NAME = 'Europeana'
     URL = 'http://www.europeana.eu'
     API_BASE_URL = "https://www.europeana.eu/api/v2/"
+
+    # Base
+    def validate_response_status_code(self, response):
+        if response.status_code != 200:
+            try:
+                json_contents = response.json()
+            except json.decoder.JSONDecodeError:
+                json_contents = dict()
+            message = json_contents.get('error', 'Unknown error')
+            raise ACException(message, response.status_code)
+        return response.json()
 
     # Auth
     SUPPORTED_AUTH_METHODS = [APIKEY_AUTH_METHOD]
@@ -52,6 +64,8 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         return result['edmIsShownBy'][0]
 
     def get_results_list_from_response(self, response):
+        if not response['items']:
+            raise ACPageNotFound
         return response['items']
 
     def get_num_results_from_response(self, response):
@@ -59,6 +73,26 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
 
     def process_q_query_parameter(self, q):
         return list(), {'query': q}
+
+    def process_size_query_parameter(self, size, common_search_params):
+        warnings = list()
+        size = int(size)
+        if size > 100:  # This is Europena's maximum page size
+            warnings.append("Maximum '{0}' is 100".format(QUERY_PARAM_SIZE))
+            size = 100
+        return warnings, {'rows': size}
+
+    def process_page_query_parameter(self, page, common_search_params):
+        warnings = list()
+        size = common_search_params.get(QUERY_PARAM_SIZE, None)
+        _, rows_dict = self.process_size_query_parameter(size, common_search_params)
+        rows = rows_dict['rows']
+        if rows is None:
+            rows = 12  # Default size for Europeana
+        if (page * rows) + rows > 1000:
+            page = int(1000/rows) - 1  # Set page to max allowed, Europeana does not allow paginate over 1000 results
+            warnings.append('Can\'t paginate beyond first 1000 results, setting page to {0}'.format(page))
+        return warnings, {'start': ((page - 1) * rows) + 1}
 
     def add_extra_search_query_params(self):
         return {

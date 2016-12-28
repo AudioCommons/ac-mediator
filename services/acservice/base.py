@@ -101,10 +101,10 @@ class BaseACService(object):
             params=params,
             data=data,
             headers=auth_info.get('headers', dict()))
+        # TODO: log request object somewhere?
         return self.validate_response_status_code(r)
 
-    @staticmethod
-    def validate_response_status_code(response):
+    def validate_response_status_code(self, response):
         """
         Process service API responses and raise exceptions if errors occur.
         Otherwise return response as dictionary object loaded from json contents.
@@ -113,7 +113,7 @@ class BaseACService(object):
         this method to better interpret the way errors are returned (and provide clearer response
         to users).
         :param response: response object (of type requests.models.Response)
-        :return: dictioanry including json contents of the response
+        :return: dictionary including json contents of the response
         """
         if response.status_code != 200:
             raise ACException('Returned wrong status code, {0}'.format(response.status_code), response.status_code)

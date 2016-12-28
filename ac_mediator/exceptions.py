@@ -5,10 +5,22 @@ from rest_framework import status
 # AC Service exceptions
 
 class ACException(Exception):
+    msg = None
+    status = None
 
-    def __init__(self, msg="", status=-1):
-        self.msg = msg
-        self.status = status
+    def __init__(self, msg=None, status=None):
+
+        # Set defaults (if not set in subclass)
+        if self.msg is None:
+            self.msg = ""
+        if self.status is None:
+            self.msg = -1
+
+        # Override with arguments (if any)
+        if msg is not None:
+            self.msg = msg
+        if status is not None:
+            self.status = status
 
     def __repr__(self):
         return self.msg
@@ -28,6 +40,12 @@ class ACFieldTranslateException(ACException):
 
 class ACLicesningException(ACException):
     pass
+
+
+class ACPageNotFound(ACException):
+
+    msg = 'Page not found.'
+    status = status.HTTP_404_NOT_FOUND
 
 
 # AC API Exceptions

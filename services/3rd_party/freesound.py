@@ -1,10 +1,9 @@
-from ac_mediator.exceptions import ACException
+from ac_mediator.exceptions import ACException, ACPageNotFound
 from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearch, translates_field
-from api.constants import *
 
 
 class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
@@ -14,8 +13,12 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     URL = 'http://www.freesound.org'
     API_BASE_URL = "https://www.freesound.org/apiv2/"
 
-    @staticmethod
-    def validate_response_status_code(response):
+    # Base
+    def validate_response_status_code(self, response):
+        if self.TEXT_SEARCH_ENDPOINT_URL in response.request.url:
+            # If request was made to search endpoint, translate 404 to 'page not found exception'
+            if response.status_code == 404:
+                raise ACPageNotFound
         if response.status_code != 200:
             raise ACException(response.json()['detail'], response.status_code)
         return response.json()
@@ -61,15 +64,15 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     def process_q_query_parameter(self, q):
         return list(), {'query': q}
 
-    def process_size_query_parameter(self, size):
+    def process_size_query_parameter(self, size, common_search_params):
         warnings = list()
         size = int(size)
         if size > 150:  # This is Freesound's maximum page size
-            warnings.append("Maximum '{0}' for Freesound is 150 items".format(QUERY_PARAM_SIZE))
+            warnings.append("Maximum '{0}' is 150".format(QUERY_PARAM_SIZE))
             size = 150
         return warnings, {'page_size': size}
 
-    def process_page_query_parameter(self, page):
+    def process_page_query_parameter(self, page, common_search_params):
         return list(), {'page': page}
 
     def add_extra_search_query_params(self):

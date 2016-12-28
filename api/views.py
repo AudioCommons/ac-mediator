@@ -45,6 +45,8 @@ def parse_common_search_query_params(request):
             page = int(page)
         except ValueError:
             raise ParseError("Invalid '{0}' value".format(QUERY_PARAM_PAGE))
+        if page < 1:
+            raise ParseError("Invalid '{0}' value (must be greater than 0)".format(QUERY_PARAM_PAGE))
     return {
         QUERY_PARAM_SORT: request.GET.get(QUERY_PARAM_SORT, None),  # TODO: check that sort is valid value
         QUERY_PARAM_SIZE: size,
@@ -181,7 +183,8 @@ def text_search(request):
             the provided ``collect_url``. See the :ref:`aggregated-responses` section for more information.
 
         :query q: input query terms
-        :query s: sorting criteria
+        :query f: filtering criteria (NOT IMPLEMENTED)
+        :query s: sorting criteria (NOT IMPLEMENTED)
         :query fields: metadata fields to include in each result (names separated by commas)
         :query size: number of results to be included in an individual search response
         :query page: number of results page to retrieve
@@ -190,7 +193,7 @@ def text_search(request):
 
         :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
 
-        **Using the** ``fields`` **parameter**
+        ``fields`` **parameter**
 
         Use this parameter to specify the metadata fields that should be included for each item returned
         in the individual search responses. By default only a number of fields will be included (TODO: indicate which
@@ -199,13 +202,83 @@ def text_search(request):
         .. code-block:: none
 
             fields=ac:id,ac:name,ac:static_retrieve
+
+        If some fields are requested which can't be returned by an individual service, this will be reported in the
+        ``warnings`` section of the aggregated response.
+
+        ``size`` **and** ``page`` **parameters**
+
+        Results returned from search requests are paginated. This means that only a particular number of results
+        are returned in the response of the search request, and further results can be requested on demand.
+        To decide how many results should be in every page and which page of results to retrieve, you can use
+        ``size`` and ``page`` parameters. Both parameters should be integers. Note that some third party services
+        might impose different limitations for the size parameter (i.e. not allowing to retrieve more than X
+        results at a time). If these limits are reached, this will be reported in the ``warnings`` section of the
+        aggregated response.
+
+        If a page number is requested for which no results exist in a given service, this means that all results for
+        that particular service will have been retrieved. If that happens, "404 Page Not Found" errors are raised for
+        the affected individual services. As expected, these errors are listed in the ``errors`` section of the
+        aggregated response.
+
+        **Response**
+
+        The response of each individual service will contain a list of search results including the metadata fields
+        indicated using the ``fields`` query parameter (or a default set). Each service will include a ``results``
+        list and a ``num_results`` field (which might be null for individual services that don't return a total
+        number of results). See the example below with query parameters ``page=1``, ``size=2``,
+        ``fields=ac:url,ac:name`` and ``q=music``:
+
+        .. code:: json
+
+            {
+               "meta":{
+                  "sent_timestamp":"2016-12-28 13:35:08.143439",
+                  "status":"FI",
+                  "n_expected_responses":2,
+                  "collect_url":"https://m.audiocommons.org/api/v1/collect/?rid=4c4b16a5-2def-40c3-98b8-0ce93e492286",
+                  "current_timestamp":"2016-12-28 13:35:08.957422",
+                  "response_id":"4c4b16a5-2def-40c3-98b8-0ce93e492286",
+                  "n_received_responses":2
+               },
+               "errors":{ },
+               "warnings":{ },
+               "contents":{
+                  "Freesound":{
+                     "results":[
+                        {
+                           "ac:name":"Music Box Melody 1",
+                           "ac:url":"https://www.freesound.org/people/undead505/sounds/338986/"
+                        },
+                        {
+                           "ac:name":"Music Box, Happy Birthday.wav",
+                           "ac:url":"https://www.freesound.org/people/InspectorJ/sounds/369147/"
+                        }
+                     ],
+                     "num_results":30309
+                  },
+                  "Europeana":{
+                     "results":[
+                        {
+                           "ac:name":"Santa's Toy factory",
+                           "ac:url":"http://www.europeana.eu/portal/record/916107/wws_object_886.html?utm_source=api&utm_medium=api&utm_campaign=qh33gBJ8G"
+                        },
+                        {
+                           "ac:name":"Super 8 Movie Projector - Reverse",
+                           "ac:url":"http://www.europeana.eu/portal/record/916107/wws_object_664.html?utm_source=api&utm_medium=api&utm_campaign=qh33gBJ8G"
+                        }
+                     ],
+                     "num_results":12320
+                  }
+               }
+            }
     """
 
     distributor_qp = parse_request_distributor_query_params(request)
     search_qp = parse_common_search_query_params(request)
     q = request.GET.get(QUERY_PARAM_QUERY, None)  # Textual input query parameter
-    if q is None:
-        raise ParseError("Missing required query parameter: '{0}'".format(QUERY_PARAM_QUERY))
+    if q is None or not q.strip():
+        raise ParseError("Missing or invalid query parameter: '{0}'".format(QUERY_PARAM_QUERY))
     response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
@@ -257,7 +330,8 @@ def licensing(request):
                 "contents": {
                     "Jamendo": "https://licensing.jamendo.com/track/1162014"
                 },
-                "errors": { }
+                "errors": { },
+                "warnings":{ }
             }
     """
 

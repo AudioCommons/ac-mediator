@@ -1,6 +1,5 @@
 from ac_mediator.exceptions import ACFieldTranslateException
 from services.acservice.constants import *
-from api.constants import *
 
 
 def translates_field(field_name):
@@ -181,7 +180,7 @@ class BaseACServiceSearch(object):
             RESULTS_LIST: results,
         }
 
-    def process_size_query_parameter(self, size):
+    def process_size_query_parameter(self, size, common_search_params):
         """
         Process 'size' search query parameter and translate it to corresponding query parameter(s)
         for the third party service. Return also a list of warning messages if any were generated.
@@ -189,11 +188,12 @@ class BaseACServiceSearch(object):
         query parameters in the request to the third party service. Typically the returned query parameters dictionary
         will only contain one key/value pair.
         :param size: number of desired results per page (int)
+        :param common_search_params: dictionary with other common search query parameters (might not be needed)
         :return: tuple with (warnings, query parameters dict)
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SIZE))
 
-    def process_page_query_parameter(self, page):
+    def process_page_query_parameter(self, page, common_search_params):
         """
         Process 'page' search query parameter and translate it to corresponding query parameter(s)
         for the third party service. Return also a list of warning messages if any were generated.
@@ -201,6 +201,7 @@ class BaseACServiceSearch(object):
         query parameters in the request to the third party service. Typically the returned query parameters dictionary
         will only contain one key/value pair.
         :param page: requested page number (int)
+        :param common_search_params: dictionary with other common search query parameters (might not be needed)
         :return: tuple with (warnings, query parameters dict)
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_PAGE))
@@ -219,7 +220,7 @@ class BaseACServiceSearch(object):
         size = common_search_params[QUERY_PARAM_SIZE]
         if size is not None:  # size defaults to 15 so it should never be 'None'
             try:
-                p_warnings, p_params = self.process_size_query_parameter(size)
+                p_warnings, p_params = self.process_size_query_parameter(size, common_search_params)
                 params.update(p_params)
                 if p_warnings:
                     warnings += p_warnings
@@ -230,7 +231,7 @@ class BaseACServiceSearch(object):
         page = common_search_params[QUERY_PARAM_PAGE]
         if page is not None:
             try:
-                p_warnings, p_params = self.process_page_query_parameter(page)
+                p_warnings, p_params = self.process_page_query_parameter(page, common_search_params)
                 params.update(p_params)
                 if p_warnings:
                     warnings += p_warnings
@@ -308,7 +309,7 @@ class ACServiceTextSearch(BaseACServiceSearch):
         except NotImplementedError as e:
             request_warnings.append(str(e))
 
-        # Process commons search parameters
+        # Process common search parameters
         c_warnings, c_params = self.process_common_search_params(common_search_params)
         query_params.update(c_params)
         request_warnings += c_warnings
