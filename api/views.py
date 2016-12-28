@@ -4,9 +4,8 @@ from rest_framework.exceptions import NotFound, ParseError
 from ac_mediator.exceptions import ACAPIInvalidUrl
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
-from api.constants import *
 from services.management import get_available_services
-from services.acservice.constants import SEARCH_TEXT_COMPONENT, LICENSING_COMPONENT, MINIMUM_RESOURCE_DESCRIPTION_FIELDS
+from services.acservice.constants import *
 
 
 request_distributor = get_request_distributor()
@@ -280,6 +279,9 @@ def text_search(request):
         raise ParseError("Missing or invalid query parameter: '{0}'".format(QUERY_PARAM_QUERY))
     f = request.GET.get(QUERY_PARAM_FILTER, None)
     s = request.GET.get(QUERY_PARAM_SORT, None)
+    if s is not None and (s not in SORT_OPTIONS and s not in ['-{0}'.format(opt) for opt in SORT_OPTIONS]):
+        raise ParseError("Invalid query parameter: '{0}'. Should be one of [{1}]."
+                         .format(QUERY_PARAM_SORT, ', '.join(SORT_OPTIONS)))
     response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',

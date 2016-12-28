@@ -276,7 +276,7 @@ class ACServiceTextSearch(BaseACServiceSearch):
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_QUERY))
 
-    def process_f_query_parameter(self, q):
+    def process_f_query_parameter(self, f):
         """
         Process contents of query filter and translate it to corresponding query parameter(s)
         for the third party service. Return also a list of warning messages if any were generated.
@@ -288,7 +288,7 @@ class ACServiceTextSearch(BaseACServiceSearch):
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_FILTER))
 
-    def process_s_query_parameter(self, q):
+    def process_s_query_parameter(self, s, desc):
         """
         Process contents of sort parameter and translate it to corresponding query parameter(s)
         for the third party service. Return also a list of warning messages if any were generated.
@@ -296,6 +296,7 @@ class ACServiceTextSearch(BaseACServiceSearch):
         query parameters in the request to the third party service. Typically the returned query parameters dictionary
         will only contain one key/value pair.
         :param s: sorting method
+        :param desc: use descending order
         :return: tuple with (warnings, query parameters dict)
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SORT))
@@ -339,7 +340,7 @@ class ACServiceTextSearch(BaseACServiceSearch):
         # Process 'f' parameter (if specified)
         if f is not None:
             try:
-                p_warnings, p_params = self.process_f_query_parameter(q)
+                p_warnings, p_params = self.process_f_query_parameter(f)
                 query_params.update(p_params)
                 if p_warnings:
                     request_warnings += p_warnings
@@ -349,7 +350,11 @@ class ACServiceTextSearch(BaseACServiceSearch):
         # Process 's' parameter (if specified)
         if s is not None:
             try:
-                p_warnings, p_params = self.process_s_query_parameter(q)
+                desc = False
+                if s.startswith('-'):
+                    desc = True
+                    s = s[1:]
+                p_warnings, p_params = self.process_s_query_parameter(s, desc)
                 query_params.update(p_params)
                 if p_warnings:
                     request_warnings += p_warnings

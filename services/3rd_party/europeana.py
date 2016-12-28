@@ -72,6 +72,21 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     def process_q_query_parameter(self, q):
         return list(), {'query': q}
 
+    def process_s_query_parameter(self, s, desc):
+        warnings = list()
+        criteria = {
+            SORT_OPTION_DEFAULT: 'timestamp_created',
+            SORT_OPTION_CREATED: 'timestamp_created'
+        }.get(s, None)
+        if criteria is None:
+            criteria = 'timestamp_created'  # Defaults to score
+            warnings.append('Sorting criteria \'{0}\' not supported, using default ({1})'.format(s, criteria))
+        if desc:
+            criteria += '+desc'
+        else:
+            criteria += '+asc'
+        return warnings, {'sort': criteria}
+
     def process_size_query_parameter(self, size, common_search_params):
         warnings = list()
         size = int(size)
