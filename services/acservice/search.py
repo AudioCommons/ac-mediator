@@ -276,7 +276,31 @@ class ACServiceTextSearch(BaseACServiceSearch):
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_QUERY))
 
-    def text_search(self, q, common_search_params):
+    def process_f_query_parameter(self, q):
+        """
+        Process contents of query filter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param f: query filter
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_FILTER))
+
+    def process_s_query_parameter(self, q):
+        """
+        Process contents of sort parameter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param s: sorting method
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SORT))
+
+    def text_search(self, q, f, s, common_search_params):
         """
         This function a search request to the third party service and returns a formatted json
         response as a dictionary if the response status code is 200 or raises an exception otherwise.
@@ -295,12 +319,15 @@ class ACServiceTextSearch(BaseACServiceSearch):
         TODO: write common params when decided
 
         :param q: textual input query
+        :param f: query filter
+        :param s: sorting criteria
         :param common_search_params: dictionary with other search parameters commons to all kinds of search
         :return: tuple with (warnings, text search response as dictionary)
         """
-        # Process 'q' query parameter
         query_params = dict()
         request_warnings = list()
+
+        # Process 'q' query parameter
         try:
             p_warnings, p_params = self.process_q_query_parameter(q)
             query_params.update(p_params)
@@ -308,6 +335,26 @@ class ACServiceTextSearch(BaseACServiceSearch):
                 request_warnings += p_warnings
         except NotImplementedError as e:
             request_warnings.append(str(e))
+
+        # Process 'f' parameter (if specified)
+        if f is not None:
+            try:
+                p_warnings, p_params = self.process_f_query_parameter(q)
+                query_params.update(p_params)
+                if p_warnings:
+                    request_warnings += p_warnings
+            except NotImplementedError as e:
+                request_warnings.append(str(e))
+
+        # Process 's' parameter (if specified)
+        if s is not None:
+            try:
+                p_warnings, p_params = self.process_s_query_parameter(q)
+                query_params.update(p_params)
+                if p_warnings:
+                    request_warnings += p_warnings
+            except NotImplementedError as e:
+                request_warnings.append(str(e))
 
         # Process common search parameters
         c_warnings, c_params = self.process_common_search_params(common_search_params)

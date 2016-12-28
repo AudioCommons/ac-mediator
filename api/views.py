@@ -48,7 +48,6 @@ def parse_common_search_query_params(request):
         if page < 1:
             raise ParseError("Invalid '{0}' value (must be greater than 0)".format(QUERY_PARAM_PAGE))
     return {
-        QUERY_PARAM_SORT: request.GET.get(QUERY_PARAM_SORT, None),  # TODO: check that sort is valid value
         QUERY_PARAM_SIZE: size,
         QUERY_PARAM_PAGE: page,
         QUERY_PARAM_FIELDS: fields,
@@ -279,10 +278,12 @@ def text_search(request):
     q = request.GET.get(QUERY_PARAM_QUERY, None)  # Textual input query parameter
     if q is None or not q.strip():
         raise ParseError("Missing or invalid query parameter: '{0}'".format(QUERY_PARAM_QUERY))
+    f = request.GET.get(QUERY_PARAM_FILTER, None)
+    s = request.GET.get(QUERY_PARAM_SORT, None)
     response = request_distributor.process_request({
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
-        'kwargs': dict(q=q, common_search_params=search_qp),
+        'kwargs': dict(q=q, f=f, s=s, common_search_params=search_qp),
     }, **distributor_qp)
     return Response(response)
 
