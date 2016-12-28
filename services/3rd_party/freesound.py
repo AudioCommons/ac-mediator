@@ -44,7 +44,14 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             FIELD_URL: 'url',
             FIELD_NAME: 'name',
             FIELD_AUTHOR_NAME: 'username',
-            FIELD_TAGS: 'tags'
+            FIELD_TAGS: 'tags',
+            FIELD_DURATION: 'duration',
+            FIELD_FILESIZE: 'filesize',
+            FIELD_CHANNELS: 'channels',
+            FIELD_BITRATE: 'bitrate',
+            FIELD_BITDEPTH: 'bitdepth',
+            FIELD_SAMPLERATE: 'samplerate',
+            FIELD_TYPE: 'type',
         }
 
     @translates_field(FIELD_LICENSE)
@@ -106,5 +113,5 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         # Audio Commons fields. This is not optimal in the sense that even if an Audio Commons query only requires field
         # ac:id, the forwarded query to Freesound will request all potential fields. It could be optimized in the future
         # by setting 'fields' depending on what's in common_search_params['fields'].
-        return {'fields': 'id,url,name,license,previews,username,tags'}
-
+        return {'fields': 'id,url,name,license,previews,username,tags,duration,filesize,channels,bitrate,bitdepth,'
+                          'samplerate,type'}
