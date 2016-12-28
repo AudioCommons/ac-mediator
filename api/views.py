@@ -182,7 +182,7 @@ def text_search(request):
 
         :query q: input query terms
         :query f: filtering criteria (NOT IMPLEMENTED)
-        :query s: sorting criteria (NOT IMPLEMENTED)
+        :query s: sorting criteria
         :query fields: metadata fields to include in each result (names separated by commas)
         :query size: number of results to be included in an individual search response
         :query page: number of results page to retrieve
@@ -191,20 +191,45 @@ def text_search(request):
 
         :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
 
-        ``fields`` **parameter**
+
+        **Sorting with** ``s`` **parameter**
+
+        Use this parameter to specify a sorting criteria to be used in the results returned by each
+        individual service. The Audio Commons API defines the following sorting options:
+
+        ======================  =====================================================
+        Option name             Description
+        ======================  =====================================================
+        ``relevance``           Some relevance score provided by each individual service.
+        ``popularity``          Popularity score provided by each individual service (e.g., based on ratings).
+        ``duration``            Duration of the audio resource.
+        ``created``             Creation date (or upload date) of the resource.
+        ``downloads``           Number of downloads of the audio resource.
+        ======================  =====================================================
+
+        By default these options are returned in ascending order. Descending order can be requested by
+        appending ``-`` to the option name (e.g., ``-duration`` to get longest resources first).
+
+        Not all sorting options are supported by all services. A list of available ``s`` options for each
+        individual service is provided via the `services description endpoint <#get--services->`_.
+
+
+        **Using the** ``fields`` **parameter**
 
         Use this parameter to specify the metadata fields that should be included for each item returned
         in the individual search responses. By default only a number of fields will be included (TODO: indicate which
-        ones). List needed filter names separated by commas as in the following example:
+        ones). List needed field names separated by commas as in the following example:
 
         .. code-block:: none
 
             fields=ac:id,ac:name,ac:static_retrieve
 
         If some fields are requested which can't be returned by an individual service, this will be reported in the
-        ``warnings`` section of the aggregated response.
+        ``warnings`` section of the aggregated response. A list of available ``fields`` for each individual service is
+        provided via the `services description endpoint <#get--services->`_.
 
-        ``size`` **and** ``page`` **parameters**
+
+        **Paginating with** ``size`` **and** ``page`` **parameters**
 
         Results returned from search requests are paginated. This means that only a particular number of results
         are returned in the response of the search request, and further results can be requested on demand.

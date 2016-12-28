@@ -3,7 +3,7 @@ from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearch, translates_field
-from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException, ACPageNotFound
+from ac_mediator.exceptions import *
 import json
 
 
@@ -72,13 +72,14 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     def process_q_query_parameter(self, q):
         return list(), {'query': q}
 
-    def process_s_query_parameter(self, s, desc):
+    def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
         warnings = list()
         criteria = {
-            SORT_OPTION_DEFAULT: 'timestamp_created',
             SORT_OPTION_CREATED: 'timestamp_created'
         }.get(s, None)
         if criteria is None:
+            if raise_exception_if_unsupported:
+                raise ACException
             criteria = 'timestamp_created'  # Defaults to score
             warnings.append('Sorting criteria \'{0}\' not supported, using default ({1})'.format(s, criteria))
         if desc:

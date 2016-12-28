@@ -1,4 +1,4 @@
-from ac_mediator.exceptions import ACFieldTranslateException
+from ac_mediator.exceptions import ACFieldTranslateException, ACException
 from services.acservice.constants import *
 
 
@@ -111,22 +111,6 @@ class BaseACServiceSearch(object):
         """
         return list(self.direct_fields_mapping.keys()) + list(self.translate_field_methods_registry.keys())
 
-    def get_results_list_from_response(self, response):
-        """
-        Given the complete response of a search request to the end service, return the list of results.
-        :param response: dictionary with the full json response of the request
-        :return: list of dict where each dict is a single result
-        """
-        raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
-
-    def get_num_results_from_response(self, response):
-        """
-        Given the complete response of a search request to the end service, return the total number of results.
-        :param response: dictionary with the full json response of the request
-        :return: number of total results (integer)
-        """
-        raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
-
     def translate_single_result(self, result, target_fields):
         """
         Take an individual search result from a service response in the form of a dictionary
@@ -180,32 +164,6 @@ class BaseACServiceSearch(object):
             RESULTS_LIST: results,
         }
 
-    def process_size_query_parameter(self, size, common_search_params):
-        """
-        Process 'size' search query parameter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
-        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
-        query parameters in the request to the third party service. Typically the returned query parameters dictionary
-        will only contain one key/value pair.
-        :param size: number of desired results per page (int)
-        :param common_search_params: dictionary with other common search query parameters (might not be needed)
-        :return: tuple with (warnings, query parameters dict)
-        """
-        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SIZE))
-
-    def process_page_query_parameter(self, page, common_search_params):
-        """
-        Process 'page' search query parameter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
-        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
-        query parameters in the request to the third party service. Typically the returned query parameters dictionary
-        will only contain one key/value pair.
-        :param page: requested page number (int)
-        :param common_search_params: dictionary with other common search query parameters (might not be needed)
-        :return: tuple with (warnings, query parameters dict)
-        """
-        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_PAGE))
-
     def process_common_search_params(self, common_search_params):
         """
         This method calls all the functions that process common search parameters (i.e. process_x_query_parameter) and
@@ -240,7 +198,58 @@ class BaseACServiceSearch(object):
 
         return warnings, params
 
+    # ***********************************************************************
+    # The methods below are expected to be overwritten by individual services
+    # ***********************************************************************
+
+    def get_results_list_from_response(self, response):
+        """
+        Given the complete response of a search request to the end service, return the list of results.
+        :param response: dictionary with the full json response of the request
+        :return: list of dict where each dict is a single result
+        """
+        raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
+
+    def get_num_results_from_response(self, response):
+        """
+        Given the complete response of a search request to the end service, return the total number of results.
+        :param response: dictionary with the full json response of the request
+        :return: number of total results (integer)
+        """
+        raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
+
+    def process_size_query_parameter(self, size, common_search_params):
+        """
+        Process 'size' search query parameter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param size: number of desired results per page (int)
+        :param common_search_params: dictionary with other common search query parameters (might not be needed)
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SIZE))
+
+    def process_page_query_parameter(self, page, common_search_params):
+        """
+        Process 'page' search query parameter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param page: requested page number (int)
+        :param common_search_params: dictionary with other common search query parameters (might not be needed)
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_PAGE))
+
     def add_extra_search_query_params(self):
+        """
+        Return a dictionary with any extra query parameters in key/value pairs that should be added to the
+        search request.
+        :return: query parameters dict
+        """
         return dict()
 
 
@@ -262,44 +271,37 @@ class ACServiceTextSearch(BaseACServiceSearch):
         """
         return SEARCH_TEXT_COMPONENT, {
             'supported_fields': self.get_supported_fields(),
+            'supported_sort_options': self.get_supported_sorting_criteria(),
         }
 
-    def process_q_query_parameter(self, q):
+    def get_supported_sorting_criteria(self):
         """
-        Process contents of textual query input parameter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
-        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
-        query parameters in the request to the third party service. Typically the returned query parameters dictionary
-        will only contain one key/value pair.
-        :param q: textual input query
-        :return: tuple with (warnings, query parameters dict)
+        Checks which AudioCommons sorting criteria are supported by the third party service.
+        These are the fields that raise an exception when calling 'process_s_query_parameter' with
+        'raise_exception_if_unsupported' set to True.
+        :return: list of available AudioCommons sorting criteria
         """
-        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_QUERY))
+        supported_criteria = list()
+        for option in SORT_OPTIONS:
+            try:
+                self.process_s_query_parameter(option, desc=True, raise_exception_if_unsupported=True)
+                supported_criteria.append('-{0}'.format(option))
+            except ACException:
+                pass
+            except NotImplementedError:
+                # No sorting is supported at all
+                return list()
 
-    def process_f_query_parameter(self, f):
-        """
-        Process contents of query filter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
-        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
-        query parameters in the request to the third party service. Typically the returned query parameters dictionary
-        will only contain one key/value pair.
-        :param f: query filter
-        :return: tuple with (warnings, query parameters dict)
-        """
-        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_FILTER))
+            try:
+                self.process_s_query_parameter(option, desc=False, raise_exception_if_unsupported=True)
+                supported_criteria.append(option)
+            except ACException:
+                pass
+            except NotImplementedError:
+                # No sorting is supported at all
+                return list()
 
-    def process_s_query_parameter(self, s, desc):
-        """
-        Process contents of sort parameter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
-        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
-        query parameters in the request to the third party service. Typically the returned query parameters dictionary
-        will only contain one key/value pair.
-        :param s: sorting method
-        :param desc: use descending order
-        :return: tuple with (warnings, query parameters dict)
-        """
-        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SORT))
+        return supported_criteria
 
     def text_search(self, q, f, s, common_search_params):
         """
@@ -374,3 +376,45 @@ class ACServiceTextSearch(BaseACServiceSearch):
         response_warnings, formatted_response = self.format_search_response(response, common_search_params)
         warnings = request_warnings + response_warnings
         return warnings, formatted_response
+
+    # ***********************************************************************
+    # The methods below are expected to be overwritten by individual services
+    # ***********************************************************************
+
+    def process_q_query_parameter(self, q):
+        """
+        Process contents of textual query input parameter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param q: textual input query
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_QUERY))
+
+    def process_f_query_parameter(self, f):
+        """
+        Process contents of query filter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param f: query filter
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_FILTER))
+
+    def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
+        """
+        Process contents of sort parameter and translate it to corresponding query parameter(s)
+        for the third party service. Return also a list of warning messages if any were generated.
+        The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
+        query parameters in the request to the third party service. Typically the returned query parameters dictionary
+        will only contain one key/value pair.
+        :param s: sorting method
+        :param desc: use descending order
+        :param raise_exception_if_unsupported: whether to raise an exception if desired criteria is unsupported
+        :return: tuple with (warnings, query parameters dict)
+        """
+        raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SORT))

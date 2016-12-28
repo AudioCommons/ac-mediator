@@ -64,16 +64,18 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     def process_q_query_parameter(self, q):
         return list(), {'query': q}
 
-    def process_s_query_parameter(self, s, desc):
+    def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
         warnings = list()
         criteria = {
-            SORT_OPTION_DEFAULT: 'score',
+            SORT_OPTION_RELEVANCE: 'score',
             SORT_OPTION_POPULARITY: 'rating',
             SORT_OPTION_DURATION: 'duration',
             SORT_OPTION_DOWNLOADS: 'duration',
             SORT_OPTION_CREATED: 'created'
         }.get(s, None)
         if criteria is None:
+            if raise_exception_if_unsupported:
+                raise ACException
             criteria = 'score'  # Defaults to score
             warnings.append('Sorting criteria \'{0}\' not supported, using default ({1})'.format(s, criteria))
         if criteria != 'score':
@@ -82,8 +84,10 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             else:
                 criteria += '_asc'
         else:
-            if desc:
-                warnings.append('Descending sorting not supported for \'{0}\' criteria'.format(s))
+            if not desc:
+                warnings.append('Ascending sorting not supported for \'{0}\' criteria'.format(s))
+                if raise_exception_if_unsupported:
+                    raise ACException
         return warnings, {'sort': criteria}
 
     def process_size_query_parameter(self, size, common_search_params):
