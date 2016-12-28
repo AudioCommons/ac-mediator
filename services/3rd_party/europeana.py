@@ -37,11 +37,9 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
     # Search
     TEXT_SEARCH_ENDPOINT_URL = API_BASE_URL + 'search.json'
 
-    @property
-    def direct_fields_mapping(self):
-        return {
-            FIELD_URL: 'guid',
-        }
+    @translates_field(FIELD_URL)
+    def translate_field_url(self, result):
+        return result['guid'].split('?')[0]
 
     @translates_field(FIELD_NAME)
     def translate_field_name(self, result):
