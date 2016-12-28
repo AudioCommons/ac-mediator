@@ -11,7 +11,9 @@ def perform_request_and_aggregate(request, response_id, service_id):
     service = get_service_by_id(service_id)
     try:
         print('Requesting response from {0} ({1})'.format(service.name, response_id))
-        warnings, service_response = getattr(service, request['method'])(**request['kwargs'])
+        service.clear_response_warnings()
+        service_response = getattr(service, request['method'])(**request['kwargs'])
+        warnings = service.collect_response_warnings()
         response_aggregator.aggregate_response(response_id, service.name, service_response, warnings=warnings)
     except ACException as e:
         # Aggregate error response in response aggregator and continue with next service

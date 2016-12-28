@@ -69,10 +69,9 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         return response['count']
 
     def process_q_query_parameter(self, q):
-        return list(), {'query': q}
+        return {'query': q}
 
     def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
-        warnings = list()
         criteria = {
             SORT_OPTION_RELEVANCE: 'score',
             SORT_OPTION_POPULARITY: 'rating',
@@ -84,7 +83,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             if raise_exception_if_unsupported:
                 raise ACException
             criteria = 'score'  # Defaults to score
-            warnings.append('Sorting criteria \'{0}\' not supported, using default ({1})'.format(s, criteria))
+            self.add_response_warning('Sorting criteria \'{0}\' not supported, using default ({1})'.format(s, criteria))
         if criteria != 'score':
             if desc:
                 criteria += '_desc'
@@ -92,21 +91,20 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
                 criteria += '_asc'
         else:
             if not desc:
-                warnings.append('Ascending sorting not supported for \'{0}\' criteria'.format(s))
+                self.add_response_warning('Ascending sorting not supported for \'{0}\' criteria'.format(s))
                 if raise_exception_if_unsupported:
                     raise ACException
-        return warnings, {'sort': criteria}
+        return {'sort': criteria}
 
     def process_size_query_parameter(self, size, common_search_params):
-        warnings = list()
         size = int(size)
         if size > 150:  # This is Freesound's maximum page size
-            warnings.append("Maximum '{0}' is 150".format(QUERY_PARAM_SIZE))
+            self.add_response_warning("Maximum '{0}' is 150".format(QUERY_PARAM_SIZE))
             size = 150
-        return warnings, {'page_size': size}
+        return {'page_size': size}
 
     def process_page_query_parameter(self, page, common_search_params):
-        return list(), {'page': page}
+        return {'page': page}
 
     def add_extra_search_query_params(self):
         # NOTE: we include 'fields' parameter with all Freesound fields that are needed to provide any of the supported

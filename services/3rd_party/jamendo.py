@@ -63,7 +63,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACL
         return None  # Jamendo does not return the total number of results
 
     def process_q_query_parameter(self, q):
-        return list(), {'search': q}
+        return {'search': q}
 
     def add_extra_search_query_params(self):
         return {'include': 'musicinfo+licenses'}  # Use include parameter to retrieve all infomation we need

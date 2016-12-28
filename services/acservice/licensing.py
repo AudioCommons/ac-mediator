@@ -27,8 +27,8 @@ class ACLicensingMixin(object):
         This endpoint returns a license url along with a list of warnings that might contain relevant
         information for the application. To get the URL, it uses 'get_licensing_url' method, therefore
         'get_licensing_url' is the main method that should be overwritten by third party services.
+        Raise warnings using the BaseACService.add_response_warning method.
         :param acid: Audio Commons unique resource identifier
-        :return: tuple with (warnings, url where to get a license)
+        :return: url where to get a license
         """
-        warnings = list()
-        return warnings, self.get_licensing_url(acid, *args, **kwargs)
+        return self.get_licensing_url(acid, *args, **kwargs)

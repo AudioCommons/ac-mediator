@@ -119,10 +119,9 @@ class BaseACServiceSearch(object):
         that each field should have in the Audio Commons API context.
         :param result: dictionary representing a single result entry form a service response
         :param target_fields: list of Audio Commons fields to return
-        :return: tuple with (list of translation warnings, dictionary representing the single result with keys and values compatible with Audio Commons API)
+        :return: dictionary representing the single result with keys and values compatible with Audio Commons API
         """
         translated_result = dict()
-        translation_warnings = list()
         if target_fields is None:
             target_fields = list()  # Avoid non iterable error
         for ac_field_name in target_fields:
@@ -131,35 +130,26 @@ class BaseACServiceSearch(object):
             except ACFieldTranslateException as e:
                 # Uncomment following line if we want to set field to None if can't be translated
                 # translated_result[ac_field_name] = None
-                translation_warnings.append("Can't return unsupported field {0}".format(ac_field_name))
+                self.add_response_warning("Can't return unsupported field {0}".format(ac_field_name))
                 continue
             translated_result[ac_field_name] = trans_field_value
-        return translation_warnings, translated_result
+        return translated_result
 
     def format_search_response(self, response, common_search_params):
         """
         Take the search request response returned from the service and transform it
         to the unified Audio Commons search response definition.
 
-        The formatted response is returned along with a complementary 'warnings' list which
-        contains additional relevant information that should be shown to the application.
-        'warnings' can be an empty list.
-
         :param response: dictionary with json search response
         :param common_search_params: common search parameters passed here in case these are needed somewhere
-        :return: tuple with (warnings, dictionary with search results properly formatted)
+        :return: dictionary with search results properly formatted
         """
         results = list()
-        warnings = list()
         for result in self.get_results_list_from_response(response):
-            translation_warnings, translated_result = \
+            translated_result = \
                 self.translate_single_result(result, target_fields=common_search_params.get('fields', None))
             results.append(translated_result)
-            if translation_warnings:
-                warnings.append(translation_warnings)
-        warnings = [item for sublist in warnings for item in sublist]  # Flatten warnings
-        warnings = list(set(warnings))  # We don't want duplicated warnings
-        return warnings, {
+        return {
             NUM_RESULTS_PROP: self.get_num_results_from_response(response),
             RESULTS_LIST: results,
         }
@@ -167,36 +157,30 @@ class BaseACServiceSearch(object):
     def process_common_search_params(self, common_search_params):
         """
         This method calls all the functions that process common search parameters (i.e. process_x_query_parameter) and
-        aggregates their returned query parameters for the third party service request and warnings.
+        aggregates their returned query parameters for the third party service request.
+        Raise warnings using the BaseACService.add_response_warning method.
         :param common_search_params: common search query parameters as parsed in the corresponding API view
-        :return: tuple with (warnings, query parameters dict)
+        :return: query parameters dict
         """
         params = dict()
-        warnings = list()
 
         # Process 'size' query parameter
         size = common_search_params[QUERY_PARAM_SIZE]
         if size is not None:  # size defaults to 15 so it should never be 'None'
             try:
-                p_warnings, p_params = self.process_size_query_parameter(size, common_search_params)
-                params.update(p_params)
-                if p_warnings:
-                    warnings += p_warnings
+                params.update(self.process_size_query_parameter(size, common_search_params))
             except NotImplementedError as e:
-                warnings.append(str(e))
+                self.add_response_warning(str(e))
 
         # Process 'page' query parameter
         page = common_search_params[QUERY_PARAM_PAGE]
         if page is not None:
             try:
-                p_warnings, p_params = self.process_page_query_parameter(page, common_search_params)
-                params.update(p_params)
-                if p_warnings:
-                    warnings += p_warnings
+                params.update(self.process_page_query_parameter(page, common_search_params))
             except NotImplementedError as e:
-                warnings.append(str(e))
+                self.add_response_warning(str(e))
 
-        return warnings, params
+        return params
 
     # ***********************************************************************
     # The methods below are expected to be overwritten by individual services
@@ -221,26 +205,26 @@ class BaseACServiceSearch(object):
     def process_size_query_parameter(self, size, common_search_params):
         """
         Process 'size' search query parameter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
+        for the third party service. Raise warnings using the BaseACService.add_response_warning method.
         The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
         query parameters in the request to the third party service. Typically the returned query parameters dictionary
         will only contain one key/value pair.
         :param size: number of desired results per page (int)
         :param common_search_params: dictionary with other common search query parameters (might not be needed)
-        :return: tuple with (warnings, query parameters dict)
+        :return: query parameters dict
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SIZE))
 
     def process_page_query_parameter(self, page, common_search_params):
         """
         Process 'page' search query parameter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
+        for the third party service. Raise warnings using the BaseACService.add_response_warning method.
         The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
         query parameters in the request to the third party service. Typically the returned query parameters dictionary
         will only contain one key/value pair.
         :param page: requested page number (int)
         :param common_search_params: dictionary with other common search query parameters (might not be needed)
-        :return: tuple with (warnings, query parameters dict)
+        :return: query parameters dict
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_PAGE))
 
@@ -311,12 +295,13 @@ class ACServiceTextSearch(BaseACServiceSearch):
         Note that to implement text search services do not typically need to overwrite this method
         but the individual `process_x_query_parameter` methods.
 
-        The response is returned along with a complementary 'warnings' list which contains additional
-        relevant information that should be shown to the application. This can be for example if a
-        request wants to retrieve a number of metadata fields and one of these is not
-        supported by the third party service. In that case, we want to return the other supported
-        fields but also a note that says that field X was not returned because it is not supported
-        by the service.
+        During processing of the response a number of warnings can be raised using the
+        BaseACService.add_response_warning method. This warnings should contain additional
+        relevant information regarding the request/response that will be returned in the aggregated
+        response. For example, if a request wants to retrieve a number of metadata fields and one of these
+        fields is not supported by the third party service, this will be recorded as a warning.
+        We want to return the other supported fields but also a note that says that field X was not
+        returned because it is not supported by the service.
 
         Common search parameters include:
         TODO: write common params when decided
@@ -325,29 +310,22 @@ class ACServiceTextSearch(BaseACServiceSearch):
         :param f: query filter
         :param s: sorting criteria
         :param common_search_params: dictionary with other search parameters commons to all kinds of search
-        :return: tuple with (warnings, text search response as dictionary)
+        :return: formatted text search response as dictionary
         """
         query_params = dict()
-        request_warnings = list()
 
         # Process 'q' query parameter
         try:
-            p_warnings, p_params = self.process_q_query_parameter(q)
-            query_params.update(p_params)
-            if p_warnings:
-                request_warnings += p_warnings
+            query_params.update(self.process_q_query_parameter(q))
         except NotImplementedError as e:
-            request_warnings.append(str(e))
+            self.add_response_warning(str(e))
 
         # Process 'f' parameter (if specified)
         if f is not None:
             try:
-                p_warnings, p_params = self.process_f_query_parameter(f)
-                query_params.update(p_params)
-                if p_warnings:
-                    request_warnings += p_warnings
+                query_params.update(self.process_f_query_parameter(f))
             except NotImplementedError as e:
-                request_warnings.append(str(e))
+                self.add_response_warning(str(e))
 
         # Process 's' parameter (if specified)
         if s is not None:
@@ -356,26 +334,20 @@ class ACServiceTextSearch(BaseACServiceSearch):
                 if s.startswith('-'):
                     desc = True
                     s = s[1:]
-                p_warnings, p_params = self.process_s_query_parameter(s, desc)
-                query_params.update(p_params)
-                if p_warnings:
-                    request_warnings += p_warnings
+                query_params.update(self.process_s_query_parameter(s, desc))
             except NotImplementedError as e:
-                request_warnings.append(str(e))
+                self.add_response_warning(str(e))
 
         # Process common search parameters
-        c_warnings, c_params = self.process_common_search_params(common_search_params)
-        query_params.update(c_params)
-        request_warnings += c_warnings
+        query_params.update(self.process_common_search_params(common_search_params))
 
         # Add extra query parameters
         query_params.update(self.add_extra_search_query_params())
 
         # Send request and process response
         response = self.send_request(self.TEXT_SEARCH_ENDPOINT_URL, params=query_params)
-        response_warnings, formatted_response = self.format_search_response(response, common_search_params)
-        warnings = request_warnings + response_warnings
-        return warnings, formatted_response
+        formatted_response = self.format_search_response(response, common_search_params)
+        return formatted_response
 
     # ***********************************************************************
     # The methods below are expected to be overwritten by individual services
@@ -384,37 +356,37 @@ class ACServiceTextSearch(BaseACServiceSearch):
     def process_q_query_parameter(self, q):
         """
         Process contents of textual query input parameter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
+        for the third party service. Raise warnings using the BaseACService.add_response_warning method.
         The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
         query parameters in the request to the third party service. Typically the returned query parameters dictionary
         will only contain one key/value pair.
         :param q: textual input query
-        :return: tuple with (warnings, query parameters dict)
+        :return: query parameters dict
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_QUERY))
 
     def process_f_query_parameter(self, f):
         """
         Process contents of query filter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
+        for the third party service. Raise warnings using the BaseACService.add_response_warning method.
         The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
         query parameters in the request to the third party service. Typically the returned query parameters dictionary
         will only contain one key/value pair.
         :param f: query filter
-        :return: tuple with (warnings, query parameters dict)
+        :return: query parameters dict
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_FILTER))
 
     def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
         """
         Process contents of sort parameter and translate it to corresponding query parameter(s)
-        for the third party service. Return also a list of warning messages if any were generated.
+        for the third party service. Raise warnings using the BaseACService.add_response_warning method.
         The query parameters are returned as a dictionary where keys and values will be sent as keys and values of
         query parameters in the request to the third party service. Typically the returned query parameters dictionary
         will only contain one key/value pair.
         :param s: sorting method
         :param desc: use descending order
         :param raise_exception_if_unsupported: whether to raise an exception if desired criteria is unsupported
-        :return: tuple with (warnings, query parameters dict)
+        :return: query parameters dict
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SORT))

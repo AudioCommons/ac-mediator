@@ -70,10 +70,9 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
         return response['totalResults']
 
     def process_q_query_parameter(self, q):
-        return list(), {'query': q}
+        return {'query': q}
 
     def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
-        warnings = list()
         criteria = {
             SORT_OPTION_CREATED: 'timestamp_created'
         }.get(s, None)
@@ -81,32 +80,30 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
             if raise_exception_if_unsupported:
                 raise ACException
             criteria = 'timestamp_created'  # Defaults to score
-            warnings.append('Sorting criteria \'{0}\' not supported, using default ({1})'.format(s, criteria))
+            self.add_response_warning('Sorting criteria \'{0}\' not supported, using default ({1})'.format(s, criteria))
         if desc:
             criteria += '+desc'
         else:
             criteria += '+asc'
-        return warnings, {'sort': criteria}
+        return {'sort': criteria}
 
     def process_size_query_parameter(self, size, common_search_params):
-        warnings = list()
         size = int(size)
         if size > 100:  # This is Europena's maximum page size
-            warnings.append("Maximum '{0}' is 100".format(QUERY_PARAM_SIZE))
+            self.add_response_warning("Maximum '{0}' is 100".format(QUERY_PARAM_SIZE))
             size = 100
-        return warnings, {'rows': size}
+        return {'rows': size}
 
     def process_page_query_parameter(self, page, common_search_params):
-        warnings = list()
         size = common_search_params.get(QUERY_PARAM_SIZE, None)
-        _, rows_dict = self.process_size_query_parameter(size, common_search_params)
+        rows_dict = self.process_size_query_parameter(size, common_search_params)
         rows = rows_dict['rows']
         if rows is None:
             rows = 12  # Default size for Europeana
         if (page * rows) + rows > 1000:
             page = int(1000/rows) - 1  # Set page to max allowed, Europeana does not allow paginate over 1000 results
-            warnings.append('Can\'t paginate beyond first 1000 results, setting page to {0}'.format(page))
-        return warnings, {'start': ((page - 1) * rows) + 1}
+            self.add_response_warning('Can\'t paginate beyond first 1000 results, setting page to {0}'.format(page))
+        return {'start': ((page - 1) * rows) + 1}
 
     def add_extra_search_query_params(self):
         return {

@@ -132,3 +132,23 @@ class BaseACService(object):
     @property
     def url(self):
         return self.URL
+
+    # Code to handle response warnings
+    # TODO: to be properly documented
+
+    _current_response_warnings = list()
+
+    def add_response_warning(self, msg):
+        # TODO: make sure we don't have nested warnings
+        if type(msg) == list:
+            self._current_response_warnings += msg
+        else:
+            self._current_response_warnings.append(msg)
+
+    def collect_response_warnings(self):
+        warnings = self._current_response_warnings
+        warnings = list(set(warnings))  # Remove duplicated warnings
+        return warnings
+
+    def clear_response_warnings(self):
+        self._current_response_warnings = list()
