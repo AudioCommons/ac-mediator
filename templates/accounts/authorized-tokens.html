@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load url from compat %}
+{% block title %}{% trans "Authorized applications" %}{% endblock title %}
+
 {% block content %}
-    <h1>{% trans "Authorized clients" %}</h1>
+    <h1>{% trans "Authorized applications" %}</h1>
     <ul>
     {% for authorized_token in authorized_tokens %}
         <li>
@@ -15,7 +17,7 @@
         {% endfor %}
         </ul>
     {% empty %}
-        <li>{% trans "There are no authorized api clients yet." %}</li>
+        <li>{% trans "No applications have been authorized yet." %}</li>
     {% endfor %}
     </ul>
     <br>

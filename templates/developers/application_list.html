@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% block title %}Manage API Clients{% endblock title %}
 {% block content %}
 
-    <h1>Your Api Clients</h1>
+    <h1>Manage API Clients</h1>
     {% if applications %}
         <ul>
             {% for application in applications %}

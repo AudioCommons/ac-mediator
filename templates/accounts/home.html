@@ -4,20 +4,23 @@
 
 {% block content %}
     <h1>Home</h1>
-    Users
+    General users
     <ul>
-        <li><a href="{% url 'link_services' %}">Link services</a></li>
-        <li><a href="{% url 'authorized-token-list' %}">Authorized clients</a></li>
+        <li><a href="{% url 'link_services' %}">Link service accounts</a></li>
+        <li><a href="{% url 'authorized-token-list' %}">Authorized applications</a></li>
     </ul>
     Developers
     <ul>
-        <li><a href="{% url 'developers-app-list' %}">API Clients</a></li>
         <li><a href="{% url 'docs_root' %}" target="_blank">Documentation</a></li>
+        <li><a href="{% url 'developers-app-list' %}">Manage API Clients</a></li>
+        <li>
+            Test services
+            <ul>
+            {% for service in services %}
+                <li><a href="{% url "test_service" service.id %}">{{ service.name }}</a></li>
+            {% endfor %}
+            </ul>
+        </li>
     </ul>
-    Test services
-    <ul>
-    {% for service in services %}
-        <li><a href="{% url "test_service" service.id %}">{{ service.name }}</a></li>
-    {% endfor %}
-    </ul>
+
 {% endblock %}
