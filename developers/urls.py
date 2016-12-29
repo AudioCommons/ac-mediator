@@ -12,4 +12,6 @@ urlpatterns = [
         name="developers-app-delete"),
     url(r'^clients/(?P<pk>\d+)/update/$', dev_views.ApplicationUpdate.as_view(),
         name="developers-app-update"),
+    url(r'^clients/(?P<pk>\d+)/monitor/$', dev_views.application_monitor,
+        name="developers-app-monitor"),
 ]

@@ -7,11 +7,12 @@
     {% if applications %}
         <ul>
             {% for application in applications %}
-                <li><a href="{{ application.get_absolute_url }}">{{ application.name }}</a></li>
+                <li><a href="{{ application.get_absolute_url }}">{{ application.name }}</a> -
+                    <a href="{% url 'developers-app-monitor' application.id %}">monitor</a></li>
             {% endfor %}
         </ul>
     {% endif %}
-    <a class="btn btn-success" href="{% url "developers-app-register" %}">New Api Client</a>
+    <a class="btn btn-success" href="{% url "developers-app-register" %}">New API Client</a>
     <br><br>
     <p><a href="{% url 'home' %}">Home</a></p>
 

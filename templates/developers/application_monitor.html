@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Monitor {{ application.name }}{% endblock title %}
+{% block content %}
+    <h1>Monitor {{ application.name }}</h1>
+    <div class="btn-toolbar">
+        <a class="btn" href="{% url "developers-app-list" %}">Go Back</a>
+    </div>
+{% endblock content %}

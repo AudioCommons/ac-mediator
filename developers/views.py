@@ -4,7 +4,10 @@ from oauth2_provider.views.application import ApplicationList as ProviderApplica
 from oauth2_provider.views.application import ApplicationDelete as ProviderApplicationDelete
 from oauth2_provider.views.application import ApplicationUpdate as ProviderApplicationUpdate
 from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from api.forms import ApiClientForm
+from api.models import ApiClient
 
 
 class ApplicationRegistration(ProviderApplicationRegistration):
@@ -33,3 +36,10 @@ class ApplicationUpdate(ProviderApplicationUpdate):
 
     def get_form_class(self):
         return ApiClientForm
+
+
+@login_required
+def application_monitor(request, pk):
+    application = get_object_or_404(ApiClient, pk=pk)
+    tvars = {'application': application}
+    return render(request, 'developers/application_monitor.html', tvars)
