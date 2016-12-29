@@ -62,7 +62,7 @@ def get_application_monitor_data(request, pk):
     today = datetime.datetime.today()
     services = get_available_services()
     import random
-    N_FAKE_POINTS  = 1000
+    N_FAKE_POINTS = 1000
     DAYS_SPAN = 60
     for i in range(0, N_FAKE_POINTS):
         fake_data_points.append({

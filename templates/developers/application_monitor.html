@@ -143,8 +143,8 @@
         function groupminute(value, index, array)
         {
             var d = new Date(value['date']);
-            var divider = 60; // minute
-            d = divider * Math.floor(d.getTime()/divider);
+            var divider = 1000*60; // minute
+            d = divider * Math.floor(1000*d.getTime()/divider);
             dataByMinute[d]=dataByMinute[d]||[];
             dataByMinute[d].push(value);
         }
@@ -152,8 +152,8 @@
         function grouphour(value, index, array)
         {
             var d = new Date(value['date']);
-            var divider = 60*60; // hour
-            d = divider * Math.floor(d.getTime()/divider);
+            var divider = 1000*60*60; // hour
+            d = divider * Math.floor(1000*d.getTime()/divider);
             dataByHour[d]=dataByHour[d]||[];
             dataByHour[d].push(value);
         }
@@ -161,8 +161,8 @@
         function groupday(value, index, array)
         {
             var d = new Date(value['date']);
-            var divider = 60*60*24; // day
-            d = divider * Math.floor(d.getTime()/divider);
+            var divider = 1000*60*60*24; // day
+            d = divider * Math.floor(1000*d.getTime()/divider);
             dataByDay[d]=dataByDay[d]||[];
             dataByDay[d].push(value);
         }
@@ -170,8 +170,8 @@
         function groupweek(value, index, array)
         {
             var d = new Date(value['date']);
-            var divider = 60*60*24*7; // week
-            d = divider * Math.floor(d.getTime()/divider);
+            var divider = 1000*60*60*24*7; // week
+            d = divider * Math.floor(1000*d.getTime()/divider);
             dataByWeek[d]=dataByWeek[d]||[];
             dataByWeek[d].push(value);
         }
