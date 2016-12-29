@@ -14,4 +14,6 @@ urlpatterns = [
         name="developers-app-update"),
     url(r'^clients/(?P<pk>\d+)/monitor/$', dev_views.application_monitor,
         name="developers-app-monitor"),
+    url(r'^clients/(?P<pk>\d+)/monitor/data/$', dev_views.get_application_monitor_data,
+        name="developers-app-monitor-data"),
 ]

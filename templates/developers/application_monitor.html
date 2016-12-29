@@ -1,7 +1,202 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% block title %}Monitor {{ application.name }}{% endblock title %}
 {% block content %}
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            loadApplicationMonitorData();
+        }, false);
+
+        function loadApplicationMonitorData() {
+            getJSON('{% url "developers-app-monitor-data" application.id %}').then(
+                function(xhr) { // Success (status = 200)
+                    // Sort data by date
+                    var sortedData = xhr.response.data.sort(function(a,b){
+                      return new Date(b.date) - new Date(a.date);
+                    });
+
+                    // Compute time groupings
+                    sortedData.map(groupminute);
+                    sortedData.map(grouphour);
+                    sortedData.map(groupday);
+                    sortedData.map(groupweek);
+
+                    // Display chart with default grouping
+                    setResolution("day");
+                },
+                function(xhr) { // Error
+                    document.getElementById("chartContainer").innerHTML = '<p>Could not load monitor data...</p>';
+                }
+            );
+        }
+
+        function displayChart(dataByTime) {
+            var data = [];
+            var allDataSeries = {};
+
+            allDataSeries['total'] = {
+                type: "line",
+                name: "All services",
+                showInLegend: true,
+                dataPoints: []
+            };
+
+            for (var k in dataByTime) {
+                var dateTime = new Date(parseInt(k));
+                var elements = dataByTime[k];
+                var countsPerSerie = {}
+                for (var j in elements) {
+                    var element = elements[j];
+                    var serieName = element.service;
+                    if (!countsPerSerie.hasOwnProperty(serieName)){
+                        countsPerSerie[serieName] = 1;
+                    } else {
+                        countsPerSerie[serieName] += 1;
+                    }
+                }
+                for (var s in countsPerSerie){
+                    if (!allDataSeries.hasOwnProperty(s)){
+                        allDataSeries[s] = {
+                            type: "line",
+                            name: s,
+                            showInLegend: true,
+                            dataPoints: []
+                        }
+                    }
+                    allDataSeries[s].dataPoints.push({x: dateTime, y: countsPerSerie[s]});
+                }
+                allDataSeries['total'].dataPoints.push({x: dateTime, y: dataByTime[k].length});
+            }
+
+            for (var i in allDataSeries){
+                data.push(allDataSeries[i]);
+            }
+
+            CanvasJS.addColorSet("greenShades",
+                [
+                    "#1E5055",
+                    "#008080",
+                    "#2E8B57",
+                    "#3CB371",
+                    "#90EE90"
+                ]);
+            var chart = new CanvasJS.Chart("chartContainer",
+            {
+                zoomEnabled: true,
+                animationEnabled: false,
+                colorSet: "greenShades",
+                title: {
+                    text: ""
+                },
+                toolTip: {
+                    content: "{name}: {y}",
+                    fontFamily: "Roboto, sans-serif",
+                    fontStyle: "normal"
+                },
+                legend:{
+                    fontFamily: "Roboto, sans-serif"
+                },
+                axisX :{
+                    labelAngle: -30,
+                    labelFontFamily: "Roboto, sans-serif",
+                    labelFontSize: "12"
+                },
+                axisY :{
+                    includeZero:false,
+                    labelFontFamily: "Roboto, sans-serif",
+                    labelFontSize: "12"
+                },
+                data: data
+            });
+            chart.render();
+        }
+
+        function setResolution(res) {
+            var coll = document.getElementsByClassName('res-option');
+            for(var i=0, len=coll.length; i<len; i++)
+            {
+                coll[i].style.textDecoration = "none";
+            }
+            document.getElementById(res + 'ResLink').style.textDecoration = "underline";
+            if (res == "minute") {
+                displayChart(dataByMinute);
+            }
+            if (res == "hour") {
+                displayChart(dataByHour);
+            }
+            if (res == "day") {
+                displayChart(dataByDay);
+            }
+            if (res == "week") {
+                displayChart(dataByWeek);
+            }
+        }
+
+        // Grouping functions
+        // Adapted from http://stackoverflow.com/questions/20630676/how-to-group-objects-with-timestamps-properties-by-day-week-month
+        var dataByMinute={};
+        var dataByHour={};
+        var dataByDay={};
+        var dataByWeek={};
+
+        function groupminute(value, index, array)
+        {
+            var d = new Date(value['date']);
+            var divider = 60; // minute
+            d = divider * Math.floor(d.getTime()/divider);
+            dataByMinute[d]=dataByMinute[d]||[];
+            dataByMinute[d].push(value);
+        }
+
+        function grouphour(value, index, array)
+        {
+            var d = new Date(value['date']);
+            var divider = 60*60; // hour
+            d = divider * Math.floor(d.getTime()/divider);
+            dataByHour[d]=dataByHour[d]||[];
+            dataByHour[d].push(value);
+        }
+
+        function groupday(value, index, array)
+        {
+            var d = new Date(value['date']);
+            var divider = 60*60*24; // day
+            d = divider * Math.floor(d.getTime()/divider);
+            dataByDay[d]=dataByDay[d]||[];
+            dataByDay[d].push(value);
+        }
+
+        function groupweek(value, index, array)
+        {
+            var d = new Date(value['date']);
+            var divider = 60*60*24*7; // week
+            d = divider * Math.floor(d.getTime()/divider);
+            dataByWeek[d]=dataByWeek[d]||[];
+            dataByWeek[d].push(value);
+        }
+    </script>
+
     <h1>Monitor {{ application.name }}</h1>
+
+    <div class="alert alert-warning" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        This graphs are currently generated with fake data. The idea is that this data will be gathered from
+        the service that logs all Audio Commons Ecosystem actions.
+    </div>
+
+    Resolution:
+    <a id="minuteResLink" class="res-option" href="javascript:void(0);" onclick="setResolution('minute');">Minute</a> |
+    <a id="hourResLink" class="res-option" href="javascript:void(0);" onclick="setResolution('hour');">Hour</a> |
+    <a id="dayResLink" class="res-option" href="javascript:void(0);" onclick="setResolution('day');">Day</a> |
+    <a id="weekResLink" class="res-option" href="javascript:void(0);" onclick="setResolution('week');">Week</a>
+    <br>
+    <div id="chartContainer" style="height: 400px; width: 100%;">
+        <div style="text-align:center;padding-top: 180px;">
+            <img class="spinner" src="{% static "img/logo-icon.svg" %}" alt="">
+        </div>
+    </div>
+
     <div class="btn-toolbar">
         <a class="btn" href="{% url "developers-app-list" %}">Go Back</a>
     </div>
