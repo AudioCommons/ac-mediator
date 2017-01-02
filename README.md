@@ -62,7 +62,8 @@ API credentials and other relevant information for each service. An example of s
 file is found in [/services/services_conf.example.cfg](https://github.com/AudioCommons/ac-mediator/blob/master/services/services_conf.example.cfg).
 
 To be able to use such services in local development you'll need to request API keys
-for the different servies and fill up this configuration file. If a service can't load
+for the different servies and fill up this configuration file (in development, you can 
+use any invented id for `AUDIO_COMMONS_SERVICE_ID` field). If a service can't load
 any configuration parameters from this file, the service won't be enabled.
 
 
