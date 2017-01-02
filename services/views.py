@@ -3,7 +3,7 @@ from django.http import Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
 from services.management import get_service_by_id, get_test_service_configuration
 from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
-from services.acservice.search import ACServiceTextSearch
+from services.acservice.search import ACServiceTextSearchMixin
 from services.acservice.licensing import ACLicensingMixin
 from services.acservice.constants import *
 
@@ -64,7 +64,7 @@ def test_service_component(request, service_id):
     component = request.GET.get('component', None)
 
     try:
-        if component == SEARCH_TEXT_COMPONENT and isinstance(service, ACServiceTextSearch):
+        if component == SEARCH_TEXT_COMPONENT and isinstance(service, ACServiceTextSearchMixin):
             return _test_search_component(service, test_config)
         if component == LICENSING_COMPONENT and isinstance(service, ACLicensingMixin):
             return _test_licensing_component(service, test_config)

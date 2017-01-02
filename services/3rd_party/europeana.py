@@ -2,12 +2,12 @@ from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
-from services.acservice.search import ACServiceTextSearch, translates_field
+from services.acservice.search import ACServiceTextSearchMixin, translates_field
 from ac_mediator.exceptions import *
 import json
 
 
-class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
+class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin):
     NAME = 'Europeana'
     URL = 'http://www.europeana.eu'
     API_BASE_URL = "https://www.europeana.eu/api/v2/"

@@ -15,7 +15,7 @@ def translates_field(field_name):
     return wrapper
 
 
-class BaseACServiceSearch(object):
+class BaseACServiceSearchMixin(object):
     """
     Base class for search-related mixins.
     This class is in charge of providing necessary methods for handling translation of metadata field names
@@ -23,8 +23,8 @@ class BaseACServiceSearch(object):
     3rd party service returns a list of results with services particular fields and values, we can translate
     these to a unified Audio Commons format.
     Services that implement any of the search functionalities must at least implement:
-        - BaseACServiceSearch.format_search_response(self)
-        - BaseACServiceSearch.direct_fields_mapping(self) and/or necessary methods for translating individual
+        - BaseACServiceSearchMixin.format_search_response(self)
+        - BaseACServiceSearchMixin.direct_fields_mapping(self) and/or necessary methods for translating individual
           fields using the 'translates_field' decorator
     """
 
@@ -66,7 +66,7 @@ class BaseACServiceSearch(object):
         value according to the field name mapping specified in self.direct_fields_mapping.
         If field name is not available in self.direct_fields_mapping, then we check if it is available
         in the registry of translate field methods self.translate_field_methods_registry which is built
-        when running self.conf_search() (see BaseACServiceSearch.conf_search(self, *args).
+        when running self.conf_search() (see BaseACServiceSearchMixin.conf_search(self, *args).
         If a method for the ac_field_name exists in self.translate_field_methods_registry we call it and
         return its response.
         If field does not exist in self.direct_fields_mapping or self.translate_field_methods_registry
@@ -192,7 +192,7 @@ class BaseACServiceSearch(object):
         :param response: dictionary with the full json response of the request
         :return: list of dict where each dict is a single result
         """
-        raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
+        raise NotImplementedError("Service must implement method BaseACServiceSearchMixin.get_results_list_from_response")
 
     def get_num_results_from_response(self, response):
         """
@@ -200,7 +200,7 @@ class BaseACServiceSearch(object):
         :param response: dictionary with the full json response of the request
         :return: number of total results (integer)
         """
-        raise NotImplementedError("Service must implement method BaseACServiceSearch.get_results_list_from_response")
+        raise NotImplementedError("Service must implement method BaseACServiceSearchMixin.get_results_list_from_response")
 
     def process_size_query_parameter(self, size, common_search_params):
         """
@@ -237,7 +237,7 @@ class BaseACServiceSearch(object):
         return dict()
 
 
-class ACServiceTextSearch(BaseACServiceSearch):
+class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
     """
     Mixin that defines methods to allow text search.
     Services are expected to override methods to adapt them to their own APIs.

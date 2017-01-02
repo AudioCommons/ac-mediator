@@ -3,10 +3,10 @@ from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
-from services.acservice.search import ACServiceTextSearch, translates_field
+from services.acservice.search import ACServiceTextSearchMixin, translates_field
 
 
-class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch):
+class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin):
 
     # General settings
     NAME = 'Freesound'

@@ -3,11 +3,11 @@ from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
-from services.acservice.search import ACServiceTextSearch, translates_field
+from services.acservice.search import ACServiceTextSearchMixin, translates_field
 from services.acservice.licensing import ACLicensingMixin
 
 
-class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearch, ACLicensingMixin):
+class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin, ACLicensingMixin):
 
     # General
     NAME = 'Jamendo'
