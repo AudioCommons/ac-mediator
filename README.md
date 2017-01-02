@@ -21,8 +21,8 @@ API via https. Below you'll find instructions for setting up the development
 environment using Docker. You can also set up the development environment
 manually by installing all dependencies (including PostgreSQL and Redis).
 This works like a standard Django application but you'll have to manually
-connect all components. We do not instructions for this but it should not be
-too complicated.
+connect all components. We do not provide instructions for manuall installation,
+but it should not be too complicated.
 
 ## Setting up dev environment
 
@@ -33,11 +33,6 @@ Before starting make sure you have [Docker](https://www.docker.com/products/over
 ```
 git clone git@github.com:AudioCommons/ac-mediator.git
 cd ac_mediator
-```
-
-- Rename ac_mediator/local_settings.example.py
-```
-cp ac_mediator/local_settings.example.py ac_mediator/local_settings.py
 ```
 
 - Build and run Docker containers for required services
@@ -57,6 +52,18 @@ Now you should be able to access your server at `https://localhost`
 requests to the API are allowed when running ac-mediator locally. 
 This behaviour can be changed editing the `ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG`
 setting in `ac_mediator/settings.py`.
+
+
+### Configuring third-party services
+
+The Audio Commons mediator has to interact with third party services and needs
+to be configure to do so. This is done via a configuration file that will mainly store
+API credentials and other relevant information for each service. An example of such
+file is found in [/services/services_conf.example.cfg](https://github.com/AudioCommons/ac-mediator/blob/master/services/services_conf.example.cfg).
+
+To be able to use such services in local development you'll need to request API keys
+for the different servies and fill up this configuration file. If a service can't load
+any configuration parameters from this file, the service won't be enabled.
 
 
 # Documentation
