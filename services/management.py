@@ -98,6 +98,13 @@ def get_service_by_id(service_id):
     raise ACServiceDoesNotExist('Service with id {0} does not exist'.format(service_id))
 
 
+def get_service_by_name(service_name):
+    for service in available_services:
+        if service.name == service_name:
+            return service
+    raise ACServiceDoesNotExist('Service with name {0} does not exist'.format(service_name))
+
+
 test_services_configuration = None
 
 
