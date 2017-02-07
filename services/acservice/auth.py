@@ -88,10 +88,30 @@ class ACServiceAuthMixin(object):
         if not self.supports_auth(ENDUSER_AUTH_METHOD):
             raise ACException('Auth method \'{0}\' not supported by service {1}'.format(ENDUSER_AUTH_METHOD, self.name))
         try:
-            credentials = ServiceCredentials.objects.get(account=account, service_id=self.id).credentials
-            return credentials['access_token']
+            credentials = ServiceCredentials.objects.get(account=account, service_id=self.id)
+            self.check_credentials_are_valid(credentials)
+            # TODO: catch exception in the function above and renew credentials automatically
+            return self.get_access_token_from_credentials(credentials)
         except ServiceCredentials.DoesNotExist:
             return None
+
+    def check_credentials_are_valid(self, credentials):
+        """
+        Check if the provided credentials are valid for a given service.
+        This method should raise ACException if credentials are not valid.
+        This method should be overwritten by each individual service.
+        :param credentials: credentials object as stored in ServiceCredentials entry
+        """
+        raise NotImplementedError("Service must implement method ACServiceAuthMixin.credentials_are_valid")
+
+    def get_access_token_from_credentials(self, credentials):
+        """
+        Return the access token from service credentials sotred in ServiceCredentials object.
+        This method should be overwritten by each individual service.
+        :param credentials: credentials object as stored in ServiceCredentials entry
+        :return: access token extracted from the stored credentials
+        """
+        raise NotImplementedError("Service must implement method ACServiceAuthMixin.get_access_token_from_credentials")
 
     def get_auth_info_for_request(self, auth_method, account=None):
         """

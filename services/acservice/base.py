@@ -94,6 +94,9 @@ class BaseACService(object):
                 raise ACException('Authentication method {0} not supported by endpoint'.format(use_authentication_method))
             auth_method = use_authentication_method
 
+        if auth_method == ENDUSER_AUTH_METHOD and not account:
+            raise ACException('Enduser authentication method requested but no account provided.')
+
         auth_info = self.get_auth_info_for_request(auth_method, account=account)
         params.update(auth_info.get('params', dict()))  # Update current params with auth params (if any)
         print('- {0}?{1}'.format(
