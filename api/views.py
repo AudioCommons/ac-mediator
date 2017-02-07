@@ -373,3 +373,44 @@ def licensing(request):
         'kwargs': {'acid': acid}
     }, **distributor_qp)
     return Response(response)
+
+
+@api_view(['GET'])
+def download(request):
+    """
+    .. http:get:: /download/
+
+        This endpoint takes as input an Audio Commons Unique Identifier (``acid``) and requests a
+        download link to the service that hosts the corresponding resource. Service is derived
+        from the unique identified. The call to this endpoint returns a URL that can be used by the
+        client to download the requested resource directly from the content provider without any need
+        of authentication.
+
+        :query acid: Audio Commons unique resource identifier
+
+        :statuscode 200: no error
+        :statuscode 400: wrong query parameters provided
+
+
+        **Response**
+
+        The response consists of a dictionary with a single field containing the URL where the resource
+        can be downloaded.
+
+        .. code:: json
+
+            {
+                "download_url": "https://example.service.org/link/to/download/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ/"
+            }
+    """
+
+    distributor_qp = parse_request_distributor_query_params(request)
+    acid = request.GET.get('acid', None)
+    if acid is None:
+        raise ParseError('Missing required query parameter: acid')
+    response = request_distributor.process_request({
+        'component': DOWNLOAD_COMPONENT,
+        'method': 'download',
+        'kwargs': {'acid': acid}
+    }, **distributor_qp)
+    return Response(response)

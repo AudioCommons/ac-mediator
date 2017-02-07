@@ -36,4 +36,4 @@ class ACDownloadMixin(object):
         :param acid: Audio Commons unique resource identifier
         :return: url where to download the resource
         """
-        return self.get_download_url(acid, *args, **kwargs)
+        return {'download_url': self.get_download_url(acid, *args, **kwargs)}
