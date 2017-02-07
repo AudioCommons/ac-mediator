@@ -31,4 +31,4 @@ class ACLicensingMixin(object):
         :param acid: Audio Commons unique resource identifier
         :return: url where to get a license
         """
-        return self.get_licensing_url(acid, *args, **kwargs)
+        return {'license_url': self.get_licensing_url(acid, *args, **kwargs)}

@@ -338,8 +338,8 @@ def licensing(request):
 
         **Response**
 
-        The response of each individual service will simply contain a URL where the given resource can
-        be licensed (see example below).
+        The response of each individual service will simply contain a dictionary with a single `license_url` field
+        containing the URL where the resource can be licensed (see example below).
         If no licensing service is able to provide a link for licensing the requested resource, the
         ``contents`` property of the main response will be empty (an empty dictionary).
 
@@ -356,7 +356,7 @@ def licensing(request):
                     "n_expected_responses": 1
                 },
                 "contents": {
-                    "Jamendo": "https://licensing.jamendo.com/track/1162014"
+                    "Jamendo": {"license_url": "https://licensing.jamendo.com/track/1162014"}
                 },
                 "errors": { },
                 "warnings":{ }
