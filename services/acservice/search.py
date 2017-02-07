@@ -87,7 +87,7 @@ class BaseACServiceSearchMixin(object):
 
     @property
     def id_prefix(self):
-        return ACID_BASE_STRING.format(self.name)
+        return self.name + ACID_SEPARATOR_CHAR
 
     @translates_field(FIELD_ID)
     def translate_field_id(self, result):

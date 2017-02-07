@@ -2,7 +2,7 @@ from api.constants import *
 
 # String used to be the base of ACIDs
 # Param substitution will be used to provide a service-specific prefix to the id
-ACID_BASE_STRING = '{0}:'
+ACID_SEPARATOR_CHAR = ':'
 
 # Some of these concept definitions should be linked with the ontology (or be loaded from it)
 AUDIOCOMMONS_ONTOLOGY_PREFIX = 'ac:'
