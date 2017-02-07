@@ -1,12 +1,15 @@
-from ac_mediator.exceptions import ACException, ACPageNotFound
+from ac_mediator.exceptions import *
 from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearchMixin, translates_field
+from services.acservice.download import ACDownloadMixin
+import datetime
+from django.utils import timezone
 
 
-class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin):
+class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin, ACDownloadMixin):
 
     # General settings
     NAME = 'Freesound'
@@ -34,6 +37,16 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         if auth_method == ENDUSER_AUTH_METHOD:
             header_content = 'Bearer {0}'.format(self.get_enduser_token(account))
         return {'headers': {'Authorization': header_content}}
+
+    def get_access_token_from_credentials(self, credentials):
+        return credentials.credentials['access_token']
+
+    def check_credentials_are_valid(self, credentials):
+        date_expired = credentials.created + datetime.timedelta(seconds=credentials.credentials['expires_in'])
+        if timezone.now() > date_expired:
+            raise ACException(
+                'Linked \'{0}\' credentials have expired for account \'{1}\''.format(self.name,
+                                                                                     credentials.account.username))
 
     # Search
     TEXT_SEARCH_ENDPOINT_URL = API_BASE_URL + 'search/text/'
@@ -113,3 +126,21 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         # by setting 'fields' depending on what's in common_search_params['fields'].
         return {'fields': 'id,url,name,license,previews,username,tags,duration,filesize,channels,bitrate,bitdepth,'
                           'samplerate,type'}
+
+    # Download component
+    def get_download_url(self, acid, account):
+        if acid is None:
+            raise ACDownloadException(
+                '\'acid\' should be provided to \'get_download_url\'', 400)
+
+        # Translate ac resource id to Freesound resource id
+        if not acid.startswith(self.id_prefix):
+            raise ACDownloadException('Invalid resource id \'{0}\''.format(acid), 400)
+        resource_id = acid[len(self.id_prefix):]
+
+        response = self.send_request(
+            self.API_BASE_URL + 'sounds/{0}/download/link/'.format(resource_id),
+            use_authentication_method=ENDUSER_AUTH_METHOD,
+            account=account,
+        )
+        return response['download_link']
