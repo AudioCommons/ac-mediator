@@ -28,6 +28,12 @@ Search endpoints
 .. autoapiview:: api.views.text_search
 
 
+Download endpoints
+------------------
+
+.. autoapiview:: api.views.download
+
+
 Licensing endpoints
 -------------------
 
