@@ -5,6 +5,7 @@ from services.management import get_service_by_id, get_test_service_configuratio
 from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
 from services.acservice.search import ACServiceTextSearchMixin
 from services.acservice.licensing import ACLicensingMixin
+from services.acservice.download import ACDownloadMixin
 from services.acservice.constants import *
 
 
@@ -18,7 +19,7 @@ def test_service(request, service_id):
     return render(request, 'services/test_service.html', tvars)
 
 
-def _test_search_component(service, test_config):
+def _test_search_component(service, test_config, request):
     query = test_config.get('text_search_query', 'dogs')
     service.clear_response_warnings()
     response = service.text_search(q=query, f=None, s=None, common_search_params={
@@ -34,10 +35,22 @@ def _test_search_component(service, test_config):
          'response': response})
 
 
-def _test_licensing_component(service, test_config):
+def _test_licensing_component(service, test_config, request):
     resource_id = test_config.get('ac_resource_id_for_licensing')
     service.clear_response_warnings()
     response = service.license(acid=resource_id)
+    warnings = service.collect_response_warnings()
+    return JsonResponse(
+        {'status': 'OK' if len(warnings) == 0 else 'WR',
+         'message': 'Success',
+         'warnings': warnings,
+         'response': response})
+
+
+def _test_download_component(service, test_config, request):
+    resource_id = test_config.get('ac_resource_id_for_download')
+    service.clear_response_warnings()
+    response = service.download(acid=resource_id, account=request.user)
     warnings = service.collect_response_warnings()
     return JsonResponse(
         {'status': 'OK' if len(warnings) == 0 else 'WR',
@@ -65,9 +78,11 @@ def test_service_component(request, service_id):
 
     try:
         if component == SEARCH_TEXT_COMPONENT and isinstance(service, ACServiceTextSearchMixin):
-            return _test_search_component(service, test_config)
+            return _test_search_component(service, test_config, request)
         if component == LICENSING_COMPONENT and isinstance(service, ACLicensingMixin):
-            return _test_licensing_component(service, test_config)
+            return _test_licensing_component(service, test_config, request)
+        if component == DOWNLOAD_COMPONENT and isinstance(service, ACDownloadMixin):
+            return _test_download_component(service, test_config, request)
     except ACException as e:
         return JsonResponse(
             {'component': component,

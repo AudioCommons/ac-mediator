@@ -6,6 +6,7 @@ AUDIOCOMMONS_ONTOLOGY_PREFIX = 'ac:'
 # Component names
 SEARCH_TEXT_COMPONENT = 'text_search'
 LICENSING_COMPONENT = 'licensing'
+DOWNLOAD_COMPONENT = 'download'
 
 # Authentication
 APIKEY_AUTH_METHOD = 'apikey_auth'

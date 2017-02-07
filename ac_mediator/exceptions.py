@@ -42,6 +42,10 @@ class ACLicesningException(ACException):
     pass
 
 
+class ACDownloadException(ACException):
+    pass
+
+
 class ACPageNotFound(ACException):
 
     msg = 'Page not found.'
