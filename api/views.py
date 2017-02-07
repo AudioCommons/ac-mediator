@@ -394,7 +394,7 @@ def download(request):
 
         **Response**
 
-        The response consists of a dictionary with a single field containing the URL where the resource
+        The response consists of a dictionary with a single `download_url` field containing the URL where the resource
         can be downloaded.
 
         .. code:: json
