@@ -356,7 +356,9 @@ def licensing(request):
                     "n_expected_responses": 1
                 },
                 "contents": {
-                    "Jamendo": {"license_url": "https://licensing.jamendo.com/track/1162014"}
+                    "Jamendo": {
+                        "license_url": "https://licensing.jamendo.com/track/1162014"
+                    }
                 },
                 "errors": { },
                 "warnings":{ }
