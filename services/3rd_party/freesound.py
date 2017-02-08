@@ -130,8 +130,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     # Download component
     def get_download_url(self, acid, account):
         if acid is None:
-            raise ACDownloadException(
-                '\'acid\' should be provided to \'get_download_url\'', 400)
+            raise ACDownloadException('\'acid\' should be provided to \'get_download_url\'', 400)
 
         # Translate ac resource id to Freesound resource id
         if not acid.startswith(self.id_prefix):

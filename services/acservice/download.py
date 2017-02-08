@@ -34,6 +34,7 @@ class ACDownloadMixin(object):
         'get_download_url' is the main method that should be overwritten by third party services.
         Raise warnings using the BaseACService.add_response_warning method.
         :param acid: Audio Commons unique resource identifier
+        :param account: Audio Commons user account that requested the download link
         :return: url where to download the resource
         """
         return {'download_url': self.get_download_url(acid, *args, **kwargs)}

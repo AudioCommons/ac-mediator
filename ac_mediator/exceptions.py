@@ -60,3 +60,9 @@ class ACAPIInvalidUrl(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Invalid URL.'
     default_code = 'invalid_url'
+
+
+class ACAPIServiceDoesNotExist(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = 'Requested service does not exist.'
+    default_code = 'service_does_not_exist'

@@ -1,7 +1,9 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from api.models import ApiClient
 from accounts.models import Account
 from django.core.urlresolvers import reverse
+from services import management
+from django.conf import settings
 
 
 class OAuth2TestCase(TestCase):
@@ -342,3 +344,66 @@ class OAuth2TestCase(TestCase):
             })
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(resp.json()['error'], 'invalid_client')
+
+modified_rest_framework_settings = settings.REST_FRAMEWORK
+modified_rest_framework_settings['DEFAULT_PERMISSION_CLASSES'] = ['rest_framework.permissions.IsAuthenticated']
+
+
+@override_settings(REST_FRAMEWORK=modified_rest_framework_settings)
+class DownloadEndpointsTestCase(TestCase):
+
+    def setUp(self):
+
+        # Create users
+        self.dev_user = Account.objects.create_user('dev', password='devpass')
+        self.end_user_password = 'endpass'
+        self.end_user = Account.objects.create_user('end', password=self.end_user_password)
+
+        # Create clients
+        ApiClient.objects.create(
+            name='TestClient',
+            user=self.dev_user,
+            agree_tos=True,
+            client_type=ApiClient.CLIENT_PUBLIC,
+            authorization_grant_type=ApiClient.GRANT_PASSWORD,
+            redirect_uris='http://example.com',
+            password_grant_is_allowed=True,
+        )
+
+        # Create fake download service
+        from services.acservice.base import BaseACService
+        from services.acservice.download import ACDownloadMixin
+        class FakeService(BaseACService, ACDownloadMixin):
+            NAME = 'DownloadService'
+            def get_download_url(self, acid):
+                return 'http://test.url/for/test/{0}'.format(acid)
+        self.service = FakeService()
+        self.service.configure({'service_id': 'downloadserviceid', 'enabled': 'yes'})
+        management.available_services = [self.service]
+
+
+    def test_get_download_link(self):
+
+        # Make unauthenticated request
+        resp = self.client.get(reverse('api-download'), {
+            'acid': 'DownloadService:123',
+        })
+        self.assertEqual(resp.status_code, 401)
+
+        # Get access credentials
+        client = ApiClient.objects.get(name='TestClient')
+        resp = self.client.post(reverse('oauth2_provider:token'), {
+            'client_id': client.client_id,
+            'grant_type': 'password',
+            'username': self.end_user.username,
+            'password': self.end_user_password,
+        })
+        access_token = resp.json()
+
+        # Make API request authenticated
+        resp = self.client.get(reverse('api-download'), {
+            'acid': 'DownloadService:123',
+        }, Authorization='Bearer {0}'.format(access_token))
+        print(resp.json())
+        self.assertEqual(resp.status_code, 200)
+

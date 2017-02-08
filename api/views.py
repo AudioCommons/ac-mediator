@@ -1,15 +1,24 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound, ParseError
-from ac_mediator.exceptions import ACAPIInvalidUrl
+from ac_mediator.exceptions import *
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
-from services.management import get_available_services
+from services.management import get_available_services, get_service_by_name
 from services.acservice.constants import *
 
 
 request_distributor = get_request_distributor()
 response_aggregator = get_response_aggregator()
+
+
+def get_request_context(request):
+    print(request)
+    print(request.successful_authenticator)
+    return {
+        'user_account': None,
+        'dev_account': None,
+    }
 
 
 def parse_request_distributor_query_params(request):
@@ -30,9 +39,11 @@ def parse_request_distributor_query_params(request):
 
 
 def parse_common_search_query_params(request):
-    fields = request.GET.get(QUERY_PARAM_FIELDS, None).split(',')
+    fields = request.GET.get(QUERY_PARAM_FIELDS, None)
     if fields is None:
         fields = MINIMUM_RESOURCE_DESCRIPTION_FIELDS
+    else:
+        fields = fields.split(',')
     size = request.GET.get(QUERY_PARAM_SIZE, 15)
     try:
         size = int(size)
@@ -384,7 +395,7 @@ def download(request):
 
         This endpoint takes as input an Audio Commons Unique Identifier (``acid``) and requests a
         download link to the service that hosts the corresponding resource. Service is derived
-        from the unique identified. The call to this endpoint returns a URL that can be used by the
+        from the unique identifier. The call to this endpoint returns a URL that can be used by the
         client to download the requested resource directly from the content provider without any need
         of authentication.
 
@@ -405,14 +416,19 @@ def download(request):
                 "download_url": "https://example.service.org/link/to/download/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ/"
             }
     """
-
-    distributor_qp = parse_request_distributor_query_params(request)
+    get_request_context(request)
     acid = request.GET.get('acid', None)
     if acid is None:
         raise ParseError('Missing required query parameter: acid')
-    response = request_distributor.process_request({
-        'component': DOWNLOAD_COMPONENT,
-        'method': 'download',
-        'kwargs': {'acid': acid}
-    }, **distributor_qp)
+    service_name = acid.split(ACID_SEPARATOR_CHAR)[0]  # Derive service name from ACID
+    try:
+        service = get_service_by_name(service_name)
+    except ACServiceDoesNotExist:
+        raise ACAPIServiceDoesNotExist
+
+    from accounts.models import Account
+    account = Account.objects.all()[0]
+    # TODO: this should be taken from oauth request.
+    response = service.download(acid=acid)
+
     return Response(response)
