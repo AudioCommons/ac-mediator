@@ -1,5 +1,5 @@
 from accounts.models import ServiceCredentials
-from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException
+from ac_mediator.exceptions import *
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import requests
@@ -93,12 +93,12 @@ class ACServiceAuthMixin(object):
             # TODO: catch exception in the function above and renew credentials automatically
             return self.get_access_token_from_credentials(credentials)
         except ServiceCredentials.DoesNotExist:
-            raise ACException('No credentials found for account \'{0}\''.format(account.username))
+            raise ACAPIInvalidCredentialsForService
 
     def check_credentials_are_valid(self, credentials):
         """
         Check if the provided credentials are valid for a given service.
-        This method should raise ACException if credentials are not valid.
+        This method should raise ACAPIInvalidCredentialsForServiceException if credentials are not valid.
         This method should be overwritten by each individual service or it will always return true.
         :param credentials: credentials object as stored in ServiceCredentials entry
         """

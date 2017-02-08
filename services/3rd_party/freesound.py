@@ -22,7 +22,11 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         if self.TEXT_SEARCH_ENDPOINT_URL in response.request.url:
             # If request was made to search endpoint, translate 404 to 'page not found exception'
             if response.status_code == 404:
-                raise ACPageNotFound
+                raise ACAPIPageNotFound
+        if 'download/link' in response.request.url:
+            # If request was made to download link endpoint, translate 404 to 'resource does not exist'
+            if response.status_code == 404:
+                raise ACAPIResourceDoesNotExist
         if response.status_code != 200:
             raise ACException(response.json()['detail'], response.status_code)
         return response.json()
@@ -43,12 +47,9 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         return credentials.credentials['access_token']
 
     def check_credentials_are_valid(self, credentials):
-        print("heyyy\n\n\n")
         date_expired = credentials.created + datetime.timedelta(seconds=credentials.credentials['expires_in'])
         if timezone.now() > date_expired:
-            raise ACException(
-                'Linked \'{0}\' credentials have expired for account \'{1}\''.format(self.name,
-                                                                                     credentials.account.username))
+            raise ACAPIInvalidCredentialsForService
 
     # Search
     TEXT_SEARCH_ENDPOINT_URL = API_BASE_URL + 'search/text/'
@@ -131,18 +132,15 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     # Download component
     def get_download_url(self, context, acid, *args, **kwargs):
-        if acid is None:
-            raise ACDownloadException('\'acid\' should be provided to \'get_download_url\'', 400)
 
         # Translate ac resource id to Freesound resource id
         if not acid.startswith(self.id_prefix):
-            raise ACDownloadException('Invalid resource id \'{0}\''.format(acid), 400)
+            raise ACAPIInvalidACID
         resource_id = acid[len(self.id_prefix):]
-
         try:
             int(resource_id)
         except ValueError:
-            raise ACDownloadException('Invalid \'acid\'', 400)
+            raise ACAPIInvalidACID
 
         response = self.send_request(
             self.API_BASE_URL + 'sounds/{0}/download/link/'.format(resource_id),

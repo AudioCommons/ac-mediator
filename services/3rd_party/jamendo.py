@@ -1,4 +1,4 @@
-from ac_mediator.exceptions import ACLicesningException
+from ac_mediator.exceptions import *
 from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
@@ -69,21 +69,14 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
         return {'include': 'musicinfo+licenses'}  # Use include parameter to retrieve all infomation we need
 
     # Licensing
-    def get_licensing_url(self, context, acid=None, resource_dict=None, *args, **kwargs):
-        if acid is None and resource_dict is None:
-            raise ACLicesningException(
-                'Either \'acid\' or \'resource_dict\' should be provided to \'get_licensing_url\'', 400)
-        if resource_dict is None:
-            # Translate ac resource id to Jamendo resource id
-            if not acid.startswith(self.id_prefix):
-                raise ACLicesningException('Invalid resource id \'{0}\''.format(acid), 400)
-            resource_id = acid[len(self.id_prefix):]
-            # If no resource dict is provided, make a request to Jamendo to retrieve resource data
-            response = self.send_request(
-                self.TEXT_SEARCH_ENDPOINT_URL,
-                params={'id': resource_id, 'include': 'licenses'},
-            )
-            if response['headers']['results_count'] == 0:
-                raise ACLicesningException('Resource not found', 404)
-            resource_dict = response['results'][0]
-        return resource_dict.get('prourl', None)
+    def get_licensing_url(self, context, acid, *args, **kwargs):
+        if not acid.startswith(self.id_prefix):
+            raise ACAPIInvalidACID
+        resource_id = acid[len(self.id_prefix):]
+        response = self.send_request(
+            self.TEXT_SEARCH_ENDPOINT_URL,
+            params={'id': resource_id, 'include': 'licenses'},
+        )
+        if response['headers']['results_count'] == 0:
+            raise ACAPIResourceDoesNotExist
+        return response['results'][0].get('prourl', None)

@@ -63,7 +63,7 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     def get_results_list_from_response(self, response):
         if not response['items']:
-            raise ACPageNotFound
+            raise ACAPIPageNotFound
         return response['items']
 
     def get_num_results_from_response(self, response):

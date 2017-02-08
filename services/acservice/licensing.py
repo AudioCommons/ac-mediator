@@ -14,7 +14,7 @@ class ACLicensingMixin(object):
         """
         Given an Audio Commons unique resource identifier (acid), this function returns a url
         where the resource can be licensed. If the 3rd party service can't license that resource or
-        some other errors occur during the collection of the url, an ACLicesningException should be raised.
+        some other errors occur during the collection of the url, an AC exceptions should be raised.
         Individual services can extend this method with extra parameters to make it more suitable to their
         needs (e.g., to call the method given an already retrieved resource and avoid in this way an
         extra request).
