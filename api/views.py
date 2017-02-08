@@ -6,6 +6,8 @@ from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
 from services.management import get_available_services, get_service_by_name
 from services.acservice.constants import *
+from django.conf import settings
+from accounts.models import Account
 
 
 request_distributor = get_request_distributor()
@@ -13,11 +15,26 @@ response_aggregator = get_response_aggregator()
 
 
 def get_request_context(request):
-    print(request)
-    print(request.successful_authenticator)
+    user_account_id = None
+    dev_account_id = None
+    if hasattr(request, 'successful_authenticator') and request.successful_authenticator:
+        # In production API calls this should be always the case as otherwise API returns 401 before reaching here
+        user_account_id = request.user.id
+        dev_account_id = request.auth.application.user.id
+    else:
+        # In integration tests or local development it can happen that successful_authenticator does not exist
+        # In that case we provide 'fake' context so tests can be carried out correctly
+        if request.user.is_authenticated():
+            user_account_id = request.user.id
+            dev_account_id = user_account_id
+        else:
+            if settings.DEBUG and settings.ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG:
+                user_account_id = Account.objects.all()[0].id
+                dev_account_id = user_account_id
     return {
-        'user_account': None,
-        'dev_account': None,
+        'user_account_id': user_account_id,
+        'dev_account_id': dev_account_id,
+        # NOTE: we use id's instead of the objects so that the dict can be serialized and passed to Celery
     }
 
 
@@ -29,8 +46,7 @@ def parse_request_distributor_query_params(request):
     if exclude is not None:
         exclude = exclude.split(',')
     wait_until_complete = \
-        request.GET.get(QUERY_PARAM_WAIT_UNTIL_COMPLETE, False),  # This option is left intentionally undocumented
-
+        request.GET.get(QUERY_PARAM_WAIT_UNTIL_COMPLETE, False)  # This option is left intentionally undocumented
     return {
         QUERY_PARAM_INCLUDE: include,
         QUERY_PARAM_EXCLUDE: exclude,
@@ -80,6 +96,7 @@ def collect_response(request):
         :query rid: response id to collect
 
         :statuscode 200: no error
+        :statuscode 401: no authentication details provided
         :statuscode 404: response object with the provided id does not exist
 
         **Response**
@@ -117,6 +134,7 @@ def services(request):
         :query component: only return services that implement this component
 
         :statuscode 200: no error
+        :statuscode 401: no authentication details provided
 
         **Response**
 
@@ -201,6 +219,8 @@ def text_search(request):
         :query exclude: services to exclude in query (names separated by commas)
 
         :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
+        :statuscode 400: wrong query parameters provided
+        :statuscode 401: no authentication details provided
 
 
         **Sorting with** ``s`` **parameter**
@@ -319,6 +339,7 @@ def text_search(request):
         raise ParseError("Invalid query parameter: '{0}'. Should be one of [{1}]."
                          .format(QUERY_PARAM_SORT, ', '.join(SORT_OPTIONS)))
     response = request_distributor.process_request({
+        'context': get_request_context(request),
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
         'kwargs': dict(q=q, f=f, s=s, common_search_params=search_qp),
@@ -345,6 +366,7 @@ def licensing(request):
 
         :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
         :statuscode 400: wrong query parameters provided
+        :statuscode 401: no authentication details provided
 
 
         **Response**
@@ -381,6 +403,7 @@ def licensing(request):
     if acid is None:
         raise ParseError('Missing required query parameter: acid')
     response = request_distributor.process_request({
+        'context': get_request_context(request),
         'component': LICENSING_COMPONENT,
         'method': 'license',
         'kwargs': {'acid': acid}
@@ -403,6 +426,8 @@ def download(request):
 
         :statuscode 200: no error
         :statuscode 400: wrong query parameters provided
+        :statuscode 401: no authentication details provided
+        :statuscode 404: service not found or resource not found in service
 
 
         **Response**
@@ -416,19 +441,26 @@ def download(request):
                 "download_url": "https://example.service.org/link/to/download/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ/"
             }
     """
-    get_request_context(request)
+
     acid = request.GET.get('acid', None)
     if acid is None:
         raise ParseError('Missing required query parameter: acid')
     service_name = acid.split(ACID_SEPARATOR_CHAR)[0]  # Derive service name from ACID
     try:
-        service = get_service_by_name(service_name)
+        get_service_by_name(service_name)
     except ACServiceDoesNotExist:
         raise ACAPIServiceDoesNotExist
-
-    from accounts.models import Account
-    account = Account.objects.all()[0]
-    # TODO: this should be taken from oauth request.
-    response = service.download(acid=acid)
-
-    return Response(response)
+    distributor_qp = {
+        QUERY_PARAM_INCLUDE: [service_name],
+        'wait_until_complete': True,
+    }
+    response = request_distributor.process_request({
+        'context': get_request_context(request),
+        'component': DOWNLOAD_COMPONENT,
+        'method': 'download',
+        'kwargs': {'acid': acid}
+    }, **distributor_qp)
+    print(response)
+    if service_name in response['errors']:
+        return Response(response['errors'][service_name])  # Return only the part of the response of the service
+    return Response(response['contents'][service_name])  # Return only the part of the response of the service

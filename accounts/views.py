@@ -6,7 +6,7 @@ from accounts.forms import RegistrationForm
 from accounts.models import ServiceCredentials
 from services.management import get_available_services, get_service_by_id
 from services.acservice.constants import ENDUSER_AUTH_METHOD
-from ac_mediator.exceptions import ACServiceDoesNotExist
+from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
 
 
 def registration(request):
@@ -34,9 +34,15 @@ def link_services(request):
     non_linkable_services_info = list()
     for service in get_available_services():
         if service.supports_auth(ENDUSER_AUTH_METHOD):
+            is_linked = False
+            try:
+                service.get_enduser_token(request.user)
+                is_linked = True
+            except ACException:
+                pass
             linkable_services_info.append((
                 service,
-                service.get_enduser_token(request.user)
+                is_linked,
             ))
         else:
             non_linkable_services_info.append(service)

@@ -14,7 +14,7 @@ class ACDownloadMixin(object):
     def conf_download(self, conf):
         self.implemented_components.append(DOWNLOAD_COMPONENT)
 
-    def get_download_url(self, acid, *args, **kwargs):
+    def get_download_url(self, context, acid, *args, **kwargs):
         """
         Given an Audio Commons unique resource identifier (acid), this function returns a url
         where the resource can be downloaded by the client without the need of extra authentication.
@@ -23,18 +23,20 @@ class ACDownloadMixin(object):
         Individual services can extend this method with extra parameters to make it more suitable to their
         needs (e.g., to call the method given an already retrieved resource and avoid in this way an
         extra request).
+        :param context: Dict with context information for the request (see api.views.get_request_context)
+        :param acid: Audio Commons unique resource identifier
         :return: url to download the input resource (string)
         """
         raise NotImplementedError("Service must implement method ACLicensingMixin.get_download_url")
 
-    def download(self, acid, *args, **kwargs):
+    def download(self, context, acid, *args, **kwargs):
         """
         This endpoint returns a download url and raises warnings that might contain relevant
         information for the application. To get the URL, it uses 'get_download_url' method, therefore
         'get_download_url' is the main method that should be overwritten by third party services.
         Raise warnings using the BaseACService.add_response_warning method.
+        :param context: Dict with context information for the request (see api.views.get_request_context)
         :param acid: Audio Commons unique resource identifier
-        :param account: Audio Commons user account that requested the download link
         :return: url where to download the resource
         """
-        return {'download_url': self.get_download_url(acid, *args, **kwargs)}
+        return {'download_url': self.get_download_url(context, acid, *args, **kwargs)}

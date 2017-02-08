@@ -7,6 +7,7 @@ from services.acservice.search import ACServiceTextSearchMixin
 from services.acservice.licensing import ACLicensingMixin
 from services.acservice.download import ACDownloadMixin
 from services.acservice.constants import *
+from api.views import get_request_context
 
 
 @login_required
@@ -22,11 +23,12 @@ def test_service(request, service_id):
 def _test_search_component(service, test_config, request):
     query = test_config.get('text_search_query', 'dogs')
     service.clear_response_warnings()
-    response = service.text_search(q=query, f=None, s=None, common_search_params={
-        'fields': MINIMUM_RESOURCE_DESCRIPTION_FIELDS,
-        'size': 10,
-        'page': 1,
-    })
+    response = service.text_search(
+        context=get_request_context(request), q=query, f=None, s=None, common_search_params={
+            'fields': MINIMUM_RESOURCE_DESCRIPTION_FIELDS,
+            'size': 10,
+            'page': 1,
+        })
     warnings = service.collect_response_warnings()
     return JsonResponse(
         {'status': 'OK' if len(warnings) == 0 else 'WR',
@@ -38,7 +40,7 @@ def _test_search_component(service, test_config, request):
 def _test_licensing_component(service, test_config, request):
     resource_id = test_config.get('ac_resource_id_for_licensing')
     service.clear_response_warnings()
-    response = service.license(acid=resource_id)
+    response = service.license(context=get_request_context(request), acid=resource_id)
     warnings = service.collect_response_warnings()
     return JsonResponse(
         {'status': 'OK' if len(warnings) == 0 else 'WR',
@@ -50,7 +52,7 @@ def _test_licensing_component(service, test_config, request):
 def _test_download_component(service, test_config, request):
     resource_id = test_config.get('ac_resource_id_for_download')
     service.clear_response_warnings()
-    response = service.download(acid=resource_id, account=request.user)
+    response = service.download(context=get_request_context(request), acid=resource_id)
     warnings = service.collect_response_warnings()
     return JsonResponse(
         {'status': 'OK' if len(warnings) == 0 else 'WR',

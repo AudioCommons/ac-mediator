@@ -4,6 +4,8 @@ from accounts.models import Account
 from django.core.urlresolvers import reverse
 from services import management
 from django.conf import settings
+import oauth2_provider
+import datetime
 
 
 class OAuth2TestCase(TestCase):
@@ -381,29 +383,37 @@ class DownloadEndpointsTestCase(TestCase):
         self.service.configure({'service_id': 'downloadserviceid', 'enabled': 'yes'})
         management.available_services = [self.service]
 
-
     def test_get_download_link(self):
 
-        # Make unauthenticated request
+        # Make unauthenticated request and assert it returns 401
         resp = self.client.get(reverse('api-download'), {
             'acid': 'DownloadService:123',
         })
         self.assertEqual(resp.status_code, 401)
 
-        # Get access credentials
+        # Create an access token for application and user
         client = ApiClient.objects.get(name='TestClient')
-        resp = self.client.post(reverse('oauth2_provider:token'), {
-            'client_id': client.client_id,
-            'grant_type': 'password',
-            'username': self.end_user.username,
-            'password': self.end_user_password,
-        })
-        access_token = resp.json()
+        access_token = self.access_token = oauth2_provider.models.AccessToken.objects.create(
+            token='a_fake_token',
+            application=client,
+            user=self.end_user,
+            expires=datetime.datetime.today() + datetime.timedelta(hours=1)
+        )
 
-        # Make API request authenticated
+        # Make API request authenticated and assert it returns 200
         resp = self.client.get(reverse('api-download'), {
             'acid': 'DownloadService:123',
-        }, Authorization='Bearer {0}'.format(access_token))
-        print(resp.json())
+        }, HTTP_AUTHORIZATION='Bearer {0}'.format(access_token))
         self.assertEqual(resp.status_code, 200)
 
+        # Ensure request for non existing service returns 404
+        resp = self.client.get(reverse('api-download'), {
+            'acid': 'DownloadService2:123',
+        }, HTTP_AUTHORIZATION='Bearer {0}'.format(access_token))
+        self.assertEqual(resp.status_code, 404)
+
+        # Ensure request with no acid parameter returns 400
+        resp = self.client.get(reverse('api-download'), {
+            'acid2': 'DownloadService:123',
+        }, HTTP_AUTHORIZATION='Bearer {0}'.format(access_token))
+        self.assertEqual(resp.status_code, 400)

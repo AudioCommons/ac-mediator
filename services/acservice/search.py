@@ -287,7 +287,7 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
 
         return supported_criteria
 
-    def text_search(self, q, f, s, common_search_params):
+    def text_search(self, context, q, f, s, common_search_params):
         """
         This function a search request to the third party service and returns a formatted json
         response as a dictionary if the response status code is 200 or raises an exception otherwise.
@@ -306,6 +306,7 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
         Common search parameters include:
         TODO: write common params when decided
 
+        :param context: Dict with context information for the request (see api.views.get_request_context)
         :param q: textual input query
         :param f: query filter
         :param s: sorting criteria

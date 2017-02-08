@@ -5,6 +5,7 @@ from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearchMixin, translates_field
 from services.acservice.download import ACDownloadMixin
+from accounts.models import Account
 import datetime
 from django.utils import timezone
 
@@ -42,6 +43,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         return credentials.credentials['access_token']
 
     def check_credentials_are_valid(self, credentials):
+        print("heyyy\n\n\n")
         date_expired = credentials.created + datetime.timedelta(seconds=credentials.credentials['expires_in'])
         if timezone.now() > date_expired:
             raise ACException(
@@ -128,7 +130,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
                           'samplerate,type'}
 
     # Download component
-    def get_download_url(self, acid, account):
+    def get_download_url(self, context, acid, *args, **kwargs):
         if acid is None:
             raise ACDownloadException('\'acid\' should be provided to \'get_download_url\'', 400)
 
@@ -137,9 +139,14 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             raise ACDownloadException('Invalid resource id \'{0}\''.format(acid), 400)
         resource_id = acid[len(self.id_prefix):]
 
+        try:
+            int(resource_id)
+        except ValueError:
+            raise ACDownloadException('Invalid \'acid\'', 400)
+
         response = self.send_request(
             self.API_BASE_URL + 'sounds/{0}/download/link/'.format(resource_id),
             use_authentication_method=ENDUSER_AUTH_METHOD,
-            account=account,
+            account=Account.objects.get(id=context['user_account_id']),
         )
         return response['download_link']

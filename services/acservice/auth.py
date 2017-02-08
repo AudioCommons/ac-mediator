@@ -93,25 +93,25 @@ class ACServiceAuthMixin(object):
             # TODO: catch exception in the function above and renew credentials automatically
             return self.get_access_token_from_credentials(credentials)
         except ServiceCredentials.DoesNotExist:
-            return None
+            raise ACException('No credentials found for account \'{0}\''.format(account.username))
 
     def check_credentials_are_valid(self, credentials):
         """
         Check if the provided credentials are valid for a given service.
         This method should raise ACException if credentials are not valid.
-        This method should be overwritten by each individual service.
+        This method should be overwritten by each individual service or it will always return true.
         :param credentials: credentials object as stored in ServiceCredentials entry
         """
-        raise NotImplementedError("Service must implement method ACServiceAuthMixin.credentials_are_valid")
+        return True
 
     def get_access_token_from_credentials(self, credentials):
         """
-        Return the access token from service credentials sotred in ServiceCredentials object.
-        This method should be overwritten by each individual service.
+        Return the access token from service credentials stored in ServiceCredentials object.
+        This method should be overwritten by each individual service that uses access tokens.
         :param credentials: credentials object as stored in ServiceCredentials entry
         :return: access token extracted from the stored credentials
         """
-        raise NotImplementedError("Service must implement method ACServiceAuthMixin.get_access_token_from_credentials")
+        return None
 
     def get_auth_info_for_request(self, auth_method, account=None):
         """

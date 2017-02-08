@@ -69,7 +69,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
         return {'include': 'musicinfo+licenses'}  # Use include parameter to retrieve all infomation we need
 
     # Licensing
-    def get_licensing_url(self, acid=None, resource_dict=None):
+    def get_licensing_url(self, context, acid=None, resource_dict=None, *args, **kwargs):
         if acid is None and resource_dict is None:
             raise ACLicesningException(
                 'Either \'acid\' or \'resource_dict\' should be provided to \'get_licensing_url\'', 400)

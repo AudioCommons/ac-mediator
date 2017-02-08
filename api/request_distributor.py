@@ -12,7 +12,7 @@ def perform_request_and_aggregate(request, response_id, service_id):
     try:
         print('Requesting response from {0} ({1})'.format(service.name, response_id))
         service.clear_response_warnings()
-        service_response = getattr(service, request['method'])(**request['kwargs'])
+        service_response = getattr(service, request['method'])(request['context'], **request['kwargs'])
         warnings = service.collect_response_warnings()
         response_aggregator.aggregate_response(response_id, service.name, service_response, warnings=warnings)
     except ACException as e:
@@ -29,7 +29,7 @@ class RequestDistributor(object):
         Requests to 3rd party services are made asynchronously. We send requests to all 3rd
         party services and as soon as a response is received it is added to a response object
         which aggregates the responses from all services.
-        In the normal functioaning mode (wait_until_complete=False) this method will immediately
+        In the normal functioning mode (wait_until_complete=False) this method will immediately
         return a response right after all requests have been sent. This response will mainly
         include a response_id parameter that can be later used to pull the actual responses
         from the 3rd party services (see ResponseAggregator.collect_response).
@@ -38,6 +38,7 @@ class RequestDistributor(object):
         contents of all 3rd party services individual responses.
 
         :param request: incoming request object
+        :param context: dictionary containing contextual information such as the account of the end user performing the request or the developer account linked with the API client
         :param wait_until_complete: whether to return immediately after all requests are sent or wait untill all responses are received
         :return: dictionary with response (as returned by ResponseAggregator.collect_response)
         """
@@ -78,6 +79,7 @@ class RequestDistributor(object):
 
 
 request_distributor = RequestDistributor()
+
 
 def get_request_distributor():
     return request_distributor
