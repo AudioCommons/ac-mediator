@@ -39,8 +39,6 @@ class ACFieldTranslateException(ACException):
 
 
 # AC API Exceptions
-# We generally use exceptions provided by rest_framework, we only add here new exceptions that are not included
-# in the rest_framework package.
 
 class ACAPIException(APIException):
 
@@ -77,6 +75,12 @@ class ACAPIResourceDoesNotExist(ACAPIException):
     default_code = 'resource_not_found'
 
 
+class ACAPIResponseDoesNotExist(ACAPIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = 'Requested response does not exist.'
+    default_code = 'response_not_found'
+
+
 class ACAPIInvalidACID(ACAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Invalid Audio Commons Unique Identifier.'
@@ -87,3 +91,9 @@ class ACAPIInvalidCredentialsForService(ACAPIException):
     status_code = status.HTTP_401_UNAUTHORIZED
     default_detail = 'Credentials to access third party service are invalid or have expired.'
     default_code = 'invalid_credentials_for_service'
+
+
+class ACAPIBadRequest(ACAPIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Bad request.'
+    default_code = 'bad_request'

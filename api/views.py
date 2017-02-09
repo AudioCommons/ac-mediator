@@ -1,6 +1,5 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import NotFound, ParseError
 from ac_mediator.exceptions import *
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
@@ -64,15 +63,15 @@ def parse_common_search_query_params(request):
     try:
         size = int(size)
     except ValueError:
-        raise ParseError("Invalid '{0}' value".format(QUERY_PARAM_SIZE))
+        raise ACAPIBadRequest("Invalid '{0}' value".format(QUERY_PARAM_SIZE))
     page = request.GET.get(QUERY_PARAM_PAGE, None)
     if page is not None:
         try:
             page = int(page)
         except ValueError:
-            raise ParseError("Invalid '{0}' value".format(QUERY_PARAM_PAGE))
+            raise ACAPIBadRequest("Invalid '{0}' value".format(QUERY_PARAM_PAGE))
         if page < 1:
-            raise ParseError("Invalid '{0}' value (must be greater than 0)".format(QUERY_PARAM_PAGE))
+            raise ACAPIBadRequest("Invalid '{0}' value (must be greater than 0)".format(QUERY_PARAM_PAGE))
     return {
         QUERY_PARAM_SIZE: size,
         QUERY_PARAM_PAGE: page,
@@ -116,7 +115,7 @@ def collect_response(request):
     """
     response = response_aggregator.collect_response(request.GET.get('rid'))
     if response is None:
-        raise NotFound
+        raise ACAPIResponseDoesNotExist
     return Response(response)
 
 
@@ -332,11 +331,11 @@ def text_search(request):
     search_qp = parse_common_search_query_params(request)
     q = request.GET.get(QUERY_PARAM_QUERY, None)  # Textual input query parameter
     if q is None or not q.strip():
-        raise ParseError("Missing or invalid query parameter: '{0}'".format(QUERY_PARAM_QUERY))
+        raise ACAPIBadRequest("Missing or invalid query parameter: '{0}'".format(QUERY_PARAM_QUERY))
     f = request.GET.get(QUERY_PARAM_FILTER, None)
     s = request.GET.get(QUERY_PARAM_SORT, None)
     if s is not None and (s not in SORT_OPTIONS and s not in ['-{0}'.format(opt) for opt in SORT_OPTIONS]):
-        raise ParseError("Invalid query parameter: '{0}'. Should be one of [{1}]."
+        raise ACAPIBadRequest("Invalid query parameter: '{0}'. Should be one of [{1}]."
                          .format(QUERY_PARAM_SORT, ', '.join(SORT_OPTIONS)))
     response = request_distributor.process_request({
         'context': get_request_context(request),
@@ -401,7 +400,7 @@ def licensing(request):
     distributor_qp = parse_request_distributor_query_params(request)
     acid = request.GET.get('acid', None)
     if acid is None:
-        raise ParseError('Missing required query parameter: acid')
+        raise ACAPIBadRequest('Missing required query parameter: acid')
     response = request_distributor.process_request({
         'context': get_request_context(request),
         'component': LICENSING_COMPONENT,
@@ -444,7 +443,7 @@ def download(request):
 
     acid = request.GET.get('acid', None)
     if acid is None:
-        raise ParseError('Missing required query parameter: acid')
+        raise ACAPIBadRequest('Missing required query parameter: acid')
     service_name = acid.split(ACID_SEPARATOR_CHAR)[0]  # Derive service name from ACID
     try:
         get_service_by_name(service_name)
