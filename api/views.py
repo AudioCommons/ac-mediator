@@ -326,7 +326,6 @@ def text_search(request):
                }
             }
     """
-
     distributor_qp = parse_request_distributor_query_params(request)
     search_qp = parse_common_search_query_params(request)
     q = request.GET.get(QUERY_PARAM_QUERY, None)  # Textual input query parameter
@@ -396,7 +395,6 @@ def licensing(request):
                 "warnings":{ }
             }
     """
-
     distributor_qp = parse_request_distributor_query_params(request)
     acid = request.GET.get('acid', None)
     if acid is None:
@@ -460,7 +458,6 @@ def download(request):
                 "warnings":{ }
             }
     """
-
     acid = request.GET.get('acid', None)
     if acid is None:
         raise ACAPIBadRequest('Missing required query parameter: acid')
