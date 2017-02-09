@@ -1,9 +1,13 @@
 version: '2'
+volumes:
+  dbvolume:
 services:
   db:
     image: postgres:9.4
     env_file:
       - .env
+    volumes:
+      - dbvolume:/var/lib/postgresql/data/
   nginx:
     image: nginx
     ports:
