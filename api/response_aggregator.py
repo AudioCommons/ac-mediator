@@ -2,7 +2,7 @@ import uuid
 import redis
 import json
 import datetime
-from ac_mediator.exceptions import ACException
+from ac_mediator.exceptions import *
 from django.conf import settings
 from django.urls import reverse
 
@@ -83,11 +83,12 @@ class ResponseAggregator(object):
     def aggregate_response(self, response_id, service_name, response_contents, warnings=None):
         response = self.store.get_response(response_id)
         response['meta']['n_received_responses'] += 1
-        if isinstance(response_contents, ACException):
+        print(response_contents)
+        if isinstance(response_contents, ACException) or isinstance(response_contents, ACAPIException):
             # If response content is error, add to errors dict
             response['errors'][service_name] = {
                 'status_code': response_contents.status,
-                #  'type': response_contents.__class__.__name__,
+                'type': response_contents.__class__.__name__,
                 'detail': response_contents.msg,
             }
         else:

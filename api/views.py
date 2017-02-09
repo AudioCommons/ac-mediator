@@ -469,9 +469,8 @@ def download(request):
         get_service_by_name(service_name)
     except ACServiceDoesNotExist:
         raise ACAPIServiceDoesNotExist
-    distributor_qp = {
-        QUERY_PARAM_INCLUDE: [service_name],  # Search only in service provider service
-    }
+    distributor_qp = parse_request_distributor_query_params(request)
+    distributor_qp[QUERY_PARAM_INCLUDE] = [service_name]  # Search only in service provider service
     response = request_distributor.process_request({
         'context': get_request_context(request),
         'component': DOWNLOAD_COMPONENT,
