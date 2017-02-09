@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
 from services.management import get_service_by_id, get_test_service_configuration
-from ac_mediator.exceptions import ACServiceDoesNotExist, ACException
+from ac_mediator.exceptions import *
 from services.acservice.search import ACServiceTextSearchMixin
 from services.acservice.licensing import ACLicensingMixin
 from services.acservice.download import ACDownloadMixin
@@ -85,7 +85,7 @@ def test_service_component(request, service_id):
             return _test_licensing_component(service, test_config, request)
         if component == DOWNLOAD_COMPONENT and isinstance(service, ACDownloadMixin):
             return _test_download_component(service, test_config, request)
-    except ACException as e:
+    except (ACException, ACAPIException) as e:
         return JsonResponse(
             {'component': component,
              'status': 'FA',

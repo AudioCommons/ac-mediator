@@ -1,4 +1,4 @@
-from ac_mediator.exceptions import ACException
+from ac_mediator.exceptions import *
 from services.management import get_available_services, get_service_by_id
 from api.response_aggregator import get_response_aggregator
 from celery import shared_task
@@ -15,7 +15,7 @@ def perform_request_and_aggregate(request, response_id, service_id):
         service_response = getattr(service, request['method'])(request['context'], **request['kwargs'])
         warnings = service.collect_response_warnings()
         response_aggregator.aggregate_response(response_id, service.name, service_response, warnings=warnings)
-    except ACException as e:
+    except (ACException, ACAPIException) as e:
         # Aggregate error response in response aggregator and continue with next service
         response_aggregator.aggregate_response(response_id, service.name, e)
 
