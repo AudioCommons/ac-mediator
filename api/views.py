@@ -416,28 +416,48 @@ def download(request):
     .. http:get:: /download/
 
         This endpoint takes as input an Audio Commons Unique Identifier (``acid``) and requests a
-        download link to the service that hosts the corresponding resource. Service is derived
-        from the unique identifier. The call to this endpoint returns a URL that can be used by the
-        client to download the requested resource directly from the content provider without any need
-        of authentication.
+        download link to the service that hosts the corresponding resource. The corresponding service
+        is derived from the unique identifier. The download URL returned by this endpoint is a URL that
+        client can use to download the requested resource directly from the content provider without
+        any need for further authentication.
+
+        .. warning::
+            Event if this endpoint will only forward the request to one third party service (the one
+            that hosts the resource), it still returns an aggregated response that needs to be updated
+            with the provided ``collect_url``. See the :ref:`aggregated-responses` section for more information.
 
         :query acid: Audio Commons unique resource identifier
 
-        :statuscode 200: no error
+        :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
         :statuscode 400: wrong query parameters provided
         :statuscode 401: no authentication details provided
-        :statuscode 404: service not found or resource not found in service
+        :statuscode 404: service not found (content provider not found for given ``acid``)
 
 
         **Response**
 
-        The response consists of a dictionary with a single `download_url` field containing the URL where the resource
-        can be downloaded.
+        The response is a standard aggregated response with only one service entry. Service entry consists of a
+        dictionary with a single `download_url` field containing the URL where the resource can be downloaded.
 
         .. code:: json
 
             {
-                "download_url": "https://example.service.org/link/to/download/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ/"
+                "meta": {
+                    "sent_timestamp": "2016-12-22 16:58:55.128886",
+                    "current_timestamp": "2016-12-22 16:58:55.158931",
+                    "n_received_responses": 1,
+                    "status": "FI",
+                    "response_id": "9097e3bb-2cc8-4f99-89ec-2dfbe1739e67",
+                    "collect_url": "https://m.audiocommons.org/api/v1/collect/?rid=9097e3bb-2cc8-4f99-89ec-2dfbe1739e67",
+                    "n_expected_responses": 1
+                },
+                "contents": {
+                    "ExampleService": {
+                        "download_url": "https://example.service.org/link/to/download/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ/"
+                    }
+                },
+                "errors": { },
+                "warnings":{ }
             }
     """
 
@@ -450,8 +470,7 @@ def download(request):
     except ACServiceDoesNotExist:
         raise ACAPIServiceDoesNotExist
     distributor_qp = {
-        QUERY_PARAM_INCLUDE: [service_name],
-        'wait_until_complete': True,
+        QUERY_PARAM_INCLUDE: [service_name],  # Search only in service provider service
     }
     response = request_distributor.process_request({
         'context': get_request_context(request),
@@ -459,7 +478,4 @@ def download(request):
         'method': 'download',
         'kwargs': {'acid': acid}
     }, **distributor_qp)
-    print(response)
-    if service_name in response['errors']:
-        return Response(response['errors'][service_name])  # Return only the part of the response of the service
-    return Response(response['contents'][service_name])  # Return only the part of the response of the service
+    return Response(response)
