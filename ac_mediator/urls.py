@@ -3,11 +3,13 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from accounts.views import registration
-from ac_mediator.views import monitor
+from ac_mediator.views import monitor, crash_me
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 
 urlpatterns = [
+    url(r'^crash/$', crash_me, name='crash_me'),
+
     # Auth urls
     url(r'^register/$', registration, name='registration'),
     url(r'^login/$', auth_views.login, {'template_name': 'accounts/login.html'}, name='login'),

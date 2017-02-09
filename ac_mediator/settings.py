@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import dj_database_url
+import raven
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
     'developers',
     'services',
     'docs',
+    'raven.contrib.django.raven_compat',
 ]
 
 MIDDLEWARE = [
@@ -172,3 +174,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 
 # Shared respones backend and async responses
 DELETE_RESPONSES_AFTER_CONSUMED = False
+
+RAVEN_CONFIG = {
+    'dsn': os.getenv('SENTRY_DSN', None),
+}
