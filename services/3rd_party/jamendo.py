@@ -5,9 +5,10 @@ from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearchMixin, translates_field
 from services.acservice.licensing import ACLicensingMixin
+from services.acservice.download import ACDownloadMixin
 
 
-class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin, ACLicensingMixin):
+class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin, ACLicensingMixin, ACDownloadMixin):
 
     # General
     NAME = 'Jamendo'
@@ -83,3 +84,26 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
         if response['headers']['results_count'] == 0:
             raise ACAPIResourceDoesNotExist
         return response['results'][0].get('prourl', None)
+
+    # Download
+    DOWNLOAD_ACID_DOMAINS = [NAME]
+
+    def get_download_url(self, context, acid, *args, **kwargs):
+
+        # Translate ac resource id to Jamendo resource id
+        if not acid.startswith(self.id_prefix):
+            raise ACAPIInvalidACID
+        resource_id = acid[len(self.id_prefix):]
+        try:
+            int(resource_id)
+        except ValueError:
+            raise ACAPIInvalidACID
+
+        response = self.send_request(
+            self.API_BASE_URL + 'tracks/',
+            params={'id': resource_id}
+        )
+        # This is a simple implementation of the service which simply returns a preview download url
+        # Ideally this should return a link to the original quality file which does not include the
+        # client id, etc (which can be retrieved without authorisation in the client)
+        return response['results'][0]['audiodownload']
