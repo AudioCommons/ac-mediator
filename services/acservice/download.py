@@ -10,9 +10,22 @@ class ACDownloadMixin(object):
     without knowing anything about the third party service.
     Services are expected to override methods to adapt them to their own APIs.
     """
+    DOWNLOAD_ACID_DOMAINS = list()
 
     def conf_download(self, conf):
         self.implemented_components.append(DOWNLOAD_COMPONENT)
+
+    def describe_download(self):
+        """
+        Returns structured representation of component capabilities
+        Component capabilities include a list of `acid_domains` which indicate for which
+        domain of resources the service provides licensing for (i.e., 'Jamendo' domain means all
+        resources identified by Jamendo:xxx)
+        :return: tuple with (component name, dictionary with component capabilities)
+        """
+        return DOWNLOAD_COMPONENT, {
+            'acid_domains': self.DOWNLOAD_ACID_DOMAINS,
+        }
 
     def get_download_url(self, context, acid, *args, **kwargs):
         """

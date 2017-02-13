@@ -134,6 +134,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
                           'samplerate,type'}
 
     # Download component
+    DOWNLOAD_ACID_DOMAINS = [NAME]
+
     def get_download_url(self, context, acid, *args, **kwargs):
 
         # Translate ac resource id to Freesound resource id

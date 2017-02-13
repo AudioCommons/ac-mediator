@@ -6,9 +6,22 @@ class ACLicensingMixin(object):
     Mixin that defines methods to allow licensing of Audio Commons content.
     Services are expected to override methods to adapt them to their own APIs.
     """
+    LICENSING_ACID_DOMAINS = list()
 
     def conf_licensing(self, conf):
         self.implemented_components.append(LICENSING_COMPONENT)
+
+    def describe_licensing(self):
+        """
+        Returns structured representation of component capabilities
+        Component capabilities include a list of `acid_domains` which indicate for which
+        domain of resources the service provides licensing for (i.e., 'Jamendo' domain means all
+        resources identified by Jamendo:xxx)
+        :return: tuple with (component name, dictionary with component capabilities)
+        """
+        return LICENSING_COMPONENT, {
+            'acid_domains': self.LICENSING_ACID_DOMAINS,
+        }
 
     def get_licensing_url(self, context, acid, *args, **kwargs):
         """

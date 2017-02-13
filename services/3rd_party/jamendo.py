@@ -70,6 +70,8 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
         return {'include': 'musicinfo+licenses'}  # Use include parameter to retrieve all infomation we need
 
     # Licensing
+    LICENSING_ACID_DOMAINS = [NAME]
+
     def get_licensing_url(self, context, acid, *args, **kwargs):
         if not acid.startswith(self.id_prefix):
             raise ACAPIInvalidACID
