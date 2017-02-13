@@ -90,7 +90,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     @translates_field(FIELD_TIMESTAMP)
     def translate_field_timestamp(self, result):
-        return datetime.datetime.strptime(result['created'], '%Y-%m-%dT%H:%M:%S')
+        return str(datetime.datetime.strptime(result['created'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
 
     def get_results_list_from_response(self, response):
         return response['results']
@@ -142,7 +142,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         # ac:id, the forwarded query to Freesound will request all potential fields. It could be optimized in the future
         # by setting 'fields' depending on what's in common_search_params['fields'].
         return {'fields': 'id,url,name,license,previews,username,tags,duration,filesize,channels,bitrate,bitdepth,'
-                          'samplerate,type'}
+                          'samplerate,type,description,created,pack'}
 
     # Download component
     DOWNLOAD_ACID_DOMAINS = [NAME]

@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from ac_mediator.exceptions import *
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
-from services.management import get_available_services, get_service_by_name
+from services.management import get_available_services
 from services.acservice.constants import *
 from django.conf import settings
 from accounts.models import Account
@@ -58,7 +58,10 @@ def parse_common_search_query_params(request):
     if fields is None:
         fields = MINIMUM_RESOURCE_DESCRIPTION_FIELDS
     else:
-        fields = fields.split(',')
+        if fields == '*':
+            fields = ALL_RESOURCE_DESCRIPTION_FIELDS
+        else:
+            fields = fields.split(',')
     size = request.GET.get(QUERY_PARAM_SIZE, 15)
     try:
         size = int(size)
@@ -215,7 +218,7 @@ def text_search(request):
         :query q: input query terms
         :query f: filtering criteria (NOT IMPLEMENTED)
         :query s: sorting criteria
-        :query fields: metadata fields to include in each result (names separated by commas)
+        :query fields: metadata fields to include in each result (names separated by commas or '*' for all fields)
         :query size: number of results to be included in an individual search response
         :query page: number of results page to retrieve
         :query include: services to include in query (names separated by commas)

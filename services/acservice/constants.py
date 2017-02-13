@@ -53,6 +53,7 @@ MINIMUM_RESOURCE_DESCRIPTION_FIELDS = [
     FIELD_LICENSE,
     FIELD_PREVIEW,
 ]
+ALL_RESOURCE_DESCRIPTION_FIELDS = [globals()[item] for item in dir() if item.startswith('FIELD_')]
 
 # Search results parameters
 NEXT_PAGE_PROP = 'next'
