@@ -63,6 +63,12 @@ class ACAPIServiceDoesNotExist(ACAPIException):
     default_code = 'service_does_not_exist'
 
 
+class ACAPINoServiceAvailable(ACAPIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'No service is able to answer your request.'
+    default_code = 'no_service_available'
+
+
 class ACAPIPageNotFound(ACAPIException):
     status_code = status.HTTP_404_NOT_FOUND
     default_detail = 'Page not found.'

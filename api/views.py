@@ -367,6 +367,7 @@ def licensing(request):
 
         :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
         :statuscode 400: wrong query parameters provided
+        :statuscode 400: no service is able to answer your request
         :statuscode 401: no authentication details provided
 
 
@@ -430,8 +431,8 @@ def download(request):
 
         :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
         :statuscode 400: wrong query parameters provided
+        :statuscode 400: no service is able to answer your request
         :statuscode 401: no authentication details provided
-        :statuscode 404: service not found (content provider not found for given ``acid``)
 
 
         **Response**

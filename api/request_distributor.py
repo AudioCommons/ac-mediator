@@ -57,6 +57,11 @@ class RequestDistributor(object):
                     ACID_DOMAINS_DESCRIPTION_KEYWORD, list())
             ]
 
+        if not services:
+            # If no services have been found for the requested component or combination of component
+            # and acid domain, we raise an exception
+            raise ACAPINoServiceAvailable
+
         # Create object to store responses from services
         response_id = response_aggregator.create_response(len(services))
         if not services:
