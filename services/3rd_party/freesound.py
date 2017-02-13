@@ -46,6 +46,9 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def get_access_token_from_credentials(self, credentials):
         return credentials.credentials['access_token']
 
+    def get_refresh_token_from_credentials(self, credentials):
+        return credentials.credentials['refresh_token']
+
     def check_credentials_are_valid(self, credentials):
         date_expired = credentials.modified + datetime.timedelta(seconds=credentials.credentials['expires_in'])
         if timezone.now() > date_expired:

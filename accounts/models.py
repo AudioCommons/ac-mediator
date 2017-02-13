@@ -37,3 +37,6 @@ class ServiceCredentials(models.Model):
         verbose_name = _('service credentials')
         verbose_name_plural = _('service credentials')
         unique_together = (('account', 'service_id'),)
+
+    def __str__(self):
+        return 'ServiceCredentials for {0} and {1}'.format(self.account.username, self.service_id)

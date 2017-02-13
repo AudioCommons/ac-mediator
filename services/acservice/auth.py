@@ -39,19 +39,33 @@ class ACServiceAuthMixin(object):
     def get_redirect_uri(self):
         return settings.BASE_URL + reverse('link_service_callback', args=[self.id])
 
-    def access_token_request_data(self, authorization_code):
-        return {
-            'client_id': self.service_client_id,
-            'client_secret': self.service_client_secret,
-            'grant_type': 'authorization_code',
-            'code': authorization_code
-        }
+    def access_token_request_data(self, authorization_code=None, refresh_token=None):
+        data = {'client_id': self.service_client_id, 'client_secret': self.service_client_secret}
+        if refresh_token is not None:
+            # If refresh token is passed, renew using refresh token
+            data.update({'grant_type': 'refresh_token', 'refresh_token': refresh_token})
+        else:
+            # If no refresh token is passed, get access token using authorization code
+            if authorization_code is None:
+                raise ACException('Authorization code was not provided')
+            data.update({'grant_type': 'authorization_code', 'code': authorization_code})
+        return data
 
     def request_access_token(self, authorization_code):
         return requests.post(
             self.ACCESS_TOKEN_URL,
-            data=self.access_token_request_data(authorization_code)
+            data=self.access_token_request_data(authorization_code=authorization_code)
         )
+
+    def renew_access_token(self, refresh_token):
+        return requests.post(
+            self.ACCESS_TOKEN_URL,
+            data=self.access_token_request_data(refresh_token=refresh_token)
+        )
+
+    def renew_credentials(self, credentials):
+        r = self.renew_access_token(self.get_refresh_token_from_credentials(credentials))
+        return r.status_code == 200, r.json()
 
     def request_credentials(self, authorization_code):
         r = self.request_access_token(authorization_code)
@@ -88,10 +102,22 @@ class ACServiceAuthMixin(object):
         if not self.supports_auth(ENDUSER_AUTH_METHOD):
             raise ACException('Auth method \'{0}\' not supported by service {1}'.format(ENDUSER_AUTH_METHOD, self.name))
         try:
-            credentials = ServiceCredentials.objects.get(account=account, service_id=self.id)
-            self.check_credentials_are_valid(credentials)
-            # TODO: catch exception in the function above and renew credentials automatically
-            return self.get_access_token_from_credentials(credentials)
+            service_credentials = ServiceCredentials.objects.get(account=account, service_id=self.id)
+            try:
+                self.check_credentials_are_valid(service_credentials)
+            except ACAPIInvalidCredentialsForService:
+                # Try to renew the credentials
+                success, received_credentials = self.renew_credentials(service_credentials)
+                if success:
+                    # Store credentials (replace existing ones if needed)
+                    service_credentials, is_new = ServiceCredentials.objects.get_or_create(
+                        account=account, service_id=self.id)
+                    service_credentials.credentials = received_credentials
+                    service_credentials.save()
+                else:
+                    raise ACAPIInvalidCredentialsForService(
+                        'Could not renew service credentials for {0}'.format(self.name))
+            return self.get_access_token_from_credentials(service_credentials)
         except ServiceCredentials.DoesNotExist:
             raise ACAPIInvalidCredentialsForService
 
@@ -110,6 +136,15 @@ class ACServiceAuthMixin(object):
         This method should be overwritten by each individual service that uses access tokens.
         :param credentials: credentials object as stored in ServiceCredentials entry
         :return: access token extracted from the stored credentials
+        """
+        return None
+
+    def get_refresh_token_from_credentials(self, credentials):
+        """
+        Return the refresh token from service credentials stored in ServiceCredentials object.
+        This method should be overwritten by each individual service that uses access tokens.
+        :param credentials: credentials object as stored in ServiceCredentials entry
+        :return: refresh token extracted from the stored credentials
         """
         return None
 

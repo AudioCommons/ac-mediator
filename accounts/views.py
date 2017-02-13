@@ -69,17 +69,21 @@ def link_service_callback(request, service_id):
     return render(request, 'accounts/link_service_callback.html', tvars)
 
 
+def store_service_credentials_helper(credentials, account, service_id):
+    # Store credentials (replace existing ones if needed)
+    service_credentials, is_new = ServiceCredentials.objects.get_or_create(
+        account=account, service_id=service_id)
+    service_credentials.credentials = credentials
+    service_credentials.save()
+
+
 @login_required
 def link_service_get_token(request, service_id):
     service = get_service_by_id(service_id)  # No need to check as is called after link_service_callback
     # Request credentials
     success, credentials = service.request_credentials(request.GET.get('code'))
     if success:
-        # Store credentials (replace existing ones if needed)
-        service_credentials, is_new = ServiceCredentials.objects.get_or_create(
-            account=request.user, service_id=service.id)
-        service_credentials.credentials = credentials
-        service_credentials.save()
+        store_service_credentials_helper(credentials, request.user, service.id)
     else:
         # Delete credentials (if existing)
         ServiceCredentials.objects.filter(account=request.user, service_id=service_id).delete()
