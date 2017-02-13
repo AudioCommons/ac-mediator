@@ -43,7 +43,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
             FIELD_URL: 'shareurl',
             FIELD_NAME: 'name',
             FIELD_AUTHOR_NAME: 'artist_name',
-            FIELD_STATIC_RETRIEVE: 'audiodownload',
+            FIELD_PREVIEW: 'audiodownload',
         }
 
     @translates_field(FIELD_TAGS)

@@ -56,8 +56,8 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def translate_field_license(self, result):
         return translate_cc_license_url(result['rights'][0])
 
-    @translates_field(FIELD_STATIC_RETRIEVE)
-    def translate_field_static_retrieve(self, result):
+    @translates_field(FIELD_PREVIEW)
+    def translate_field_preview(self, result):
         # TODO: this field does not always return static file urls...
         return result['edmIsShownBy'][0]
 

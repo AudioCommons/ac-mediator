@@ -70,16 +70,27 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             FIELD_BITRATE: 'bitrate',
             FIELD_BITDEPTH: 'bitdepth',
             FIELD_SAMPLERATE: 'samplerate',
-            FIELD_TYPE: 'type',
+            FIELD_FORMAT: 'type',
+            FIELD_COLLECTION_URL: 'pack',
+            FIELD_DESCRIPTION: 'description',
+            FIELD_LICENSE_DEED_URL: 'license',
         }
 
     @translates_field(FIELD_LICENSE)
     def translate_field_license(self, result):
         return translate_cc_license_url(result['license'])
 
-    @translates_field(FIELD_STATIC_RETRIEVE)
-    def translate_field_static_retrieve(self, result):
+    @translates_field(FIELD_PREVIEW)
+    def translate_field_preview(self, result):
         return result['previews']['preview-hq-ogg']
+
+    @translates_field(FIELD_AUTHOR_URL)
+    def translate_field_author_url(self, result):
+        return self.API_BASE_URL + 'users/{0}/'.format(result['username'])
+
+    @translates_field(FIELD_TIMESTAMP)
+    def translate_field_timestamp(self, result):
+        return datetime.datetime.strptime(result['created'], '%Y-%m-%dT%H:%M:%S')
 
     def get_results_list_from_response(self, response):
         return response['results']
