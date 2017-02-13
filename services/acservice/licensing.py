@@ -1,4 +1,4 @@
-from services.acservice.constants import LICENSING_COMPONENT
+from services.acservice.constants import *
 
 
 class ACLicensingMixin(object):
@@ -20,7 +20,7 @@ class ACLicensingMixin(object):
         :return: tuple with (component name, dictionary with component capabilities)
         """
         return LICENSING_COMPONENT, {
-            'acid_domains': self.LICENSING_ACID_DOMAINS,
+            ACID_DOMAINS_DESCRIPTION_KEYWORD: self.LICENSING_ACID_DOMAINS,
         }
 
     def get_licensing_url(self, context, acid, *args, **kwargs):

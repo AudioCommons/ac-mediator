@@ -1,4 +1,4 @@
-from services.acservice.constants import DOWNLOAD_COMPONENT
+from services.acservice.constants import *
 
 
 class ACDownloadMixin(object):
@@ -24,7 +24,7 @@ class ACDownloadMixin(object):
         :return: tuple with (component name, dictionary with component capabilities)
         """
         return DOWNLOAD_COMPONENT, {
-            'acid_domains': self.DOWNLOAD_ACID_DOMAINS,
+            ACID_DOMAINS_DESCRIPTION_KEYWORD: self.DOWNLOAD_ACID_DOMAINS,
         }
 
     def get_download_url(self, context, acid, *args, **kwargs):

@@ -254,8 +254,8 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
         :return: tuple with (component name, dictionary with component capabilities)
         """
         return SEARCH_TEXT_COMPONENT, {
-            'supported_fields': self.get_supported_fields(),
-            'supported_sort_options': self.get_supported_sorting_criteria(),
+            SUPPORTED_FIELDS_DESCRIPTION_KEYWORD: self.get_supported_fields(),
+            SUPPORTED_SORT_OPTIONS_DESCRIPTION_KEYWORD: self.get_supported_sorting_criteria(),
         }
 
     def get_supported_sorting_criteria(self):

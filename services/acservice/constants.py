@@ -12,6 +12,11 @@ SEARCH_TEXT_COMPONENT = 'text_search'
 LICENSING_COMPONENT = 'licensing'
 DOWNLOAD_COMPONENT = 'download'
 
+# Service description keywords
+ACID_DOMAINS_DESCRIPTION_KEYWORD = 'acid_domains'
+SUPPORTED_FIELDS_DESCRIPTION_KEYWORD = 'supported_fields'
+SUPPORTED_SORT_OPTIONS_DESCRIPTION_KEYWORD = 'supported_sort_options'
+
 # Authentication
 APIKEY_AUTH_METHOD = 'apikey_auth'
 ENDUSER_AUTH_METHOD = 'enduser_auth'

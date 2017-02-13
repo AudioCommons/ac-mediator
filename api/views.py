@@ -79,6 +79,10 @@ def parse_common_search_query_params(request):
     }
 
 
+def get_service_name_from_acid(acid):
+    return acid.split(ACID_SEPARATOR_CHAR)[0]  # Derive service name from ACID
+
+
 @api_view(['GET'])
 def invalid_url(request):
     raise ACAPIInvalidUrl
@@ -326,7 +330,6 @@ def text_search(request):
                }
             }
     """
-    distributor_qp = parse_request_distributor_query_params(request)
     search_qp = parse_common_search_query_params(request)
     q = request.GET.get(QUERY_PARAM_QUERY, None)  # Textual input query parameter
     if q is None or not q.strip():
@@ -334,14 +337,14 @@ def text_search(request):
     f = request.GET.get(QUERY_PARAM_FILTER, None)
     s = request.GET.get(QUERY_PARAM_SORT, None)
     if s is not None and (s not in SORT_OPTIONS and s not in ['-{0}'.format(opt) for opt in SORT_OPTIONS]):
-        raise ACAPIBadRequest("Invalid query parameter: '{0}'. Should be one of [{1}]."
-                         .format(QUERY_PARAM_SORT, ', '.join(SORT_OPTIONS)))
+        raise ACAPIBadRequest("Invalid query parameter: '{0}'. Should be one of [{1}].".format(
+            QUERY_PARAM_SORT, ', '.join(SORT_OPTIONS)))
     response = request_distributor.process_request({
         'context': get_request_context(request),
         'component': SEARCH_TEXT_COMPONENT,
         'method': 'text_search',
         'kwargs': dict(q=q, f=f, s=s, common_search_params=search_qp),
-    }, **distributor_qp)
+    }, **parse_request_distributor_query_params(request))
     return Response(response)
 
 
@@ -395,7 +398,6 @@ def licensing(request):
                 "warnings":{ }
             }
     """
-    distributor_qp = parse_request_distributor_query_params(request)
     acid = request.GET.get('acid', None)
     if acid is None:
         raise ACAPIBadRequest('Missing required query parameter: acid')
@@ -404,7 +406,7 @@ def licensing(request):
         'component': LICENSING_COMPONENT,
         'method': 'license',
         'kwargs': {'acid': acid}
-    }, **distributor_qp)
+    }, acid_domain=get_service_name_from_acid(acid), **parse_request_distributor_query_params(request))
     return Response(response)
 
 
@@ -461,17 +463,10 @@ def download(request):
     acid = request.GET.get('acid', None)
     if acid is None:
         raise ACAPIBadRequest('Missing required query parameter: acid')
-    service_name = acid.split(ACID_SEPARATOR_CHAR)[0]  # Derive service name from ACID
-    try:
-        get_service_by_name(service_name)
-    except ACServiceDoesNotExist:
-        raise ACAPIServiceDoesNotExist
-    distributor_qp = parse_request_distributor_query_params(request)
-    distributor_qp[QUERY_PARAM_INCLUDE] = [service_name]  # Search only in service provider service
     response = request_distributor.process_request({
         'context': get_request_context(request),
         'component': DOWNLOAD_COMPONENT,
         'method': 'download',
         'kwargs': {'acid': acid}
-    }, **distributor_qp)
+    }, acid_domain=get_service_name_from_acid(acid), **parse_request_distributor_query_params(request))
     return Response(response)

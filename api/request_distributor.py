@@ -1,4 +1,5 @@
 from ac_mediator.exceptions import *
+from services.acservice.constants import *
 from services.management import get_available_services, get_service_by_id
 from api.response_aggregator import get_response_aggregator
 from celery import shared_task
@@ -23,7 +24,7 @@ def perform_request_and_aggregate(request, response_id, service_id):
 class RequestDistributor(object):
 
     @staticmethod
-    def process_request(request, wait_until_complete=False, include=None, exclude=None):
+    def process_request(request, wait_until_complete=False, include=None, exclude=None, acid_domain=None):
         """
         Process incoming request, and propagate it to corresponding services.
         Requests to 3rd party services are made asynchronously. We send requests to all 3rd
@@ -38,13 +39,23 @@ class RequestDistributor(object):
         contents of all 3rd party services individual responses.
 
         :param request: incoming request object
-        :param context: dictionary containing contextual information such as the account of the end user performing the request or the developer account linked with the API client
         :param wait_until_complete: whether to return immediately after all requests are sent or wait untill all responses are received
+        :param include: list of service names to include when getting available services
+        :param include: list of service names to exclude when getting available services
+        :param acid_domain: domain of Audio Commons Unique Identifiers to be considered for matching available services
         :return: dictionary with response (as returned by ResponseAggregator.collect_response)
         """
 
         # Get available services for the given component (e.g. services that do `text search')
         services = get_available_services(component=request['component'], include=include, exclude=exclude)
+
+        # Filter by ACID domain (e.g. select only services that support the requested ACID domain)
+        if acid_domain is not None:
+            services = [
+                service for service in services if
+                acid_domain in service.get_service_description()[request['component']].get(
+                    ACID_DOMAINS_DESCRIPTION_KEYWORD, list())
+            ]
 
         # Create object to store responses from services
         response_id = response_aggregator.create_response(len(services))
