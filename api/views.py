@@ -120,7 +120,7 @@ def collect_response(request):
         ``errors``              Dictionary with error responses from the individual services. Keys in the dictionary correspond to service names.
         ======================  =====================================================
     """
-    response = response_aggregator.collect_response(request.GET.get('rid'))
+    response = response_aggregator.collect_response(request.GET.get('rid'), format=settings.DEFAULT_RESPONSE_FORMAT)
     if response is None:
         raise ACAPIResponseDoesNotExist
     return Response(response)

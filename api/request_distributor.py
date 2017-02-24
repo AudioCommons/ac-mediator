@@ -1,5 +1,6 @@
 from ac_mediator.exceptions import *
 from services.acservice.constants import *
+from django.conf import settings
 from services.management import get_available_services, get_service_by_id
 from api.response_aggregator import get_response_aggregator
 from celery import shared_task
@@ -91,7 +92,7 @@ class RequestDistributor(object):
         # Return object including responses received so far (if wait_until_complete == False the
         # response returned here will almost only contain the response_id field which can be later
         # used to retreive further responses.
-        return response_aggregator.collect_response(response_id)
+        return response_aggregator.collect_response(response_id, format=settings.DEFAULT_RESPONSE_FORMAT)
 
 
 request_distributor = RequestDistributor()

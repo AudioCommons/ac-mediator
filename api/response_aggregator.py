@@ -101,16 +101,49 @@ class ResponseAggregator(object):
             response['meta']['status'] = RESPONSE_STATUS_FINISHED
         self.store.set_response(response_id, response)
 
-    def collect_response(self, response_id):
+    def collect_response(self, response_id, format='json'):
         response = self.store.get_response(response_id)
+        to_return = None
         if response is None:
-            return None
-        to_return = response.copy()
-        to_return['meta']['response_id'] = response_id  # Add response_id to returned dictionary
-        to_return['meta']['collect_url'] = settings.BASE_URL + '{0}?rid={1}'.format(reverse('api-collect'), response_id)  # Add collect url for convinience
-        to_return['meta']['current_timestamp'] = str(datetime.datetime.now())
-        if response['meta']['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
-            self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
+            return to_return
+        if format == 'json':
+            to_return = response.copy()
+            to_return['meta']['response_id'] = response_id  # Add response_id to returned dictionary
+            to_return['meta']['collect_url'] = settings.BASE_URL + '{0}?rid={1}'.format(reverse('api-collect'), response_id)  # Add collect url for convinience
+            to_return['meta']['current_timestamp'] = str(datetime.datetime.now())
+            if response['meta']['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
+                self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
+        elif format == 'jsonld':
+            from rdflib import Graph, plugin, URIRef, Literal, Namespace, BNode
+            from rdflib.namespace import RDF
+            from rdflib.serializer import Serializer
+            g = Graph()
+            n_ac = Namespace('https://m.audiocommons.org/ontology/response/')
+            n_mo = Namespace('http://mo/')
+
+            object1 = URIRef('https://m.audiocommons.org/api/v1/acid/Freesound:1234/')
+            g.add((object1, RDF.type, n_mo.AudioFile))
+            g.add((object1, n_ac.creator, Literal('Name Surename')))
+            g.add((object1, n_ac.friend_of_creator, Literal('Name Surename')))
+
+            object2 = URIRef('https://m.audiocommons.org/api/v1/acid/Freesound:1235/')
+            g.add((object2, RDF.type, n_mo.AudioFile))
+            g.add((object2, n_ac.creator, Literal('Name2 Surename2')))
+
+            r_ref = BNode()
+            g.add((r_ref, RDF.type, n_ac.response))
+            g.add((r_ref, n_ac.response_contents, object1))
+            g.add((r_ref, n_ac.response_contents, object2))
+
+
+
+
+
+            to_return = g.serialize(format='json-ld', context={
+                '@ac': 'https://m.audiocommons.org/ontology/response/',
+                '@mo': 'http://mo/'
+            })
+            to_return = json.loads(to_return.decode("utf-8"))
         return to_return
 
 
