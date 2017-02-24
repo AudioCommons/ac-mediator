@@ -128,7 +128,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = '/static/'
 
 
-# Django rest framework (API)
+# API settings
 ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG = True
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
@@ -149,6 +149,7 @@ OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope'},
     'OAUTH2_VALIDATOR_CLASS': 'api.utils.ACOAuth2Validator',
 }
+DEFAULT_RESPONSE_FORMAT = 'jsonld'
 
 # Registration
 AUTH_USER_MODEL = 'accounts.Account'
