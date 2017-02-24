@@ -33,6 +33,9 @@ def custom_exception_handler(exc, context):
     # Catch unexpected exceptions
     if response is None:
         if isinstance(exc, Exception):
+            print('\n\nUnhandled Exception\n')
+            print(exc)
+            print('\n')
             data = {'detail': 'A server error occurred.'}
             set_rollback()
             response = Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
