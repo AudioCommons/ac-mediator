@@ -30,7 +30,7 @@ services:
       - .:/code
       - /static/
       - ./services/services_conf.cfg:/code/services/services_conf.cfg
-    command: bash -c "python manage.py migrate && uwsgi uwsgi.ini"
+    command: python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
       - redis
