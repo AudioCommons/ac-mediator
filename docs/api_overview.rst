@@ -60,8 +60,6 @@ service with an authenticated end user, and the Audio Commons user account has n
 with such third party service user account, an error response will be returned for that
 individual service indicating that end user authentication is required.
 
-TODO: illustrate this part with some diagrams might make it clearer
-
 
 Third party services to be queried
 **********************************
