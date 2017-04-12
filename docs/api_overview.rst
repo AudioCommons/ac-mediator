@@ -231,19 +231,19 @@ Key                     Value
 
 .. _throttling:
 
-Throttling
-----------
+.. Throttling
+.. ----------
 
-Requests directed to the Audio Commons API are never throttled.
-Nevertheless, the requests that the mediator forwards to the individual third party
-services **can be throttled** depending on the policies specified by individual service's.
+.. Requests directed to the Audio Commons API are never throttled.
+.. Nevertheless, the requests that the mediator forwards to the individual third party
+.. services **can be throttled** depending on the policies specified by individual service's.
 
-If an individual service throttles one request, this will result in an **429 Too many requests**
-error response for the individual service (i.e., in the ``errors`` field of the aggregated response).
-The response will include information about the rates that have been violated.
+.. If an individual service throttles one request, this will result in an **429 Too many requests**
+.. error response for the individual service (i.e., in the ``errors`` field of the aggregated response).
+.. The response will include information about the rates that have been violated.
 
 
-Help
-----
+.. Help
+.. ----
 
-TODO: set up public mailing list for API help
+.. TODO: set up public mailing list for API help
