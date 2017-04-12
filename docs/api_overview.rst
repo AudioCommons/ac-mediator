@@ -1,10 +1,15 @@
 Overview
 ========
 
-TODO: general introduction to the API
+The Audio Commons API is the component that allows interoperability among the different services and
+applications within the Audio Commons Ecosystem. Communication between services is carried out through
+HTTP requests. The Audio Commons API adheres to the RESTful API principles.
 
-* General Audio Commons Ecosystem structure: all requests to Audio Commons services are done through the mediator
-* What types of services there are, i.e., what things the API can do: search, licensing, download, etc.
+The Audio Commons API runs in the Audio Commons Mediator component, therefore all communications between
+third party services and your application are mediated through the Audio Commons API.
+In this way developers can communicate with all services through a unified interface and do not need
+to know about the implementation details of each accessed third party service.
+
 
 
 Requests
