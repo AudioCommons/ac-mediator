@@ -172,6 +172,17 @@ class OAuth2TestCase(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json()['error'], 'invalid_request')
 
+        # Test get token without trailing slash (https://github.com/AudioCommons/ac-mediator/issues/19)
+        resp = self.client.post(
+            reverse('oauth2_provider:token')[:-1],  # Remove trailing slash
+            {
+                'client_id': client.client_id,
+                'grant_type': 'password',
+                'username': self.end_user.username,
+                'password': self.end_user_password,
+            })
+        self.assertEqual(resp.status_code, 200)
+
     def test_implicit_grant_flow(self):
 
         # Redirect to login page when visiting authorize page with an AnonymousUser
