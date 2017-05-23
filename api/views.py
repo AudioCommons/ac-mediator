@@ -1,5 +1,6 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from ac_mediator.exceptions import *
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
@@ -86,7 +87,8 @@ def get_service_name_from_acid(acid):
     return acid.split(ACID_SEPARATOR_CHAR)[0]  # Derive service name from ACID
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
+@permission_classes((AllowAny, ))
 def invalid_url(request):
     raise ACAPIInvalidUrl
 
