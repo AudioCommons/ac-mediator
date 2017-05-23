@@ -172,9 +172,11 @@ class OAuth2TestCase(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json()['error'], 'invalid_request')
 
-        # Test get token without trailing slash (https://github.com/AudioCommons/ac-mediator/issues/19)
+        # Test get token with trailing slash (https://github.com/AudioCommons/ac-mediator/issues/19)
+        # NOTE: since change in b11a0197bbecbbdb6e5f3c82285f6b749596947d reverse() will return URLs
+        # without trailing slashes, therefore here we complement the test by adding the slash
         resp = self.client.post(
-            reverse('oauth2_provider:token')[:-1],  # Remove trailing slash
+            reverse('oauth2_provider:token') + '/',
             {
                 'client_id': client.client_id,
                 'grant_type': 'password',
