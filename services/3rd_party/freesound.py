@@ -55,6 +55,11 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             return False
         return True
 
+    def check_credentials_should_be_renewed_background(self, credentials):
+        # Currently, Freesound refresh tokens never expire, therefore credentials never need to be renewed in
+        # the background. An expired access token will be automatically renewed at request time.
+        return False
+
     # Search
     TEXT_SEARCH_ENDPOINT_URL = API_BASE_URL + 'search/text/'
 

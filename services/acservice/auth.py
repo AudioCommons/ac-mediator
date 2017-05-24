@@ -122,11 +122,22 @@ class ACServiceAuthMixin(object):
     def check_credentials_are_valid(self, credentials):
         """
         Check if the provided credentials are valid for a given service.
-        This method should raise ACAPIInvalidCredentialsForServiceException if credentials are not valid.
         This method should be overwritten by each individual service or it will always return True.
         :param credentials: credentials object as stored in ServiceCredentials entry
         """
         return True
+
+    def check_credentials_should_be_renewed_background(self, credentials):
+        """
+        Check if the provided credentials for a given service should be renewed for new ones.
+        For OAuth2 based services, this should be True when refresh token is about to expire but can be
+        still set to False if only access token has expired (as the access token can be automatically
+        renewed at request time if the refresh token is still valid).
+        This method should be overwritten by each individual service or it will return the opposite 
+        value of `check_credentials_are_valid`.
+        :param credentials: credentials object as stored in ServiceCredentials entry
+        """
+        return not self.check_credentials_are_valid(credentials)
 
     def get_access_token_from_credentials(self, credentials):
         """
