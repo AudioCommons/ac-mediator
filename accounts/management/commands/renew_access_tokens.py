@@ -3,6 +3,7 @@ from accounts.models import ServiceCredentials
 from services.management import get_service_by_id
 from ac_mediator.exceptions import ACServiceDoesNotExist
 import logging
+logger = logging.getLogger('management')
 
 
 class Command(BaseCommand):
@@ -50,4 +51,4 @@ class Command(BaseCommand):
                     # If credentials can't be renewed, then users will need to renew them manually
                     n_failed += 1
 
-        logging.info('Renewed {0} service credentials ({0} failed renewal)'.format(n_success, n_failed))
+        logger.info('Renewed {0} service credentials ({0} failed renewal)'.format(n_success, n_failed))
