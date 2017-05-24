@@ -52,7 +52,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def check_credentials_are_valid(self, credentials):
         date_expired = credentials.modified + datetime.timedelta(seconds=credentials.credentials['expires_in'])
         if timezone.now() > date_expired:
-            raise ACAPIInvalidCredentialsForService
+            return False
+        return True
 
     # Search
     TEXT_SEARCH_ENDPOINT_URL = API_BASE_URL + 'search/text/'

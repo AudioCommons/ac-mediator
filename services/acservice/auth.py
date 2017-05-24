@@ -103,9 +103,7 @@ class ACServiceAuthMixin(object):
             raise ACException('Auth method \'{0}\' not supported by service {1}'.format(ENDUSER_AUTH_METHOD, self.name))
         try:
             service_credentials = ServiceCredentials.objects.get(account=account, service_id=self.id)
-            try:
-                self.check_credentials_are_valid(service_credentials)
-            except ACAPIInvalidCredentialsForService:
+            if not self.check_credentials_are_valid(service_credentials):
                 # Try to renew the credentials
                 success, received_credentials = self.renew_credentials(service_credentials)
                 if success:
@@ -125,7 +123,7 @@ class ACServiceAuthMixin(object):
         """
         Check if the provided credentials are valid for a given service.
         This method should raise ACAPIInvalidCredentialsForServiceException if credentials are not valid.
-        This method should be overwritten by each individual service or it will always return true.
+        This method should be overwritten by each individual service or it will always return True.
         :param credentials: credentials object as stored in ServiceCredentials entry
         """
         return True
