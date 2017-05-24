@@ -7,6 +7,7 @@ from accounts.models import ServiceCredentials
 from services.management import get_available_services, get_service_by_id
 from services.acservice.constants import ENDUSER_AUTH_METHOD
 from ac_mediator.exceptions import *
+from utils.mail import send_mail
 
 
 def registration(request):
@@ -16,7 +17,8 @@ def registration(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # TODO: send activation email (and set is_active to False)
+            # TODO: set proper email body and set user is_active to False
+            send_mail('Activate Audio Commons user account', 'Fake body message', user.email, fail_silently=False)
             return HttpResponseRedirect(reverse('home'))
     else:
         form = RegistrationForm()
