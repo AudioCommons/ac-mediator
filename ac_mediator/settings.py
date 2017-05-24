@@ -184,3 +184,8 @@ DEFAULT_FROM_EMAIL = 'audiocommons@upf.edu'
 EMAIL_SUBJECT_PREFIX = '[AudioCommons] '
 EMAIL_HOST = 'smtp-rec.upf.edu'
 EMAIL_PORT = 25
+
+if DEBUG == True:
+    # In development environment, use email file backend
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = os.path.join(BASE_DIR, "mail")
