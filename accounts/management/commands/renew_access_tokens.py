@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 n_failed += 1
                 continue  # If service does not exist, don't try to renew credentials
 
-            if service.check_credentials_should_be_renewed_background(service_credentials.credentials)
+            if service.check_credentials_should_be_renewed_background(service_credentials.credentials):
                 success, received_credentials = service.renew_credentials(service_credentials.credentials)
                 if success:
                     # Store credentials (replace existing ones if needed)
