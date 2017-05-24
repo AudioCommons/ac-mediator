@@ -38,3 +38,9 @@ Licensing endpoints
 -------------------
 
 .. autoapiview:: api.views.licensing
+
+
+Other endpoints
+---------------
+
+.. autoapiview:: api.views.me
