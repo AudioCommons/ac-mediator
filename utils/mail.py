@@ -7,4 +7,6 @@ def send_mail(subject, message, to_emails, from_email=settings.DEFAULT_FROM_EMAI
     prefix in the subject."""
     if not subject.startswith(settings.EMAIL_SUBJECT_PREFIX):
         subject = settings.EMAIL_SUBJECT_PREFIX + subject
+    if type(to_emails) is not list and type(to_emails) is not tuple:
+        to_emails = (to_emails, )
     django_send_email(subject, message, from_email, to_emails, fail_silently)
