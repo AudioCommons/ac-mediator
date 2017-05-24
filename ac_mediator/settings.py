@@ -178,3 +178,9 @@ DELETE_RESPONSES_AFTER_CONSUMED = False
 RAVEN_CONFIG = {
     'dsn': os.getenv('SENTRY_DSN', None),
 }
+
+# Email configuration
+DEFAULT_FROM_EMAIL = 'audiocommons@upf.edu'
+EMAIL_SUBJECT_PREFIX = '[AudioCommons] '
+EMAIL_HOST = 'smtp-rec.upf.edu'
+EMAIL_PORT = 25
