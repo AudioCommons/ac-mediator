@@ -94,6 +94,8 @@ responses returned by the third party services.
 The application that sent the original request is therefore responsible for iteratively pulling the
 aggregated response contents, which will be updated as soon as new responses are received from
 the queried third party services.
+Aggregated responses have a lifetime of 24 hours. After their lifetime, the contents of the response
+are removed and won't be accessible anymore in the provided URL.
 
 An aggregated response will **always** be a dictionary including ``meta``, ``contents``, ``warnings`` and ``errors``
 keys. This is what should be in each of these keys:
