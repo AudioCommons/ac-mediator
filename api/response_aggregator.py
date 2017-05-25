@@ -24,7 +24,7 @@ class RedisStoreBackend(object):
 
     def new_response(self, init_response_contents):
         response_id = uuid.uuid4()
-        self.r.set(response_id, json.dumps(init_response_contents))
+        self.r.set(response_id, json.dumps(init_response_contents), ex=settings.RESPONSE_EXPIRY_TIME)
         return response_id
 
     def get_response(self, response_id):
@@ -34,7 +34,7 @@ class RedisStoreBackend(object):
         return json.loads(response.decode("utf-8"))
 
     def set_response(self, response_id, response_contents):
-        self.r.set(response_id, json.dumps(response_contents))
+        self.r.set(response_id, json.dumps(response_contents), ex=settings.RESPONSE_EXPIRY_TIME)
 
     def delete_response(self, response_id):
         self.r.delete(response_id)
