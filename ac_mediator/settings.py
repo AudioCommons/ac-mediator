@@ -174,6 +174,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 
 # Shared respones backend and async responses
 DELETE_RESPONSES_AFTER_CONSUMED = False
+RESPONSE_EXPIRY_TIME = 3600*24  # Response objects are deleted after 24 hours
 
 RAVEN_CONFIG = {
     'dsn': os.getenv('SENTRY_DSN', None),

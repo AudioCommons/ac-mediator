@@ -24,20 +24,31 @@ class RedisStoreBackend(object):
 
     def new_response(self, init_response_contents):
         response_id = uuid.uuid4()
-        self.r.set(response_id, json.dumps(init_response_contents))
+        self.r.set(response_id, json.dumps(init_response_contents), ex=settings.RESPONSE_EXPIRY_TIME)
         return response_id
 
     def get_response(self, response_id):
-        response = self.r.get(response_id)
+        try:
+            response = self.r.get(response_id)
+        except redis.exceptions.ResponseError:
+            # Can happen if we're trying to get a response from a key whose contents are not from an API response
+            return None
         if response is None:
             return None
-        return json.loads(response.decode("utf-8"))
+        try:
+            return json.loads(response.decode("utf-8"))
+        except json.decoder.JSONDecodeError:
+            # Can happen if we're trying to get a response from a key whose contents are not from an API response
+            return None
 
     def set_response(self, response_id, response_contents):
-        self.r.set(response_id, json.dumps(response_contents))
+        self.r.set(response_id, json.dumps(response_contents), ex=settings.RESPONSE_EXPIRY_TIME)
 
     def delete_response(self, response_id):
         self.r.delete(response_id)
+
+    def get_all_response_keys(self):
+        return self.r.keys('*')
 
 
 class ResponseAggregator(object):
