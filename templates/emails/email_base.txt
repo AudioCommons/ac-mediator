@@ -1,0 +1,10 @@
+Hello there {% block salutation %}{% endblock %},
+
+{% block body %}
+{% endblock %}
+
+
+
+ - The Audio Commons Mail Robot
+
+{% block footer %}{% endblock %}

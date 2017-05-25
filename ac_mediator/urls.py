@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from accounts.views import registration
+from accounts.views import registration, activate_account
 from ac_mediator.views import monitor, crash_me
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^register/$', registration, name='registration'),
     url(r'^login/$', auth_views.login, {'template_name': 'accounts/login.html'}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': settings.LOGOUT_URL}, name='logout'),
+    url(r'^activate/(?P<username>[^\/]+)/(?P<uid_hash>[^\/]+)/.*$', activate_account, name="accounts-activate"),
 
     # Accounts
     url(r'^', include('accounts.urls')),
