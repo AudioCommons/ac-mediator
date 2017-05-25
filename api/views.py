@@ -94,6 +94,45 @@ def invalid_url(request):
 
 
 @api_view(['GET'])
+def me(request):
+    """
+    .. http:get:: /me/
+
+        This resource returns information about the Audio Commons user account linked with
+        the access token used to authenticate. This information is useful for a third party
+        application to uniquely identify an Audio Commons user account and be able to store
+        extra information associated to the account or display user information on screen.
+        
+        This endpoint takes no query parameters.
+
+        :statuscode 200: no error
+        :statuscode 404: no user is authenticated or the linked user account does not exist
+
+        **Response**
+
+        This endpoint returns a dictionary which includes the following contents:
+
+        ======================  =====================================================
+        Key                     Value
+        ======================  =====================================================
+        ``account_id``          Integer representing a unique identifier for the Audio Commons user account.
+        ``username``            Username of the corresponding user account (i.e. the logged in user username).
+        ======================  =====================================================
+    """
+    account_id = get_request_context(request)['user_account_id']
+    if account_id is None:
+        raise ACAPIResourceDoesNotExist
+    try:
+        account = Account.objects.get(id=account_id)
+        return Response({
+            'username': account.username,
+            'account_id': account.id,
+        }, status=status.HTTP_200_OK)
+    except Account.DoesNotExist:
+        raise ACAPIResourceDoesNotExist
+
+
+@api_view(['GET'])
 def collect_response(request):
     """
     .. http:get:: /collect/

@@ -42,7 +42,7 @@ docker-compose up
 
 - You'll probably want to create a superuser too:
 ```
-docker-compose run web python manage.py createsuperuser
+docker-compose run --rm web python manage.py createsuperuser
 ```
 
 Now you should be able to access your server at `https://localhost`
@@ -77,7 +77,7 @@ make clean html
 
 If you're using Docker you'll need to run these commands from the container:
 ```
-docker-compose run web bash -c "cd docs && make clean html"
+docker-compose run --rm web bash -c "cd docs && make clean html"
 ```
 
 
