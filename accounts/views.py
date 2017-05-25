@@ -2,12 +2,11 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from accounts.forms import RegistrationForm
+from accounts.forms import RegistrationForm, ReactivationForm
 from accounts.models import ServiceCredentials, Account
 from services.management import get_available_services, get_service_by_id
 from services.acservice.constants import ENDUSER_AUTH_METHOD
 from ac_mediator.exceptions import *
-from utils.mail import send_mail
 from utils.encryption import create_hash
 
 
@@ -17,16 +16,10 @@ def registration(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            user.is_active = False
-            user.save()
-            tvars = {
-                'user': user,
-                'username': user.username,
-                'hash': create_hash(user.id)
-            }
-            send_mail(user.email, subject='Activate your Audio Commons user account',
-                      template='emails/account_activation.txt', context=tvars)
+            account = form.save()
+            account.is_active = False
+            account.save()
+            account.send_activation_email()
             return render(request, 'accounts/registration.html', {'form': None})
     else:
         form = RegistrationForm()
@@ -49,6 +42,21 @@ def activate_account(request, username, uid_hash):
     account.is_active = True
     account.save()
     return render(request, 'accounts/activate.html', {'all_ok': True})
+
+
+def resend_activation_emmil(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('home'))
+
+    if request.method == 'POST':
+        form = ReactivationForm(request.POST)
+        if form.is_valid():
+            account = form.cleaned_data['account']
+            account.send_activation_email()
+            return render(request, 'accounts/resend_activation.html', {'form': None})
+    else:
+        form = ReactivationForm()
+    return render(request, 'accounts/resend_activation.html', {'form': form})
 
 
 @login_required
