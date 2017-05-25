@@ -3,10 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from accounts.forms import RegistrationForm
-from accounts.models import ServiceCredentials
+from accounts.models import ServiceCredentials, Account
 from services.management import get_available_services, get_service_by_id
 from services.acservice.constants import ENDUSER_AUTH_METHOD
 from ac_mediator.exceptions import *
+from utils.mail import send_mail
+from utils.encryption import create_hash
 
 
 def registration(request):
@@ -16,11 +18,37 @@ def registration(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # TODO: send activation email (and set is_active to False)
-            return HttpResponseRedirect(reverse('home'))
+            user.is_active = False
+            user.save()
+            tvars = {
+                'user': user,
+                'username': user.username,
+                'hash': create_hash(user.id)
+            }
+            send_mail(user.email, subject='Activate your Audio Commons user account',
+                      template='emails/account_activation.txt', context=tvars)
+            return render(request, 'accounts/registration.html', {'form': None})
     else:
         form = RegistrationForm()
     return render(request, 'accounts/registration.html', {'form': form})
+
+
+def activate_account(request, username, uid_hash):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('home'))
+
+    try:
+        account = Account.objects.get(username__iexact=username)
+    except Account.DoesNotExist:
+        return render(request, 'accounts/activate.html', {'user_does_not_exist': True})
+
+    new_hash = create_hash(account.id)
+    if new_hash != uid_hash:
+        return render(request, 'accounts/activate.html', {'decode_error': True})
+
+    account.is_active = True
+    account.save()
+    return render(request, 'accounts/activate.html', {'all_ok': True})
 
 
 @login_required
