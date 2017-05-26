@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^logout/$', auth_views.logout, {'next_page': settings.LOGOUT_URL}, name='logout'),
     url(r'^password_reset/$', auth_views.password_reset, dict(
             template_name='accounts/password_reset_form.html',
+            subject_template_name='emails/password_reset_subject.txt',
             email_template_name='emails/password_reset.txt',
         ), name='password_reset'),
     url(r'^password_reset/done/$', auth_views.password_reset_done, dict(
