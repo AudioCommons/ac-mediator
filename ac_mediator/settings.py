@@ -210,14 +210,33 @@ LOGGING = {
             'level': 'INFO',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'simple',
+        },
+        'gelf': {
+            'class': 'logging.NullHandler',  # This will be redefined later if configuration is provided
         },
     },
     'loggers': {
         'management': {
-            'handlers': ['stdout'],
+            'handlers': ['stdout', 'gelf'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
     },
 }
+
+# Read logserver config settings, if present, then update the corresponding handler
+GELF_IP_ADDRESS = os.getenv('LOGSERVER_IP_ADDRESS', None)
+GELF_PORT = int(os.getenv('LOGSERVER_PORT', 0))
+if GELF_IP_ADDRESS is not None and GELF_PORT is not None:
+    LOGGING['handlers'].update(
+        {
+            'gelf': {
+                'level': 'INFO',
+                'class': 'graypy.GELFHandler',
+                'host': GELF_IP_ADDRESS,
+                'port': GELF_PORT,
+                'formatter': 'simple',
+            },
+        }
+    )
