@@ -181,7 +181,7 @@ RAVEN_CONFIG = {
 }
 
 # Email configuration
-DEFAULT_FROM_EMAIL = 'audiocommons@upf.edu'
+DEFAULT_FROM_EMAIL = 'Audio Commons <audiocommons@upf.edu>'
 EMAIL_SUBJECT_PREFIX = '[AudioCommons] '
 EMAIL_HOST = 'smtp-rec.upf.edu'
 EMAIL_PORT = 25
