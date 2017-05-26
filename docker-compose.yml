@@ -43,6 +43,15 @@ services:
     command: celery worker -A ac_mediator --concurrency=${CELERY_CONCURRENCY}
     depends_on:
       - redis
+  celery_beat:
+    build: .
+    env_file:
+      - .env
+    volumes_from:
+      - web
+    command: celery beat -A ac_mediator
+    depends_on:
+      - redis
   flower:  #  Django app to monitor Celery status
     build: ./docker/flower/
     env_file:

@@ -3,3 +3,5 @@ __pycache__
 .idea/*
 services_conf.cfg
 mail
+celerybeat.pid
+celerybeat-schedule
