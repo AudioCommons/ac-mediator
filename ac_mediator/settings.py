@@ -226,8 +226,8 @@ LOGGING = {
 }
 
 # Read logserver config settings, if present, then update the corresponding handler
-GELF_IP_ADDRESS = os.getenv('LOGSERVER_IP_ADDRESS', None)
-GELF_PORT = int(os.getenv('LOGSERVER_PORT', 0))
+GELF_IP_ADDRESS = os.getenv('GELF_IP_ADDRESS', None)
+GELF_PORT = int(os.getenv('GELF_IP_PORT', 0))
 if GELF_IP_ADDRESS is not None and GELF_PORT is not None:
     LOGGING['handlers'].update(
         {
