@@ -171,6 +171,7 @@ REDIS_PORT = 6379
 CELERY_BROKER_URL = "redis://redis"
 CELERY_RESULT_BACKEND = "redis://redis"
 CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TIMEZONE = 'Europe/Madrid'
 
 # Shared respones backend and async responses
 DELETE_RESPONSES_AFTER_CONSUMED = False
