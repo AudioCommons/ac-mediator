@@ -35,7 +35,7 @@ def run_django_management_command(self, command, *args, **kwargs):
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
-        crontab(hour=6),  # Every day at 6 am
+        crontab(hour=6, minute=0),  # Every day at 6 am
         run_django_management_command.s('renew_access_tokens'),
         name='Renew expired tokens')
 
