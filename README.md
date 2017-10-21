@@ -40,6 +40,11 @@ cd ac_mediator
 docker-compose up
 ```
 
+- If it's the first time you run the mediator or there are Django migrations unapplied to your database, you'll also need to run migrate command:
+```
+docker-compose run --rm web python manage.py migrate
+```
+
 - You'll probably want to create a superuser too:
 ```
 docker-compose run --rm web python manage.py createsuperuser
