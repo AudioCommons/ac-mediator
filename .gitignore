@@ -5,3 +5,4 @@ services_conf.cfg
 mail
 celerybeat.pid
 celerybeat-schedule
+pip.conf
