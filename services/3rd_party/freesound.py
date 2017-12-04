@@ -14,8 +14,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     # General settings
     NAME = 'Freesound'
-    URL = 'http://www.freesound.org'
-    API_BASE_URL = "https://www.freesound.org/apiv2/"
+    URL = 'https://freesound.org'
+    API_BASE_URL = "https://freesound.org/apiv2/"
 
     # Base
     def validate_response_status_code(self, response):
