@@ -61,7 +61,7 @@ def resend_activation_emmil(request):
 
 @login_required
 def home(request):
-    return render(request, 'accounts/home.html', {'services': get_available_services()})
+    return render(request, 'accounts/home.html')
 
 
 @login_required

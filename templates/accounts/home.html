@@ -3,24 +3,10 @@
 {% block title %}Home{% endblock title %}
 
 {% block content %}
-    <h1>Home</h1>
-    General users
-    <ul>
-        <li><a href="{% url 'link_services' %}">Link service accounts</a></li>
-        <li><a href="{% url 'authorized-token-list' %}">Authorized applications</a></li>
+    <h1><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"> Welcome!</h1>
+    <br>
+    <ul class="landing-options">
+        <li><a href="{% url 'link_services' %}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> <br>Link service accounts</a></li>
+        <li><a href="{% url 'authorized-token-list' %}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> <br>Manage authorized applications</a></li>
     </ul>
-    Developers
-    <ul>
-        <li><a href="{% url 'docs_root' %}" target="_blank">Documentation</a></li>
-        <li><a href="{% url 'developers-app-list' %}">Manage API Clients</a></li>
-        <li>
-            Test services
-            <ul>
-            {% for service in services %}
-                <li><a href="{% url "test_service" service.id %}">{{ service.name }}</a></li>
-            {% endfor %}
-            </ul>
-        </li>
-    </ul>
-
 {% endblock %}

@@ -1,19 +1,35 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load i18n %}
 {% block title %}Manage API Clients{% endblock title %}
 {% block content %}
 
-    <h1>Manage API Clients</h1>
+    <h1>
+        <a href="{% url 'home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
+        <span class="breadcrumb-separator">|</span> Developers
+    </h1>
+
+    <h2>Manage API Clients</h2>
     {% if applications %}
-        <ul>
+        <ul class="table">
             {% for application in applications %}
-                <li><a href="{{ application.get_absolute_url }}">{{ application.name }}</a> -
-                    <a href="{% url 'developers-app-monitor' application.id %}">monitor</a></li>
+                <li><a href="{{ application.get_absolute_url }}">{{ application.name }}</a>
+                    <div class="pull-right">
+                        <a class="btn btn-warning" href="{% url 'developers-app-monitor' application.id %}"><span class="glyphicon glyphicon-stats" aria-hidden="true" title="Monitor"></span></a>
+                        {% comment %}<a class="btn btn-warning" href="{% url 'developers-app-update' application.id %}"><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit"></span></a>
+                        <a class="btn btn-danger" href="{% url 'developers-app-delete' application.id %}"><span class="glyphicon glyphicon-remove" aria-hidden="true" title="Delete"></span></a>{% endcomment %}
+                    </div>
+                </li>
             {% endfor %}
         </ul>
     {% endif %}
+    <br>
     <a class="btn btn-success" href="{% url "developers-app-register" %}">New API Client</a>
     <br><br>
-    <p><a href="{% url 'home' %}">Home</a></p>
+
+    <h2>Documentation</h2>
+    <ul>
+        <li><a href="{% url 'docs_root' %}">Audio Commons Services and API documentation</a></li>
+    </ul>
 
 {% endblock content %}
