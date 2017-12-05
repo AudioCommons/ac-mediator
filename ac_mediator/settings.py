@@ -173,6 +173,11 @@ CELERY_RESULT_BACKEND = "redis://redis"
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TIMEZONE = 'Europe/Madrid'
 
+# Set this to False so that requests are submitted sequentially and from the webserver when in DEBUG mode instead of
+# in parallel and using Celery. This can be useful so that Celery workers don't need to be restarted when making
+# changes to the code
+USE_CELERY_IN_DEBUG_MODE = False
+
 # Shared respones backend and async responses
 DELETE_RESPONSES_AFTER_CONSUMED = False
 RESPONSE_EXPIRY_TIME = 3600*24  # Response objects are deleted after 24 hours
