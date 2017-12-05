@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from accounts.forms import RegistrationForm, ReactivationForm
 from accounts.models import ServiceCredentials, Account
-from services.management import get_available_services, get_service_by_id
+from services.mgmt import get_available_services, get_service_by_id
 from services.acservice.constants import ENDUSER_AUTH_METHOD
 from ac_mediator.exceptions import *
 from utils.encryption import create_hash

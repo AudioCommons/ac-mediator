@@ -1,5 +1,5 @@
 from django.test import TestCase
-from services.management import get_available_services, available_services
+from services.mgmt import get_available_services, available_services
 
 
 class ServicesManagement(TestCase):

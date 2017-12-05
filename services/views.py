@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
-from services.management import get_service_by_id, get_test_service_configuration
+from services.mgmt import get_service_by_id, get_test_service_configuration
 from ac_mediator.exceptions import *
 from services.acservice.search import ACServiceTextSearchMixin
 from services.acservice.licensing import ACLicensingMixin

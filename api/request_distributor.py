@@ -1,6 +1,6 @@
 from ac_mediator.exceptions import *
 from services.acservice.constants import *
-from services.management import get_available_services, get_service_by_id
+from services.mgmt import get_available_services, get_service_by_id
 from api.response_aggregator import get_response_aggregator
 from celery import shared_task
 

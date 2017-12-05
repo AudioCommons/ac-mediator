@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from api.forms import ApiClientForm
 from api.models import ApiClient
-from services.management import get_available_services
+from services.mgmt import get_available_services
 import datetime
 
 

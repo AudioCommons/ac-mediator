@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from accounts.models import ServiceCredentials
-from services.management import get_service_by_id
+from services.mgmt import get_service_by_id
 from ac_mediator.exceptions import ACServiceDoesNotExist
 import logging
 logger = logging.getLogger('management')

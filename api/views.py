@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from ac_mediator.exceptions import *
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
-from services.management import get_available_services
+from services.mgmt import get_available_services
 from services.acservice.constants import *
 from django.conf import settings
 from accounts.models import Account
