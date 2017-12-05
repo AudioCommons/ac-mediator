@@ -99,8 +99,8 @@ class BaseACService(object):
 
         auth_info = self.get_auth_info_for_request(auth_method, account=account)
         params.update(auth_info.get('params', dict()))  # Update current params with auth params (if any)
-        print('- {0}?{1}'.format(
-            url, '&'.join(['{0}={1}'.format(key, value) for key, value in params.items()])))  # Print requested url
+        # print('- {0}?{1}'.format(
+        #    url, '&'.join(['{0}={1}'.format(key, value) for key, value in params.items()])))  # Print requested url
         r = getattr(requests, method)(
             url,
             params=params,
@@ -135,6 +135,10 @@ class BaseACService(object):
     @property
     def url(self):
         return self.URL
+
+    @property
+    def components(self):
+        return self.implemented_components
 
     # Code to handle response warnings
     # TODO: to be properly documented

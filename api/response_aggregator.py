@@ -94,7 +94,6 @@ class ResponseAggregator(object):
     def aggregate_response(self, response_id, service_name, response_contents, warnings=None):
         response = self.store.get_response(response_id)
         response['meta']['n_received_responses'] += 1
-        print(response_contents)
         if isinstance(response_contents, ACException) or isinstance(response_contents, ACAPIException):
             # If response content is error, add to errors dict
             response['errors'][service_name] = {

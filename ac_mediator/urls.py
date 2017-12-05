@@ -38,9 +38,6 @@ urlpatterns = [
     # Developers
     url(r'^developers/', include('developers.urls')),
 
-    # Services
-    url(r'^services/', include('services.urls')),
-
     # Api
     url(r'^api/', include('api.urls')),
 
