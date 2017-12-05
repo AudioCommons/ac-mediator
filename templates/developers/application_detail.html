@@ -70,9 +70,9 @@
         </ul>
     </div>
 
-    <div class="btn-toolbar">
+    <div class="btn-toolbar pull-right">
         <a class="btn btn-warning" href="{% url "developers-app-update" application.id %}">{% trans "Edit" %}</a>
         <a class="btn btn-danger" href="{% url "developers-app-delete" application.id %}">{% trans "Delete" %}</a>
     </div>
-    <br><a href="{% url "developers-app-list" %}">Back</a>
+    <a href="{% url "developers-app-list" %}">Back</a>
 {% endblock content %}
