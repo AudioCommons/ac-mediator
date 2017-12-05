@@ -28,8 +28,12 @@
     <br><br>
 
     <h2>Documentation</h2>
-    <ul>
-        <li><a href="{% url 'docs_root' %}">Audio Commons Services and API documentation</a></li>
+    <ul class="table">
+        <li><a href="{% url 'docs_root' %}api.html" target="_blank">API documentation</a></li>
+        <li><a href="{% url 'docs_root' %}services.html" target="_blank">Services documentation</a></li>
+        <li><a href="http://www.audiocommons.org/assets/files/AC-WP2-UPF-D2.6%20Service%20Integration%20Draft%20Guidelines.pdf" target="_blank">
+            Guidelines for implementing a new service component (draft)
+        </a></li>
     </ul>
 
 {% endblock content %}
