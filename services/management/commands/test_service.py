@@ -111,7 +111,7 @@ class Command(BaseCommand):
         test_config = configparser.ConfigParser()
         test_config_filename = options.get('test_config_filename')
         if test_config_filename is None:
-            test_config_filename = 'test_services.cfg'
+            test_config_filename = 'services/test_services.cfg'
         test_config_path = os.path.join(test_config_filename)
         test_config.read(test_config_path)
         try:
