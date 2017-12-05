@@ -65,6 +65,11 @@ def home(request):
 
 
 @login_required
+def about(request):
+    return render(request, 'accounts/about.html')
+
+
+@login_required
 def link_services(request):
     linkable_services_info = list()
     non_linkable_services_info = list()

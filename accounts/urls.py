@@ -8,6 +8,7 @@ from accounts.views import home
 urlpatterns = [
     # Home
     url(r'^$', home, name='home'),
+    url(r'^about/$', views.about, name='about'),
 
     # Link services
     url(r'^link_services/$', views.link_services, name='link_services'),
