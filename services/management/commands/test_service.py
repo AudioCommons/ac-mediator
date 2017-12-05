@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
+from accounts.models import Account
 from services.acservice.constants import *
 from ac_mediator.exceptions import *
 from services.mgmt import get_service_by_name
@@ -96,6 +97,10 @@ class Command(BaseCommand):
         parser.add_argument('--test_config_filename', dest='test_config_filename', type=str,
                             help='Filename where to configuration parameters for testing the service are stored.'
                                  'Defaults to "test_services.cfg"')
+        parser.add_argument('--account_username', dest='account_username', type=str,
+                            help='Username of the account which has linked its Audio Commons Mediator account with a'
+                                 'third party account. This is only needed to test components which required end user'
+                                 'authentication.')
 
     def handle(self, *args, **options):
         """
@@ -122,9 +127,15 @@ class Command(BaseCommand):
             return
 
         context = {  # Should return equivalent to api.views.get_request_context
-            'user_account_id': 0,  # First version, no accounts supported
-            'dev_account_id': 0
+            'user_account_id': None,
         }
+        if options.get('account_username'):
+            try:
+                account = Account.objects.get(username=options.get('account_username'))
+                context['user_account_id'] = account.id
+            except Account.DoesNotExist:
+                logger.info('No account exists with the given username. Aborting...')
+                return
 
         components_results = list()
         for count, component in enumerate(service.components):
