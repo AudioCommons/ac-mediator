@@ -1,5 +1,7 @@
-from ac_mediator.exceptions import ACFieldTranslateException, ACException
+from ac_mediator.exceptions import ACFieldTranslateException, ACException, ACFilterParsingException
 from services.acservice.constants import *
+from services.acservice.utils import parse_filter
+import pyparsing
 
 
 def translates_field(field_name):
@@ -11,6 +13,16 @@ def translates_field(field_name):
     """
     def wrapper(func):
         func._translates_field_name = field_name
+        return func
+    return wrapper
+
+
+def translates_filter_for_field(field_name):
+    """
+    TODO: document this function
+    """
+    def wrapper(func):
+        func._translates_filter_for_field_name = field_name
         return func
     return wrapper
 
@@ -245,8 +257,21 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
 
     TEXT_SEARCH_ENDPOINT_URL = 'http://example.com/api/search/'
 
+    translate_filter_methods_registry = None
+
     def conf_textsearch(self, *args):
+        """
+        Add SEARCH_TEXT_COMPONENT to the list of implemented components.
+        Also search for methods in the class that have been annotated with the property
+        '_translates_filter_for_field_name'. These will be methods decorated with the 'translates_filter_for_field'
+        decorator. Then register methods in self.translate_filter_methods_registry so that these can be accessed later.
+        """
         self.implemented_components.append(SEARCH_TEXT_COMPONENT)
+        self.translate_filter_methods_registry = dict()
+        for method_name in dir(self):
+            method = getattr(self, method_name)
+            if hasattr(method, '_translates_filter_for_field_name'):
+                self.translate_filter_methods_registry[method._translates_filter_for_field_name] = method
 
     def describe_textsearch(self):
         """
@@ -255,6 +280,7 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
         """
         return SEARCH_TEXT_COMPONENT, {
             SUPPORTED_FIELDS_DESCRIPTION_KEYWORD: self.get_supported_fields(),
+            SUPPORTED_FILTERS_DESCRIPTION_KEYWORD: self.get_supported_filters(),
             SUPPORTED_SORT_OPTIONS_DESCRIPTION_KEYWORD: self.get_supported_sorting_criteria(),
         }
 
@@ -286,6 +312,110 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
                 return list()
 
         return supported_criteria
+
+    @property
+    def direct_filters_mapping(self):
+        """
+        Return a dictionary of Audio Commons filter names that can be directly mapped to
+        service resource filters.
+        TODO: complete this documentation
+        """
+        return {}
+
+    def get_supported_filters(self):
+        """
+        Checks which AudioCommons filters can be translated to the third party service filters.
+        These are the filters defined with the decorator @translates_filter_for_field
+        :return: list of available AudioCommons field names (fields equivalent to the filters)
+        """
+        return list(self.direct_filters_mapping.keys()) + list(self.translate_filter_methods_registry.keys())
+
+    def translate_filter(self, ac_field_name, value):
+        """
+        TODO: document this
+        """
+        try:
+            if ac_field_name in self.direct_filters_mapping:
+                return self.direct_fields_mapping[ac_field_name], value  # Do direct mapping
+            return self.translate_filter_methods_registry[ac_field_name](value)  # Invoke translate method
+        except KeyError:
+            raise ACFilterParsingException('Filter for field \'{0}\' not supported'.format(ac_field_name))
+        except ACFilterParsingException:
+            raise
+        except Exception as e:  # Use generic catch on purpose so we can properly notify the frontend
+            raise ACFilterParsingException('Unexpected error processing filter for '
+                                           'field \'{0}\' ({1}: {2})'.format(ac_field_name, e.__class__.__name__, e))
+
+    def process_filter_element(self, elm, filter_list):
+        """
+        TODO: document this function
+        :param elm:
+        :param filter_list:
+        :return:
+        """
+
+        def is_filter_term(parse_results):
+            return len(parse_results) == 3 and parse_results[1] == ':'
+
+        def is_operator(parse_results):
+            return type(parse_results) == str and parse_results.upper() in ['AND', 'OR', 'NOT']
+
+        def is_not_structure(parse_results):
+            try:
+                return parse_results[0].upper() == 'NOT'
+            except Exception:
+                return False
+
+        if is_filter_term(elm):
+            # If element is a key/value filter pair, render and add it to the filter list
+            # Translate key and value for the ones the 3rd party service understands
+            fkey = elm[0]
+            fvalue = elm[2]
+            key, value = self.translate_filter(fkey, fvalue)
+
+            kwargs = {'key': key}
+            if type(value) in (int, float):  # Value is number
+                kwargs.update({'value_number': value})
+            elif type(value) is str:  # Value is text
+                kwargs.update({'value_text': value})
+            elif type(value) == pyparsing.ParseResults and len(value) == 2:  # Value is a range
+                kwargs.update({'value_range': value})
+            filter_list.append(self.render_filter_term(**kwargs))
+
+        elif is_operator(elm):
+            # If element is an operator, render and add it to the filter list
+            filter_list.append(self.render_operator_term(elm))
+
+        elif type(elm) == pyparsing.ParseResults:
+            # If element is a more complex structure, walk it recursively and add precedence elements () if needed
+
+            if not is_not_structure(elm):
+                filter_list.append('(')
+            for item in elm:
+                self.process_filter_element(item, filter_list)
+            if not is_not_structure(elm):
+                filter_list.append(')')
+        else:
+            raise ACFilterParsingException
+
+    def build_filter_string(self, filter_input_value):
+        """
+        TODO: document this function
+        :param filter_input_value:
+        :return:
+        """
+        try:
+            parsed_filter = parse_filter(filter_input_value)
+        except pyparsing.ParseException:
+            raise ACFilterParsingException('Could not parse filter: "{0}"'.format(filter_input_value))
+        out_filter_list = list()
+        self.process_filter_element(parsed_filter[0], out_filter_list)
+        if out_filter_list[0] == '(':
+            # If out filter list starts with an opening parenthesis, remove first and last positions ad both will
+            # correspond to redundant parentheses
+            out_filter_list = out_filter_list[1: -1]
+        filter_string = ''.join(out_filter_list)
+        return filter_string
 
     def text_search(self, context, q, f, s, common_search_params):
         """
@@ -391,3 +521,27 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
         :return: query parameters dict
         """
         raise NotImplementedError("Parameter '{0}' not supported".format(QUERY_PARAM_SORT))
+
+    def render_filter_term(self, key, value_text=None, value_number=None, value_range=None):
+        """
+        TODO: document this function
+        :param key:
+        :param value_text:
+        :param value_number:
+        :param value_range:
+        :return:
+        """
+        NotImplementedError("Service must implement method ACServiceTextSearchMixin.render_filter_term "
+                            "to support filtering")
+
+    def render_operator_term(self, operator):
+        """
+        TODO: document this function
+        :param key:
+        :param value_text:
+        :param value_number:
+        :param value_range:
+        :return:
+        """
+        NotImplementedError("Service must implement method ACServiceTextSearchMixin.render_operator_term "
+                            "to support filtering")

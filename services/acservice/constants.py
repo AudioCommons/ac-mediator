@@ -5,7 +5,7 @@ from api.constants import *
 ACID_SEPARATOR_CHAR = ':'
 
 # Some of these concept definitions should be linked with the ontology (or be loaded from it)
-AUDIOCOMMONS_ONTOLOGY_PREFIX = 'ac:'
+AUDIOCOMMONS_ONTOLOGY_PREFIX = 'ac_'
 
 # Component names
 SEARCH_TEXT_COMPONENT = 'text_search'
@@ -15,6 +15,7 @@ DOWNLOAD_COMPONENT = 'download'
 # Service description keywords
 ACID_DOMAINS_DESCRIPTION_KEYWORD = 'acid_domains'
 SUPPORTED_FIELDS_DESCRIPTION_KEYWORD = 'supported_fields'
+SUPPORTED_FILTERS_DESCRIPTION_KEYWORD = 'supported_filters'
 SUPPORTED_SORT_OPTIONS_DESCRIPTION_KEYWORD = 'supported_sort_options'
 
 # Authentication
@@ -85,4 +86,4 @@ LICENSE_CC_BY_NC = 'BY-NC'
 LICENSE_CC_BY_ND = 'BY-ND'
 LICENSE_CC_BY_NC_SA = 'BY-NC-SA'
 LICENSE_CC_BY_NC_ND = 'BY-NC-ND'
-LICENSE_CC_SAMPLING_PLUS = 'Sampling+'
+LICENSE_CC_SAMPLING_PLUS = 'SamplingPlus'

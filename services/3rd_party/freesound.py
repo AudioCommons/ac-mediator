@@ -3,7 +3,7 @@ from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
-from services.acservice.search import ACServiceTextSearchMixin, translates_field
+from services.acservice.search import ACServiceTextSearchMixin, translates_field, translates_filter_for_field
 from services.acservice.download import ACDownloadMixin
 from accounts.models import Account
 import datetime
@@ -63,6 +63,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     # Search
     TEXT_SEARCH_ENDPOINT_URL = API_BASE_URL + 'search/text/'
 
+    # Implement fields mapping
+
     @property
     def direct_fields_mapping(self):
         return {
@@ -98,6 +100,64 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def translate_field_timestamp(self, result):
         return str(datetime.datetime.strptime(result['created'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
 
+    # Implement filters mapping
+
+    @property
+    def direct_filters_mapping(self):
+        return {
+            FIELD_CHANNELS: 'channels',
+            FIELD_AUTHOR_NAME: 'username',
+            FIELD_DURATION: 'duration',
+            FIELD_FILESIZE: 'filesize',
+            FIELD_BITRATE: 'bitrate',
+            FIELD_BITDEPTH: 'bitdepth',
+            FIELD_SAMPLERATE: 'samplerate',
+            FIELD_COLLECTION_URL: 'pack',
+            FIELD_LICENSE_DEED_URL: 'license',
+        }
+
+    @translates_filter_for_field(FIELD_FORMAT)
+    def translate_filter_format(self, value):
+        if value not in ['wav', 'mp3', 'ogg', 'flac', 'aiff']:
+            raise ACFilterParsingException(
+                'The provided value for filter \'{0}\' is not supported'.format(FIELD_FORMAT))
+        return 'type', value
+
+    @translates_filter_for_field(FIELD_LICENSE)
+    def translate_filter_license(self, value):
+        try:
+            license_deed_url = {
+                LICENSE_CC_BY: 'Attribution',
+                LICENSE_CC_BY_NC: 'Attribution Noncommercial',
+                LICENSE_CC0: 'Creative Commons 0',
+                LICENSE_CC_SAMPLING_PLUS: 'Sampling+',
+            }[value]
+        except KeyError:
+            raise ACFilterParsingException(
+                'The provided value for filter \'{0}\' is not supported'.format(FIELD_LICENSE))
+        return 'license', license_deed_url
+
+    def render_filter_term(self, key, value_text=None, value_number=None, value_range=None):
+        rendered_value = ''
+        if value_text:
+            rendered_value = str(value_text)
+            if ' ' in rendered_value or '-' in rendered_value:
+                rendered_value = '"' + value_text + '"'  # Add quotes if white space present
+        elif value_number:
+            rendered_value = str(value_number)  # Render string version of value
+        elif value_range:
+            rendered_value = '[%s TO %s]' % (value_range[0], value_range[1])  # Return range syntax
+        return '%s:%s' % (key, rendered_value)
+
+    def render_operator_term(self, operator):
+        return {
+            'NOT': ' -',
+            'OR': ' OR ',
+            'AND': ' AND ',
+        }[operator.upper()]
+
+    # Implement other basic search functions
+
     def get_results_list_from_response(self, response):
         return response['results']
 
@@ -106,6 +166,10 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     def process_q_query_parameter(self, q):
         return {'query': q}
+
+    def process_f_query_parameter(self, f):
+        print(self.build_filter_string(f))
+        return {'filter': self.build_filter_string(f)}
 
     def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
         criteria = {
