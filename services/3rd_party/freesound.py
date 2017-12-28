@@ -120,6 +120,17 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             FIELD_TAG: 'tag',
         }
 
+    @translates_filter_for_field(FIELD_ID)
+    def translate_filter_id(self, value):
+        """
+        Implementation for the translation of ID filter. It uses the provided SERVICE_ID_FIELDNAME as key
+        for the filter, and removes self.id_prefix from the start of the filter value. This should operate in reverse
+        to what `translate_field_id`. In `translate_field_id` we append a prefix to the third party service provided
+        id (e.g. 1234 -> prefix:1234). Here we remove that prefix to convert the value to the original (e.g. prefix:1234
+        -> 1234).
+        """
+        return self.SERVICE_ID_FIELDNAME, value[len(self.id_prefix):]
+
     @translates_filter_for_field(FIELD_FORMAT)
     def translate_filter_format(self, value):
         if value not in ['wav', 'mp3', 'ogg', 'flac', 'aiff']:
