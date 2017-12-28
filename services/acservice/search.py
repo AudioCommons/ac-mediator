@@ -114,6 +114,20 @@ class BaseACServiceSearchMixin(object):
         """
         return '{0}{1}'.format(self.id_prefix, result[self.SERVICE_ID_FIELDNAME])
 
+    @translates_filter_for_field(FIELD_ID)
+    def translate_filter_id(self, value):
+        """
+        Default implementation for the translation of ID filter. It uses the provided SERVICE_ID_FIELDNAME as key
+        for the filter, and removes self.id_prefix from the start of the filter value. This should operate in reverse
+        to what `translate_field_id`. In `translate_field_id` we append a prefix to the third party service provided
+        id (e.g. 1234 -> prefix:1234). Here we remove that prefix to convert the value to the original (e.g. prefix:1234
+        -> 1234). If a more complex strategy should be followed to filter by FIELD_ID then this function
+        must be overwritten.
+        :param result: raw value passed to the filter
+        :return: tuple with translated (filter_name, filter_value)
+        """
+        return self.SERVICE_ID_FIELDNAME, value[len(self.id_prefix):]
+
     def get_supported_fields(self):
         """
         Checks which AudioCommons fields can be translated to the third party service fields.
@@ -336,7 +350,7 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
         """
         try:
             if ac_field_name in self.direct_filters_mapping:
-                return self.direct_fields_mapping[ac_field_name], value  # Do direct mapping
+                return self.direct_filters_mapping[ac_field_name], value  # Do direct mapping
             return self.translate_filter_methods_registry[ac_field_name](value)  # Invoke translate method
         except KeyError:
             raise ACFilterParsingException('Filter for field \'{0}\' not supported'.format(ac_field_name))
