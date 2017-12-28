@@ -168,7 +168,6 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         return {'query': q}
 
     def process_f_query_parameter(self, f):
-        print(self.build_filter_string(f))
         return {'filter': self.build_filter_string(f)}
 
     def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
