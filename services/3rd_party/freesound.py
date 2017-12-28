@@ -98,7 +98,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     @translates_field(FIELD_TIMESTAMP)
     def translate_field_timestamp(self, result):
-        return str(datetime.datetime.strptime(result['created'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
+        return datetime.datetime.strptime(result['created'].split('.')[0], '%Y-%m-%dT%H:%M:%S')\
+            .strftime(AUDIOCOMMONS_STRING_TIME_FORMAT)
 
     # Implement filters mapping
 
@@ -112,8 +113,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             FIELD_BITRATE: 'bitrate',
             FIELD_BITDEPTH: 'bitdepth',
             FIELD_SAMPLERATE: 'samplerate',
-            FIELD_COLLECTION_URL: 'pack',
-            FIELD_LICENSE_DEED_URL: 'license',
+            FIELD_TAG: 'tag',
         }
 
     @translates_filter_for_field(FIELD_FORMAT)
@@ -136,6 +136,13 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             raise ACFilterParsingException(
                 'The provided value for filter \'{0}\' is not supported'.format(FIELD_LICENSE))
         return 'license', license_deed_url
+
+    @translates_filter_for_field(FIELD_TIMESTAMP)
+    def translate_filter_timestamp(self, value):
+        if value == '*':
+            return 'created', '*'
+        return 'created', datetime.datetime.strptime(value, AUDIOCOMMONS_STRING_TIME_FORMAT)\
+            .strftime('%Y-%m-%dT%H:%M:%SZ')  # From AC time string format to FS time string format
 
     def render_filter_term(self, key, value_text=None, value_number=None, value_range=None):
         rendered_value = ''
