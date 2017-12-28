@@ -179,6 +179,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         return {'query': q}
 
     def process_f_query_parameter(self, f):
+        # Call `build_filter_string` from base class, which parses the query filter and builds a new string using
+        # the `translates_filter_for_field` and `render_*_term` methods overwritten for Freesound service
         return {'filter': self.build_filter_string(f)}
 
     def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
