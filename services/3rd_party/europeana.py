@@ -5,6 +5,7 @@ from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearchMixin, translates_field
 from ac_mediator.exceptions import *
 import json
+import datetime
 
 
 class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin):
@@ -41,6 +42,29 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def translate_field_url(self, result):
         return result['guid'].split('?')[0]
 
+    @translates_field(FIELD_DESCRIPTION)
+    def translate_field_description(self, result):
+        if 'dcDescription' in result:
+            return '\n'.join(result['dcDescription'])
+        else:
+            return None
+
+    @translates_field(FIELD_COLLECTION_NAME)
+    def translate_field_collection_name(self, result):
+        if 'europeanaCollectionName' in result:
+            return result['europeanaCollectionName'][0]
+        else:
+            return None
+
+    @translates_field(FIELD_COLLECTION_URL)
+    def translate_field_collection_url(self, result):
+        collection_name = self.translate_field_collection_name(result)
+        if collection_name is not None:
+            return \
+                'https://www.europeana.eu/portal/en/search?q=europeana_collectionName%3A({0})'.format(collection_name)
+        else:
+            return None
+
     @translates_field(FIELD_NAME)
     def translate_field_name(self, result):
         return result['title'][0]
@@ -56,10 +80,19 @@ class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def translate_field_license(self, result):
         return translate_cc_license_url(result['rights'][0])
 
+    @translates_field(FIELD_LICENSE_DEED_URL)
+    def translate_field_license_url(self, result):
+        return result['rights'][0]
+
     @translates_field(FIELD_PREVIEW)
     def translate_field_preview(self, result):
         # TODO: this field does not always return static file urls...
         return result['edmIsShownBy'][0]
+
+    @translates_field(FIELD_TIMESTAMP)
+    def translate_field_timestamp(self, result):
+        return datetime.datetime.strptime(result['timestamp_created'].split('.')[0], '%Y-%m-%dT%H:%M:%S') \
+            .strftime(AUDIOCOMMONS_STRING_TIME_FORMAT)
 
     def get_results_list_from_response(self, response):
         if not response['items']:
