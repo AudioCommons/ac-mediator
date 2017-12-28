@@ -1,7 +1,7 @@
 from services.acservice.constants import LICENSE_UNKNOWN, LICENSE_CC0, LICENSE_CC_BY, LICENSE_CC_BY_NC, \
     LICENSE_CC_BY_NC_ND, LICENSE_CC_BY_NC_SA, LICENSE_CC_BY_ND, LICENSE_CC_BY_SA, LICENSE_CC_SAMPLING_PLUS
-from pyparsing import ParseResults, CaselessLiteral, Word, alphanums, alphas8bit, nums, quotedString, \
-    operatorPrecedence, opAssoc, removeQuotes, Literal, Group, printables, ParseException, Suppress
+from pyparsing import CaselessLiteral, Word, alphanums, alphas8bit, nums, quotedString, \
+    operatorPrecedence, opAssoc, removeQuotes, Literal, Group, Suppress, Combine
 
 
 def translate_cc_license_url(url):
@@ -22,6 +22,8 @@ def translate_cc_license_url(url):
 
 
 # Util functions for parsing filters, define grammar and parsing functions
+# Parsing is done using Pyparsing library. Relevant documentation for Pyparsing can be found here:
+# http://shop.oreilly.com/product/9780596514235.do
 
 def as_number_if_number(x):
     try:
@@ -43,7 +45,8 @@ filterValueText = (Word(alphanums_plus + alphas8bit + float_nums + '-') | quoted
 number_or_asterisk = (Literal('*') | Word(float_nums)).setParseAction(as_number_if_number)
 filterValueRange = Group(Suppress(Literal('[')).suppress() + number_or_asterisk + Suppress(Literal(',')).suppress() +
                          number_or_asterisk + Suppress(Literal(']')).suppress())
-filterTerm = Group(Word(alphanums_plus) + Literal(':') + (filterValueText | filterValueRange))
+fieldName = Combine(Word(alphanums) + Literal(':') + Word(alphanums_plus))  # ontologyPrefix:givenFieldName
+filterTerm = Group(fieldName + Literal(':') + (filterValueText | filterValueRange))  # ontologyPrefix:givenFieldName:filterValue
 filterExpr = operatorPrecedence(filterTerm,
                                 [
                                     (not_, 1, opAssoc.RIGHT),
