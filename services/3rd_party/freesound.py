@@ -92,6 +92,10 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def translate_field_preview(self, result):
         return result['previews']['preview-hq-ogg']
 
+    @translates_field(FIELD_IMAGE)
+    def translate_field_image(self, result):
+        return result['images']['waveform_m']
+
     @translates_field(FIELD_AUTHOR_URL)
     def translate_field_author_url(self, result):
         return self.API_BASE_URL + 'users/{0}/'.format(result['username'])
@@ -218,7 +222,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         # ac:id, the forwarded query to Freesound will request all potential fields. It could be optimized in the future
         # by setting 'fields' depending on what's in common_search_params['fields'].
         return {'fields': 'id,url,name,license,previews,username,tags,duration,filesize,channels,bitrate,bitdepth,'
-                          'samplerate,type,description,created,pack'}
+                          'samplerate,type,description,created,pack,images'}
 
     # Download component
     DOWNLOAD_ACID_DOMAINS = [NAME]

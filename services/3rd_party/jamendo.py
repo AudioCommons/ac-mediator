@@ -44,6 +44,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
             FIELD_NAME: 'name',
             FIELD_AUTHOR_NAME: 'artist_name',
             FIELD_PREVIEW: 'audiodownload',
+            FIELD_IMAGE: 'image',
         }
 
     @translates_field(FIELD_TAGS)
