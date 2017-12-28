@@ -478,8 +478,11 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
         # Process common search parameters
         query_params.update(self.process_common_search_params(common_search_params))
 
-        # Add extra query parameters
-        query_params.update(self.add_extra_search_query_params())
+        # Add extra query parameters as returned by self.add_extra_search_query_params()
+        # NOTE: parameters already present in query_params have preference and are not overwritten
+        params_to_add = {key: value for key, value in self.add_extra_search_query_params().items()
+                         if key not in query_params}
+        query_params.update(params_to_add)
 
         # Send request and process response
         response = self.send_request(self.TEXT_SEARCH_ENDPOINT_URL, params=query_params)
