@@ -236,10 +236,13 @@ LOGGING = {
 
 if DEBUG:
     # In development we log all requests made into a file
+    LOGS_BASE_DIR = os.path.join(BASE_DIR, 'logs')
+    if not os.path.exists(LOGS_BASE_DIR):
+        os.makedirs(LOGS_BASE_DIR)
     LOGGING['handlers'].update({
         'logfile_requests': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/requests.log'),
+            'filename': os.path.join(LOGS_BASE_DIR, 'requests.log'),
             'formatter': 'simplest'
         }
     })
