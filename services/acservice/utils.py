@@ -42,9 +42,9 @@ or_ = CaselessLiteral("or")
 not_ = CaselessLiteral("not")
 filterValueText = (Word(alphanums_plus + alphas8bit + float_nums + '-') | quotedString.setParseAction(removeQuotes))\
     .setParseAction(as_number_if_number)
-number_or_asterisk = (Literal('*') | Word(float_nums)).setParseAction(as_number_if_number)
-filterValueRange = Group(Suppress(Literal('[')).suppress() + number_or_asterisk + Suppress(Literal(',')).suppress() +
-                         number_or_asterisk + Suppress(Literal(']')).suppress())
+number_or_asterisk_or_quotedString = (Literal('*') | Word(float_nums) | quotedString.setParseAction(removeQuotes)).setParseAction(as_number_if_number)
+filterValueRange = Group(Suppress(Literal('[')).suppress() + number_or_asterisk_or_quotedString + Suppress(Literal(',')).suppress() +
+                         number_or_asterisk_or_quotedString + Suppress(Literal(']')).suppress())
 fieldName = Combine(Word(alphanums) + Literal(':') + Word(alphanums_plus))  # ontologyPrefix:givenFieldName
 filterTerm = Group(fieldName + Literal(':') + (filterValueText | filterValueRange))  # ontologyPrefix:givenFieldName:filterValue
 filterExpr = operatorPrecedence(filterTerm,
