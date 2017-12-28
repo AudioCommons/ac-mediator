@@ -7,3 +7,4 @@ celerybeat.pid
 celerybeat-schedule
 pip.conf
 out_test_*
+logs/

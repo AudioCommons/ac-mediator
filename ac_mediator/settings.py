@@ -192,7 +192,7 @@ EMAIL_SUBJECT_PREFIX = '[AudioCommons] '
 EMAIL_HOST = 'smtp-rec.upf.edu'
 EMAIL_PORT = 25
 
-if DEBUG == True:
+if DEBUG:
     # In development environment, use email file backend
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = os.path.join(BASE_DIR, "mail")
@@ -204,6 +204,9 @@ LOGGING = {
     'formatters': {
         'simple': {
             'format': '%(levelname)s %(message)s'
+        },
+        'simplest': {
+            'format': '%(message)s'
         },
     },
     'filters': {
@@ -230,6 +233,24 @@ LOGGING = {
         },
     },
 }
+
+if DEBUG:
+    # In development we log all requests made into a file
+    LOGGING['handlers'].update({
+        'logfile_requests': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/requests.log'),
+            'formatter': 'simplest'
+        }
+    })
+    LOGGING['loggers'].update({
+        'requests_sent': {
+            'handlers': ['logfile_requests'],
+            'level': 'INFO',
+            'propagate': False,
+        }
+    })
+
 
 # Read logserver config settings, if present, then update the corresponding handler
 GELF_IP_ADDRESS = os.getenv('GELF_IP_ADDRESS', None)

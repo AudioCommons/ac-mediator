@@ -1,6 +1,9 @@
 from ac_mediator.exceptions import ImproperlyConfiguredACService, ACException
 from services.acservice.constants import *
 import requests
+import logging
+
+requests_logger = logging.getLogger('requests_sent')
 
 
 class BaseACService(object):
@@ -99,13 +102,27 @@ class BaseACService(object):
 
         auth_info = self.get_auth_info_for_request(auth_method, account=account)
         params.update(auth_info.get('params', dict()))  # Update current params with auth params (if any)
-        # print('- {0}?{1}'.format(
-        #    url, '&'.join(['{0}={1}'.format(key, value) for key, value in params.items()])))  # Print requested url
+
+        headers = auth_info.get('headers', dict())
+
+        # Log request
+        log_line = '\n\nRequest to service: {0}\n'.format(self.name)
+        log_line += '{0}?{1}'.format(url, '&'.join(['{0}={1}'.format(key, value) for key, value in params.items()]))
+        if data:
+            log_line += '\nData:\n'
+            log_line += '\n'.join(['{0}: {1}'.format(key, value) for key, value in data.items()])
+        if headers:
+            log_line += '\nHeaders:\n'
+            log_line += '\n'.join(['{0}: {1}'.format(key, value) for key, value in headers.items()])
+
+        requests_logger.info(log_line)
+
+        # Make the request!
         r = getattr(requests, method)(
             url,
             params=params,
             data=data,
-            headers=auth_info.get('headers', dict()))
+            headers=headers)
         # TODO: log request object somewhere?
         return self.validate_response_status_code(r)
 
