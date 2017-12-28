@@ -6,6 +6,7 @@ from services.acservice.auth import ACServiceAuthMixin
 from services.acservice.search import ACServiceTextSearchMixin, translates_field
 from services.acservice.licensing import ACLicensingMixin
 from services.acservice.download import ACDownloadMixin
+import datetime
 
 
 class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin, ACLicensingMixin, ACDownloadMixin):
@@ -60,6 +61,10 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
     @translates_field(FIELD_LICENSE)
     def translate_field_license(self, result):
         return translate_cc_license_url(result['license_ccurl'])
+
+    @translates_field(FIELD_TIMESTAMP)
+    def translate_field_timestamp(self, result):
+        return datetime.datetime.strptime(result['releasedate'], '%Y-%m-%d').strftime(AUDIOCOMMONS_STRING_TIME_FORMAT)
 
     def get_results_list_from_response(self, response):
         return response['results']
