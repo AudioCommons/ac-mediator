@@ -385,14 +385,20 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
             # Translate key and value for the ones the 3rd party service understands
             fkey = elm[0]
             fvalue = elm[2]
-            key, value = self.translate_filter(fkey, fvalue)
+            if type(fvalue) == pyparsing.ParseResults and len(fvalue) == 2:
+                # If filter is of type range, translate the values per separate
+                key, value1 = self.translate_filter(fkey, fvalue[0])
+                _, value2 = self.translate_filter(fkey, fvalue[1])
+                value = (value1, value2)
+            else:
+                key, value = self.translate_filter(fkey, fvalue)
 
             kwargs = {'key': key}
             if type(value) in (int, float):  # Value is number
                 kwargs.update({'value_number': value})
             elif type(value) is str:  # Value is text
                 kwargs.update({'value_text': value})
-            elif type(value) == pyparsing.ParseResults and len(value) == 2:  # Value is a range
+            elif type(value) == tuple and len(value) == 2:  # Value is a range
                 kwargs.update({'value_range': value})
             filter_list.append(self.render_filter_term(**kwargs))
 
