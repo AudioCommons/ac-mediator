@@ -117,7 +117,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
         return '%s:%s' % (key, rendered_value)
 
     def render_operator_term(self, operator):
-        if operator.upper() != 'AND':
+        if operator != 'AND':
             raise ACFilterParsingException('Filtering only supports "AND" operators')
         else:
             return '&&&'
