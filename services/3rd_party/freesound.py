@@ -176,7 +176,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             'NOT': ' -',
             'OR': ' OR ',
             'AND': ' AND ',
-        }[operator.upper()]
+        }[operator]
 
     # Implement other basic search functions
 
