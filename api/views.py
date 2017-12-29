@@ -314,7 +314,7 @@ def text_search(request):
         Field name              Values description
         ======================  =====================================================
         ``ac:id``               Audio Commons Unique Identifier (ACID).
-        ``ac:license``          License of the resource, must be one of [`CC0``, ```BY``, ``BY-NC``, ``BY-ND``, ``BY-SA``, ``BY-NC-SA``, ``BY-NC-ND``].
+        ``ac:license``          License of the resource, must be one of [``CC0``, ``BY``, ``BY-NC``, ``BY-ND``, ``BY-SA``, ``BY-NC-SA``, ``BY-NC-ND``].
         ``ac:timestamp``        Creation date of the resource. Must be indicated as a **range** with the format ``['2017-09-27 10:01:22','2017-09-27 10:01:22']`` (see examples below).
         ``ac:duration``         Duration of the audio resource in seconds. Must be indicated as range.
         ``ac:tag``              Tag with which the resource has been tagged, indicated a a string (see examples below).
