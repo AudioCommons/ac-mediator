@@ -139,7 +139,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated' if not DEBUG or not ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG
         else 'rest_framework.permissions.AllowAny',
     ),
-    'EXCEPTION_HANDLER': 'api.utils.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'api.utils.custom_exception_handler',
+    'URL_FORMAT_OVERRIDE': None,  # disable DRF use of 'format' parameter (we have our own)
 }
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'api.ApiClient'
 OAUTH2_PROVIDER = {
@@ -149,7 +150,10 @@ OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope'},
     'OAUTH2_VALIDATOR_CLASS': 'api.utils.ACOAuth2Validator',
 }
-DEFAULT_RESPONSE_FORMAT = 'jsonld'
+
+JSON_LD_FORMAT_KEY = 'jsonld'
+JSON_FORMAT_KEY = 'json'
+DEFAULT_RESPONSE_FORMAT = JSON_FORMAT_KEY
 
 # Registration
 AUTH_USER_MODEL = 'accounts.Account'

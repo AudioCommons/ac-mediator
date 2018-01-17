@@ -116,17 +116,18 @@ class ResponseAggregator(object):
         to_return = None
         if response is None:
             return to_return
-        if format == 'json':
+        if format == settings.JSON_FORMAT_KEY:
             to_return = response.copy()
             to_return['meta']['response_id'] = response_id  # Add response_id to returned dictionary
             to_return['meta']['collect_url'] = settings.BASE_URL + '{0}?rid={1}'.format(reverse('api-collect'), response_id)  # Add collect url for convinience
             to_return['meta']['current_timestamp'] = str(datetime.datetime.now())
             if response['meta']['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
                 self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
-        elif format == 'jsonld':
-            from rdflib import Graph, plugin, URIRef, Literal, Namespace, BNode
+        elif format == settings.JSON_LD_FORMAT_KEY:
+            # NOTE: this is a fake implementation of returning a response in JSON-LD format
+            from rdflib import Graph, URIRef, Literal, Namespace, BNode
             from rdflib.namespace import RDF
-            from rdflib.serializer import Serializer
+
             g = Graph()
             n_ac = Namespace('https://m.audiocommons.org/ontology/response/')
             n_mo = Namespace('http://mo/')
@@ -144,10 +145,6 @@ class ResponseAggregator(object):
             g.add((r_ref, RDF.type, n_ac.response))
             g.add((r_ref, n_ac.response_contents, object1))
             g.add((r_ref, n_ac.response_contents, object2))
-
-
-
-
 
             to_return = g.serialize(format='json-ld', context={
                 '@ac': 'https://m.audiocommons.org/ontology/response/',

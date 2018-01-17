@@ -101,8 +101,8 @@ class RequestDistributor(object):
 
         # Return object including responses received so far (if wait_until_complete == False the
         # response returned here will almost only contain the response_id field which can be later
-        # used to retreive further responses.
-        return response_aggregator.collect_response(response_id, format=settings.DEFAULT_RESPONSE_FORMAT)
+        # used to retrieve further responses.
+        return response_aggregator.collect_response(response_id, format=request['context']['format'])
 
 
 request_distributor = RequestDistributor()

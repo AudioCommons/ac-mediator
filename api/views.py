@@ -31,9 +31,15 @@ def get_request_context(request):
             if settings.DEBUG and settings.ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG:
                 user_account_id = Account.objects.all()[0].id
                 dev_account_id = user_account_id
+
+    response_format = request.GET.get(QUERY_PARAM_FORMAT, settings.DEFAULT_RESPONSE_FORMAT)
+    if response_format not in [settings.JSON_FORMAT_KEY, settings.JSON_LD_FORMAT_KEY]:
+        response_format = settings.DEFAULT_RESPONSE_FORMAT
+
     return {
         'user_account_id': user_account_id,
         'dev_account_id': dev_account_id,
+        'format': response_format,
         # NOTE: we use id's instead of the objects so that the dict can be serialized and passed to Celery
     }
 
@@ -161,7 +167,8 @@ def collect_response(request):
         ``errors``              Dictionary with error responses from the individual services. Keys in the dictionary correspond to service names.
         ======================  =====================================================
     """
-    response = response_aggregator.collect_response(request.GET.get('rid'), format=settings.DEFAULT_RESPONSE_FORMAT)
+    context = get_request_context(request)
+    response = response_aggregator.collect_response(request.GET.get('rid'), format=context['format'])
     if response is None:
         raise ACAPIResponseDoesNotExist
     return Response(response)
@@ -231,6 +238,7 @@ def services(request):
                 "count": 2
             }
     """
+    # TODO: implement support for JSON-LD format. Needs to call get_request_context(request)['format'] and check
     services = get_available_services(component=request.GET.get('component', None))
     return Response({
         'count': len(services),
