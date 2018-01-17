@@ -10,8 +10,9 @@
 
         <div class="control-group">
             <div class="controls">
-                <a class="btn btn-large" href="{% url "developers-app-list" %}">{% trans "Cancel" %}</a>
-                <input type="submit" class="btn btn-large btn-danger" name="allow" value="{% trans "Delete" %}"/>
+
+                <input type="submit" class="btn btn-large btn-danger" name="allow" value="Yes I'm sure"/>
+                &nbsp;&nbsp;<a href="{% url "developers-app-list" %}">{% trans "Cancel" %}</a>
             </div>
         </div>
     </form>

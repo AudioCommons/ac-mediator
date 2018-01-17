@@ -3,7 +3,7 @@ volumes:
   dbvolume:
 services:
   db:
-    image: postgres:9.4
+    image: postgres:9.6
     env_file:
       - .env
     volumes:
@@ -41,6 +41,15 @@ services:
     volumes_from:
       - web
     command: celery worker -A ac_mediator --concurrency=${CELERY_CONCURRENCY}
+    depends_on:
+      - redis
+  celery_beat:
+    build: .
+    env_file:
+      - .env
+    volumes_from:
+      - web
+    command: celery beat -A ac_mediator
     depends_on:
       - redis
   flower:  #  Django app to monitor Celery status

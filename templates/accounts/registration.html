@@ -1,14 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock title %}
-
+{% block title %}Registration{% endblock title %}
 {% block content %}
 
     <h1>Registration</h1>
 
-    <form method="post" action="{% url 'registration' %}">
-    {% csrf_token %}
-    {{form.as_p}}
-    <input class="btn btn-success" type="submit" value="Register" />
-    </form>
+    {% if form %}
+        <form method="post" action="{% url 'registration' %}">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input class="btn btn-success" type="submit" value="Register" />
+        </form>
+    {% else %}
+        <p>
+            Thanks for creating an Audio Commons account!<br>
+            Before being able to log in, you'll need to activate your account.<br>
+            Please follow the instructions that we have just sent you via email.
+        </p>
+    {% endif %}
 
 {% endblock %}

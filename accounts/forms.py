@@ -69,3 +69,19 @@ class RegistrationForm(forms.Form):
         account.set_password(password)
         account.save()
         return account
+
+
+class ReactivationForm(forms.Form):
+    account = forms.CharField(label="The username or email you signed up with")
+
+    def clean_account(self):
+        username_or_email = self.cleaned_data["account"]
+        try:
+            return Account.objects.get(email__iexact=username_or_email, is_active=False)
+        except Account.DoesNotExist:
+            pass
+        try:
+            return Account.objects.get(username__iexact=username_or_email, is_active=False)
+        except Account.DoesNotExist:
+            pass
+        raise forms.ValidationError(_("No non-active user with such email or username exists."))

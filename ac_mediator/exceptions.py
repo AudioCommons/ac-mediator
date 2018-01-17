@@ -38,6 +38,10 @@ class ACFieldTranslateException(ACException):
     pass
 
 
+class ACFilterParsingException(ACException):
+    pass
+
+
 # AC API Exceptions
 
 class ACAPIException(APIException):

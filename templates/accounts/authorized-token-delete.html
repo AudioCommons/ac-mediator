@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block content %}
     <form action="" method="post">{% csrf_token %}
-        <p>{% trans "Are you sure you want to revoke this authorization?" %}</p>
+        <h1>{% trans "Are you sure you want to revoke this authorization?" %}</h1>
         <input type="submit" class="btn btn-large btn-danger" value="{% trans "Delete" %}" />
     </form>
 {% endblock %}

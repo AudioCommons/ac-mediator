@@ -3,7 +3,7 @@
 
 {% block content %}
 
-    <h1>Audio Commons</h1>
+    <h1>Audio Commons Mediator</h1>
 
     {% if form.errors %}
     <p>Your username and password didn't match. Please try again.</p>
@@ -25,8 +25,8 @@
     <input type="hidden" name="next" value="{{ next }}" />
     </form>
 
-    {% comment %}
+    <br>
     <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
-    {% endcomment %}
+    <p><a href="{% url 'accounts-resend-activation' %}">Resend activation code</a></p>
 
 {% endblock %}

@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Audio Commons - {% block title %}{% endblock title %}</title>
+    <title>Audio Commons Mediator - {% block title %}{% endblock title %}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Rajdhani:400,700' rel='stylesheet' type='text/css'>
@@ -35,8 +35,24 @@
                     {% endif %}
                 {% endif %}
             </div>
+            <br>
+
             {% block content %}
             {% endblock content%}
+
+            <div class="footer">
+                {% if request.user.is_authenticated %}
+                    <div class="alert alert-warning" role="alert">
+                        This is a beta version of the <b>Audio Commons Mediator</b> website.
+                        <br>Some things might not work properly or appear to be unfinished.
+                        <br>Have some feedback for us? Feel free to <a href="mailto:audiocommons@upf.edu">send us an email</a>.
+                    </div>
+                {% endif %}
+                Audio Commons - <a href="http://www.audiocommons.org" target="_blank">http://audiocommons.org</a><br>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'home' %}">Home</a> | <a href="{% url 'about' %}">About</a> | <a href="{% url 'developers-app-list' %}">Developers</a>
+                {% endif %}
+            </div>
         </div>
     </div>
 </body>

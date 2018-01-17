@@ -3,9 +3,11 @@ from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
-from services.acservice.search import ACServiceTextSearchMixin, translates_field
+from services.acservice.search import ACServiceTextSearchMixin, translates_field, translates_filter_for_field
 from services.acservice.licensing import ACLicensingMixin
 from services.acservice.download import ACDownloadMixin
+import datetime
+import urllib
 
 
 class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin, ACLicensingMixin, ACDownloadMixin):
@@ -37,6 +39,8 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
     # Search
     TEXT_SEARCH_ENDPOINT_URL = API_BASE_URL + 'tracks/'
 
+    # Implement fields mapping
+
     @property
     def direct_fields_mapping(self):
         return {
@@ -44,6 +48,9 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
             FIELD_NAME: 'name',
             FIELD_AUTHOR_NAME: 'artist_name',
             FIELD_PREVIEW: 'audiodownload',
+            FIELD_IMAGE: 'image',
+            FIELD_DURATION: 'duration',
+            FIELD_LICENSE_DEED_URL: 'license_ccurl',
         }
 
     @translates_field(FIELD_TAGS)
@@ -58,6 +65,65 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
     def translate_field_license(self, result):
         return translate_cc_license_url(result['license_ccurl'])
 
+    @translates_field(FIELD_TIMESTAMP)
+    def translate_field_timestamp(self, result):
+        return datetime.datetime.strptime(result['releasedate'], '%Y-%m-%d').strftime(AUDIOCOMMONS_STRING_TIME_FORMAT)
+
+    # Implement filters mapping
+
+    @translates_filter_for_field(FIELD_ID)
+    def translate_filter_id(self, value):
+        return 'filter_id', value[len(self.id_prefix):]
+
+    @translates_filter_for_field(FIELD_LICENSE)
+    def translate_filter_license(self, value):
+        # We use this function to translate from AC license names to the combinations of parameters that are used in
+        # Jamendo to produce the same results (see self.process_f_query_parameter() to better understand this part).
+        try:
+            license_bool_params = {
+                LICENSE_CC_BY: '',
+                LICENSE_CC_BY_SA: 'ccsa',
+                LICENSE_CC_BY_NC: 'ccnc',
+                LICENSE_CC_BY_ND: 'ccnd',
+                LICENSE_CC_BY_NC_SA: 'ccsa,ccnc',
+                LICENSE_CC_BY_NC_ND: 'ccnc,ccnd',
+            }[value]
+        except KeyError:
+            raise ACFilterParsingException(
+                'The provided value for filter \'{0}\' is not supported'.format(FIELD_LICENSE))
+        return 'license_filter', license_bool_params
+
+    @translates_filter_for_field(FIELD_DURATION)
+    def translate_filter_duration(self, value):
+        return 'duration_filter', int(value)  # Round value to int
+
+    @translates_filter_for_field(FIELD_AUTHOR_NAME)
+    def translate_filter_author(self, value):
+        return 'author_filter', value
+
+    @translates_filter_for_field(FIELD_TIMESTAMP)
+    def translate_filter_timestamp(self, value):
+        return 'timestamp_filter', datetime.datetime.strptime(value, AUDIOCOMMONS_STRING_TIME_FORMAT)\
+            .strftime('%Y-%m-%d')  # From AC time string format to Jamendo time string format
+
+    def render_filter_term(self, key, value_text=None, value_number=None, value_range=None):
+        rendered_value = ''
+        if value_text:
+            rendered_value = urllib.parse.quote(str(value_text), safe='')
+        elif value_number:
+            rendered_value = str(value_number)  # Render string version of value
+        elif value_range:
+            rendered_value = '%s_%s' % (value_range[0], value_range[1])  # Return range syntax
+        return '%s:%s' % (key, rendered_value)
+
+    def render_operator_term(self, operator):
+        if operator != 'AND':
+            raise ACFilterParsingException('Filtering only supports "AND" operators')
+        else:
+            return '&&&'
+
+    # Implement other basic search functions
+
     def get_results_list_from_response(self, response):
         return response['results']
 
@@ -66,6 +132,48 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
 
     def process_q_query_parameter(self, q):
         return {'search': q}
+
+    def process_f_query_parameter(self, f):
+        # The way in which filtering works in Jamendo API as compared to Freesound is quite different. Freesound
+        # supports filters through a query param to which expressions can be passed. Jamendo supports a number of
+        # specific filters which are passed as different query parameters and are always ANDed. We configure the
+        # filter parser rendered for the Jamendo service to only allow AND operators and to render the AND operator
+        # as '&&&'. In this way we build a filter string which is easy to parse afterwards. We split the filter string
+        # by '&&&' and process each supported field accordingly. This works in combination with the functions
+        # 'translates_filter_for_field' which transform the AudioCommons field names and values to some information
+        # which is passed and interpreted here.
+        filter_params = {}
+        for item in self.build_filter_string(f).split('&&&'):
+            if 'license_filter:' in item:
+                filter_params.update({
+                    'ccsa': 'false',
+                    'ccnc': 'false',
+                    'ccnd': 'false',
+                })
+                # Add necessary query params to create license filter
+                if 'ccsa' in item:
+                    filter_params['ccsa'] = 'true'
+                if 'ccnc' in item:
+                    filter_params['ccnc'] = 'true'
+                if 'ccnd' in item:
+                    filter_params['ccnd'] = 'true'
+            if 'duration_filter' in item:
+                filter_params.update({
+                    'durationbetween': item.split('duration_filter:')[1],
+                })
+            if 'timestamp_filter' in item:
+                filter_params.update({
+                    'datebetween': item.split('timestamp_filter:')[1],
+                })
+            if 'filter_id' in item:
+                filter_params.update({
+                    'id': item.split('filter_id:')[1],
+                })
+            if 'author_filter' in item:
+                filter_params.update({
+                    'artist_name': item.split('author_filter:')[1],
+                })
+        return filter_params
 
     def add_extra_search_query_params(self):
         return {'include': 'musicinfo+licenses'}  # Use include parameter to retrieve all infomation we need

@@ -1,7 +1,7 @@
+from django.conf import settings
 from ac_mediator.exceptions import *
 from services.acservice.constants import *
-from django.conf import settings
-from services.management import get_available_services, get_service_by_id
+from services.mgmt import get_available_services, get_service_by_id
 from api.response_aggregator import get_response_aggregator
 from celery import shared_task
 
@@ -71,23 +71,33 @@ class RequestDistributor(object):
         else:
             response_aggregator.set_response_to_processing(response_id)
 
-        # Iterate over services, perform requests and aggregate responses
-        async_response_objects = list()
-        for service in services:
-            # Requests are performed asynchronously in Celery workers
-            async_response_objects.append(
-                perform_request_and_aggregate.delay(request, response_id, service.id)
-            )
+        if not settings.DEBUG or settings.USE_CELERY_IN_DEBUG_MODE:
+            # Iterate over services, perform requests and aggregate responses
+            async_response_objects = list()
+            for service in services:
+                # Requests are performed asynchronously in Celery workers
+                async_response_objects.append(
+                    perform_request_and_aggregate.delay(request, response_id, service.id)
+                )
 
-        # Wait until all responses are received (only if wait_until_complete == True)
-        if wait_until_complete:
-            # We wait until we get a response for all the requests we sent
-            # We do that by continuously iterating over all async_response_objetcs in a while
-            # loop and only exit when all of them have been flagged as ready
-            # TODO: we should add some control over timeouts, etc as this operation is blocking
-            while True:
-                if all([item.ready() for item in async_response_objects]):
-                    break
+            # Wait until all responses are received (only if wait_until_complete == True)
+            if wait_until_complete:
+                # We wait until we get a response for all the requests we sent
+                # We do that by continuously iterating over all async_response_objetcs in a while
+                # loop and only exit when all of them have been flagged as ready
+                # TODO: we should add some control over timeouts, etc as this operation is blocking
+                while True:
+                    if all([item.ready() for item in async_response_objects]):
+                        break
+        else:
+            # When in debug mode AND not settings.USE_CELERY_IN_DEBUG_MODE
+            # wait_until_complete is ignored as web server does not do the requests asynchronously
+            async_response_objects = list()
+            for service in services:
+                # Requests are performed synchronously in the web server
+                async_response_objects.append(
+                    perform_request_and_aggregate(request, response_id, service.id)
+                )
 
         # Return object including responses received so far (if wait_until_complete == False the
         # response returned here will almost only contain the response_id field which can be later

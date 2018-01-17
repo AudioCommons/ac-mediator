@@ -1,10 +1,15 @@
 Overview
 ========
 
-TODO: general introduction to the API
+The Audio Commons API is the component that allows interoperability among the different services and
+applications within the Audio Commons Ecosystem. Communication between services is carried out through
+HTTP requests. The Audio Commons API adheres to the RESTful API principles.
 
-* General Audio Commons Ecosystem structure: all requests to Audio Commons services are done through the mediator
-* What types of services there are, i.e., what things the API can do: search, licensing, download, etc.
+The Audio Commons API runs in the Audio Commons Mediator component, therefore all communications between
+third party services and your application are mediated through the Audio Commons API.
+In this way developers can communicate with all services through a unified interface and do not need
+to know about the implementation details of each accessed third party service.
+
 
 
 Requests
@@ -55,8 +60,6 @@ service with an authenticated end user, and the Audio Commons user account has n
 with such third party service user account, an error response will be returned for that
 individual service indicating that end user authentication is required.
 
-TODO: illustrate this part with some diagrams might make it clearer
-
 
 Third party services to be queried
 **********************************
@@ -91,6 +94,8 @@ responses returned by the third party services.
 The application that sent the original request is therefore responsible for iteratively pulling the
 aggregated response contents, which will be updated as soon as new responses are received from
 the queried third party services.
+Aggregated responses have a lifetime of 24 hours. After their lifetime, the contents of the response
+are removed and won't be accessible anymore in the provided URL.
 
 An aggregated response will **always** be a dictionary including ``meta``, ``contents``, ``warnings`` and ``errors``
 keys. This is what should be in each of these keys:
@@ -228,19 +233,19 @@ Key                     Value
 
 .. _throttling:
 
-Throttling
-----------
+.. Throttling
+.. ----------
 
-Requests directed to the Audio Commons API are never throttled.
-Nevertheless, the requests that the mediator forwards to the individual third party
-services **can be throttled** depending on the policies specified by individual service's.
+.. Requests directed to the Audio Commons API are never throttled.
+.. Nevertheless, the requests that the mediator forwards to the individual third party
+.. services **can be throttled** depending on the policies specified by individual service's.
 
-If an individual service throttles one request, this will result in an **429 Too many requests**
-error response for the individual service (i.e., in the ``errors`` field of the aggregated response).
-The response will include information about the rates that have been violated.
+.. If an individual service throttles one request, this will result in an **429 Too many requests**
+.. error response for the individual service (i.e., in the ``errors`` field of the aggregated response).
+.. The response will include information about the rates that have been violated.
 
 
-Help
-----
+.. Help
+.. ----
 
-TODO: set up public mailing list for API help
+.. TODO: set up public mailing list for API help

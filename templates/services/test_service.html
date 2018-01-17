@@ -1,44 +1,142 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% block title %}Test service {{ service.name }}{% endblock title %}
-{% block content %}
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function () {
-            {% for component in components %}
-                testComponent('{{ component }}');
-            {% endfor %}
-        }, false);
-
-        function testComponent(component_name) {
-            var html_element = document.getElementById("test_" + component_name);
-            getJSON('{% url "test_service_component" service.id %}?component=' + component_name).then(
-                function(xhr) { // Success (status = 200)
-                    if (xhr.response.status === 'OK') {
-                        html_element.innerHTML = '<i class="fa fa-check" style="color:green;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response.response, null, 4) + '</pre>';
-                    } else if (xhr.response.status === 'WR'){  // Warning (there are warnings)
-                        html_element.innerHTML = '<i class="fa fa-check" style="color:orange;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response.response, null, 4) + '</pre>Warnings:<pre class="json_output">' + JSON.stringify(xhr.response.warnings, null, 4) + '</pre>';
-                    } else if (xhr.response.status === 'FA'){
-                        html_element.innerHTML = '<i class="fa fa-times" style="color:red;" aria-hidden="true"> ' + xhr.status + '</i><br><pre class="json_output">' + JSON.stringify(xhr.response, null, 4) + '</pre>';
-                    } else {
-                        html_element.innerHTML = xhr.response.message;
-                    }
-                },
-                function(xhr) { // Error
-                    html_element.innerHTML = xhr.status + ' ' + xhr.statusText;
-                }
-            );
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Commons Mediator - Test results for service {{ service.name }}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Rajdhani:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,500' rel='stylesheet' type='text/css'>
+    <style>
+        body {
+            font-weight: 300;
+            font-family: "Roboto", sans-serif;
+            font-size: 16px;
+            color: #333;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            background-color: #f5f5f5;
         }
-    </script>
 
-    <h1>Test service</h1>
-    <h2>{{ service.name }}</h2>
+        .logo-background {
+            z-index: -10;
+            position: absolute;
+            right: -30px;
+            top: -60px;
+            width: 500px;
+            opacity: 0.15;
+        }
 
-    {% for component in components %}
-        <h3>{{ component }}</h3>
-        <div class="test_box" id="test_{{ component }}">
-            <img class="spinner" src="{% static "img/logo-icon.svg" %}" alt="">
+        .block-center {
+            max-width: 800px;
+            padding: 19px 29px 29px;
+            margin: 0 auto 20px;
+            background-color: #fff;
+            border: 1px solid #e5e5e5;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+            -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+            -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+            box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+
+        b { font-weight: 500; }
+
+        p { font-size: 16px; }
+
+        li { font-size: 16px; }
+
+        a, a:hover, a:focus, a:active { outline: 0; color: #0F783C; }
+
+        h1 {
+            text-transform: uppercase;
+            font-family: "Rajdhani", sans-serif;
+            font-weight: 700;
+            color: #1E5055;
+            font-size: 2.8em;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            text-transform: uppercase;
+            font-family: "Rajdhani", sans-serif;
+            color: #991933;
+            font-size: 2em;
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            font-family: "Rajdhani", sans-serif;
+            color: gray;
+            font-size: 1.5em;
+            font-weight: 100;
+        }
+
+        .json_output {
+            font-family: Menlo, Consolas, "Andale Mono", "Lucida Console", monospace;
+            font-weight: 100;
+            font-size: 12px;
+            max-height: 300px;
+            word-wrap: normal;
+        }
+
+        .json_output p {
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .test_box {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-background">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 width="512px" height="512px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+                <path fill="#1E5055" d="M469.27,197.059c-7.329-2.613-26.234-6.392-43.497,14.793c-10.262,12.597-16.52,31.794-23.141,52.119
+                c-5.183,15.902-14.249,43.735-22.979,50.658c-10.934-20.961-18.062-96.953-21.616-134.864c-2.042-21.774-3.97-42.338-6.194-57.333
+                c-2.422-16.342-6.087-41.038-28.122-41.038c-24.061,0-30.766,24.363-52.6,117.507c-3.037,12.963-6.614,28.216-9.96,41.404
+                c-8.236-14.4-17.128-26.298-32.072-26.298c-21.878,0-25.079,19.607-32.089,62.57c-2.079,12.744-5.465,33.503-9.473,50.306
+                c-2.825-16.134-5.27-36.05-7.175-51.565c-8.559-69.734-14.216-115.801-47.85-115.801c-32.002,0-42.173,38.643-52.942,79.556
+                c-4.098,15.566-10.863,41.263-16.271,47.716c-1.102,0.302-1.871,0.064-3.094-0.746c-5.734-3.789-11.918-16.161-11.918-29.543
+                c0-114.541,93.184-207.725,207.725-207.725c64.025,0,119.732,23.463,153.273,64.388l-29.694,22.522l40.056,6.625l40.056,6.625
+                l4.419-40.359l4.419-40.359l-26.33,19.971C400.865,36.91,333.078,7.5,256.002,7.5C118.703,7.5,7,119.203,7,256.502
+                c0,26.234,12.23,51.945,30.43,63.977c13.215,8.74,28.535,10.111,43.161,3.89c21.622-9.211,29.62-39.6,38.885-74.786
+                c2.617-9.943,6.278-23.853,10.06-34.652c4.088,18.492,7.508,46.359,9.849,65.418c8.206,66.862,13.631,111.034,45.801,111.034
+                c34.904,0,43.477-52.536,52.553-108.156c0.02-0.118,0.037-0.235,0.057-0.353c7.538,12.036,16.12,21.192,29.342,21.192
+                c21.73,0,25.593-16.493,44.172-95.74c1.68-7.165,3.621-15.452,5.69-24.064c10.084,107.43,18.384,173.238,58.804,173.238
+                c39.768,0,54.353-44.766,66.073-80.739c4.827-14.81,10.282-31.555,15.586-38.445c3,4.155,6.261,12.009,6.261,18.186
+                c0,114.538-93.184,207.722-207.722,207.722c-52.875,0-102.818-19.745-141.359-55.63l27.652-21.578l-40.143-6.075l-40.143-6.075
+                l-3.865,40.416l-3.865,40.416l27.44-21.412c46.813,45.922,108.685,71.215,174.284,71.215C393.301,505.5,505,393.801,505,256.502
+                C505,234.029,491.339,204.913,469.27,197.059z"/>
+            </svg>
         </div>
-    {% endfor %}
 
-    <br><a href="{% url 'home' %}">Home</a>
-{% endblock %}
+        <div class="block-center">
+
+            <h1>Audio Commons Mediator</h1>
+            <h2>Test results for service: {{ service.name }}</h2>
+            {% for component, result in components_results %}
+                <h3>{{ component }}</h3>
+                <div class="test_box">
+                    {% if result.status == 'FA' %}
+                       <span style="color:red;"><i class="fa fa-times" aria-hidden="true"></i> {{ result.status }}</span><br><pre class="json_output"> {{ result.formatted_response | linebreaks}} </pre>
+                    {% elif result.status == 'IN' %}
+                        <span style="color:red;">{{ result.formatted_response | linebreaks}}</span>
+                    {% elif result.status == 'OK' %}
+                        <span style="color:green;"><i class="fa fa-check" aria-hidden="true"></i> {{ result.status }}</span><br><pre class="json_output"> {{ result.formatted_response | linebreaks}} </pre>
+                    {% elif result.status == 'WR' %}
+                        <span style="color:orange;"><i class="fa fa-check" aria-hidden="true"></i> {{ result.status }}</span><br><pre class="json_output"> {{ result.formatted_response | linebreaks }} </pre>
+                        Warnings: <pre class="json_output"> {{ result.formatted_warnings | linebreaks }} </pre>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</body>
+</html>

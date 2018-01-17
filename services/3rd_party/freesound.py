@@ -3,7 +3,7 @@ from services.acservice.constants import *
 from services.acservice.utils import *
 from services.acservice.base import BaseACService
 from services.acservice.auth import ACServiceAuthMixin
-from services.acservice.search import ACServiceTextSearchMixin, translates_field
+from services.acservice.search import ACServiceTextSearchMixin, translates_field, translates_filter_for_field
 from services.acservice.download import ACDownloadMixin
 from accounts.models import Account
 import datetime
@@ -14,8 +14,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     # General settings
     NAME = 'Freesound'
-    URL = 'http://www.freesound.org'
-    API_BASE_URL = "https://www.freesound.org/apiv2/"
+    URL = 'https://freesound.org'
+    API_BASE_URL = "https://freesound.org/apiv2/"
 
     # Base
     def validate_response_status_code(self, response):
@@ -52,10 +52,18 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def check_credentials_are_valid(self, credentials):
         date_expired = credentials.modified + datetime.timedelta(seconds=credentials.credentials['expires_in'])
         if timezone.now() > date_expired:
-            raise ACAPIInvalidCredentialsForService
+            return False
+        return True
+
+    def check_credentials_should_be_renewed_background(self, credentials):
+        # Currently, Freesound refresh tokens never expire, therefore credentials never need to be renewed in
+        # the background. An expired access token will be automatically renewed at request time.
+        return False
 
     # Search
     TEXT_SEARCH_ENDPOINT_URL = API_BASE_URL + 'search/text/'
+
+    # Implement fields mapping
 
     @property
     def direct_fields_mapping(self):
@@ -84,13 +92,93 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def translate_field_preview(self, result):
         return result['previews']['preview-hq-ogg']
 
+    @translates_field(FIELD_IMAGE)
+    def translate_field_image(self, result):
+        return result['images']['waveform_m']
+
     @translates_field(FIELD_AUTHOR_URL)
     def translate_field_author_url(self, result):
         return self.API_BASE_URL + 'users/{0}/'.format(result['username'])
 
     @translates_field(FIELD_TIMESTAMP)
     def translate_field_timestamp(self, result):
-        return str(datetime.datetime.strptime(result['created'].split('.')[0], '%Y-%m-%dT%H:%M:%S'))
+        return datetime.datetime.strptime(result['created'].split('.')[0], '%Y-%m-%dT%H:%M:%S')\
+            .strftime(AUDIOCOMMONS_STRING_TIME_FORMAT)
+
+    # Implement filters mapping
+
+    @property
+    def direct_filters_mapping(self):
+        return {
+            FIELD_CHANNELS: 'channels',
+            FIELD_AUTHOR_NAME: 'username',
+            FIELD_DURATION: 'duration',
+            FIELD_FILESIZE: 'filesize',
+            FIELD_BITRATE: 'bitrate',
+            FIELD_BITDEPTH: 'bitdepth',
+            FIELD_SAMPLERATE: 'samplerate',
+            FIELD_TAG: 'tag',
+        }
+
+    @translates_filter_for_field(FIELD_ID)
+    def translate_filter_id(self, value):
+        """
+        Implementation for the translation of ID filter. It uses the provided SERVICE_ID_FIELDNAME as key
+        for the filter, and removes self.id_prefix from the start of the filter value. This should operate in reverse
+        to what `translate_field_id`. In `translate_field_id` we append a prefix to the third party service provided
+        id (e.g. 1234 -> prefix:1234). Here we remove that prefix to convert the value to the original (e.g. prefix:1234
+        -> 1234).
+        """
+        return self.SERVICE_ID_FIELDNAME, value[len(self.id_prefix):]
+
+    @translates_filter_for_field(FIELD_FORMAT)
+    def translate_filter_format(self, value):
+        if value not in ['wav', 'mp3', 'ogg', 'flac', 'aiff']:
+            raise ACFilterParsingException(
+                'The provided value for filter \'{0}\' is not supported'.format(FIELD_FORMAT))
+        return 'type', value
+
+    @translates_filter_for_field(FIELD_LICENSE)
+    def translate_filter_license(self, value):
+        try:
+            license_deed_url = {
+                LICENSE_CC_BY: 'Attribution',
+                LICENSE_CC_BY_NC: 'Attribution Noncommercial',
+                LICENSE_CC0: 'Creative Commons 0',
+                LICENSE_CC_SAMPLING_PLUS: 'Sampling+',
+            }[value]
+        except KeyError:
+            raise ACFilterParsingException(
+                'The provided value for filter \'{0}\' is not supported'.format(FIELD_LICENSE))
+        return 'license', license_deed_url
+
+    @translates_filter_for_field(FIELD_TIMESTAMP)
+    def translate_filter_timestamp(self, value):
+        if value == '*':
+            return 'created', '*'
+        return 'created', datetime.datetime.strptime(value, AUDIOCOMMONS_STRING_TIME_FORMAT)\
+            .strftime('%Y-%m-%dT%H:%M:%SZ')  # From AC time string format to FS time string format
+
+    def render_filter_term(self, key, value_text=None, value_number=None, value_range=None):
+        rendered_value = ''
+        if value_text:
+            rendered_value = str(value_text)
+            if ' ' in rendered_value or '-' in rendered_value:
+                rendered_value = '"' + value_text + '"'  # Add quotes if white space present
+        elif value_number:
+            rendered_value = str(value_number)  # Render string version of value
+        elif value_range:
+            rendered_value = '[%s TO %s]' % (value_range[0], value_range[1])  # Return range syntax
+        return '%s:%s' % (key, rendered_value)
+
+    def render_operator_term(self, operator):
+        return {
+            'NOT': ' -',
+            'OR': ' OR ',
+            'AND': ' AND ',
+        }[operator]
+
+    # Implement other basic search functions
 
     def get_results_list_from_response(self, response):
         return response['results']
@@ -100,6 +188,11 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     def process_q_query_parameter(self, q):
         return {'query': q}
+
+    def process_f_query_parameter(self, f):
+        # Call `build_filter_string` from base class, which parses the query filter and builds a new string using
+        # the `translates_filter_for_field` and `render_*_term` methods overwritten for Freesound service
+        return {'filter': self.build_filter_string(f)}
 
     def process_s_query_parameter(self, s, desc, raise_exception_if_unsupported=False):
         criteria = {
@@ -142,7 +235,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         # ac:id, the forwarded query to Freesound will request all potential fields. It could be optimized in the future
         # by setting 'fields' depending on what's in common_search_params['fields'].
         return {'fields': 'id,url,name,license,previews,username,tags,duration,filesize,channels,bitrate,bitdepth,'
-                          'samplerate,type,description,created,pack'}
+                          'samplerate,type,description,created,pack,images'}
 
     # Download component
     DOWNLOAD_ACID_DOMAINS = [NAME]

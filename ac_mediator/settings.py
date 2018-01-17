@@ -172,10 +172,102 @@ REDIS_PORT = 6379
 CELERY_BROKER_URL = "redis://redis"
 CELERY_RESULT_BACKEND = "redis://redis"
 CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TIMEZONE = 'Europe/Madrid'
+
+# Set this to False so that requests are submitted sequentially and from the webserver when in DEBUG mode instead of
+# in parallel and using Celery. This can be useful so that Celery workers don't need to be restarted when making
+# changes to the code
+USE_CELERY_IN_DEBUG_MODE = False
 
 # Shared respones backend and async responses
 DELETE_RESPONSES_AFTER_CONSUMED = False
+RESPONSE_EXPIRY_TIME = 3600*24  # Response objects are deleted after 24 hours
 
 RAVEN_CONFIG = {
     'dsn': os.getenv('SENTRY_DSN', None),
 }
+
+# Email configuration
+DEFAULT_FROM_EMAIL = 'Audio Commons <audiocommons@upf.edu>'
+EMAIL_SUBJECT_PREFIX = '[AudioCommons] '
+EMAIL_HOST = 'smtp-rec.upf.edu'
+EMAIL_PORT = 25
+
+if DEBUG:
+    # In development environment, use email file backend
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = os.path.join(BASE_DIR, "mail")
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+        'simplest': {
+            'format': '%(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'stdout': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'gelf': {
+            'class': 'logging.NullHandler',  # This will be redefined later if configuration is provided
+        },
+    },
+    'loggers': {
+        'management': {
+            'handlers': ['stdout', 'gelf'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
+if DEBUG:
+    # In development we log all requests made into a file
+    LOGS_BASE_DIR = os.path.join(BASE_DIR, 'logs')
+    if not os.path.exists(LOGS_BASE_DIR):
+        os.makedirs(LOGS_BASE_DIR)
+    LOGGING['handlers'].update({
+        'logfile_requests': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_BASE_DIR, 'requests.log'),
+            'formatter': 'simplest'
+        }
+    })
+    LOGGING['loggers'].update({
+        'requests_sent': {
+            'handlers': ['logfile_requests'],
+            'level': 'INFO',
+            'propagate': False,
+        }
+    })
+
+
+# Read logserver config settings, if present, then update the corresponding handler
+GELF_IP_ADDRESS = os.getenv('GELF_IP_ADDRESS', None)
+GELF_PORT = int(os.getenv('GELF_PORT', 0))
+if GELF_IP_ADDRESS is not None and GELF_PORT is not None:
+    LOGGING['handlers'].update(
+        {
+            'gelf': {
+                'level': 'INFO',
+                'class': 'graypy.GELFHandler',
+                'host': GELF_IP_ADDRESS,
+                'port': GELF_PORT,
+                'formatter': 'simple',
+            },
+        }
+    )

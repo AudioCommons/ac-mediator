@@ -1,19 +1,42 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load i18n %}
 {% block title %}Manage API Clients{% endblock title %}
 {% block content %}
 
-    <h1>Manage API Clients</h1>
+    <h1>
+        <a href="{% url 'home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
+        <span class="breadcrumb-separator">|</span> Developers
+    </h1>
+
+    <h2>Manage API Clients</h2>
     {% if applications %}
-        <ul>
+        <ul class="table">
             {% for application in applications %}
-                <li><a href="{{ application.get_absolute_url }}">{{ application.name }}</a> -
-                    <a href="{% url 'developers-app-monitor' application.id %}">monitor</a></li>
+                <li><a href="{{ application.get_absolute_url }}">{{ application.name }}</a>
+                    <div class="pull-right">
+                        <a class="btn btn-warning" href="{% url 'developers-app-monitor' application.id %}"><span class="glyphicon glyphicon-stats" aria-hidden="true" title="Monitor"></span></a>
+                        {% comment %}<a class="btn btn-warning" href="{% url 'developers-app-update' application.id %}"><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit"></span></a>
+                        <a class="btn btn-danger" href="{% url 'developers-app-delete' application.id %}"><span class="glyphicon glyphicon-remove" aria-hidden="true" title="Delete"></span></a>{% endcomment %}
+                    </div>
+                </li>
             {% endfor %}
         </ul>
     {% endif %}
-    <a class="btn btn-success" href="{% url "developers-app-register" %}">New API Client</a>
+    <br>
+    <a class="btn btn-success pull-right" href="{% url "developers-app-register" %}">New API Client</a>
     <br><br>
-    <p><a href="{% url 'home' %}">Home</a></p>
+
+    <h2>Documentation</h2>
+    <ul class="table">
+        <li><a href="{% url 'docs_root' %}api.html" target="_blank">API documentation</a></li>
+        <li><a href="{% url 'docs_root' %}services.html" target="_blank">Services documentation</a></li>
+        <li><a href="http://www.audiocommons.org/assets/files/AC-WP2-UPF-D2.6%20Service%20Integration%20Draft%20Guidelines.pdf" target="_blank">
+            Guidelines for implementing a new service component (draft)
+        </a></li>
+        <li><a href="https://github.com/AudioCommons/ac-mediator/wiki/Implementing-and-testing-new-services" target="_blank">
+            Steps for implementing and testing new services (draft)
+        </a></li>
+    </ul>
 
 {% endblock content %}

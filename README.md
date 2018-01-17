@@ -40,9 +40,14 @@ cd ac_mediator
 docker-compose up
 ```
 
+- If it's the first time you run the mediator or there are Django migrations unapplied to your database, you'll also need to run migrate command:
+```
+docker-compose run --rm web python manage.py migrate
+```
+
 - You'll probably want to create a superuser too:
 ```
-docker-compose run web python manage.py createsuperuser
+docker-compose run --rm web python manage.py createsuperuser
 ```
 
 Now you should be able to access your server at `https://localhost`
@@ -77,7 +82,7 @@ make clean html
 
 If you're using Docker you'll need to run these commands from the container:
 ```
-docker-compose run web bash -c "cd docs && make clean html"
+docker-compose run --rm web bash -c "cd docs && make clean html"
 ```
 
 

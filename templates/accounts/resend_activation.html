@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Resend activation email{% endblock title %}
+{% block content %}
+
+    <h1>Registration</h1>
+
+    {% if form %}
+        <form method="post" action="{% url 'accounts-resend-activation' %}">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input class="btn btn-success" type="submit" value="Resend activation code" />
+        </form>
+    {% else %}
+        <p>
+            We just sent an email with instructions for activating your user account.<br>
+            Please check your inbox (including spam folders).
+        </p>
+    {% endif %}
+
+{% endblock %}

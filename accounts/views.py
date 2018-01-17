@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from accounts.forms import RegistrationForm
-from accounts.models import ServiceCredentials
-from services.management import get_available_services, get_service_by_id
+from accounts.forms import RegistrationForm, ReactivationForm
+from accounts.models import ServiceCredentials, Account
+from services.mgmt import get_available_services, get_service_by_id
 from services.acservice.constants import ENDUSER_AUTH_METHOD
 from ac_mediator.exceptions import *
+from utils.encryption import create_hash
 
 
 def registration(request):
@@ -15,17 +16,57 @@ def registration(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            # TODO: send activation email (and set is_active to False)
-            return HttpResponseRedirect(reverse('home'))
+            account = form.save()
+            account.is_active = False
+            account.save()
+            account.send_activation_email()
+            return render(request, 'accounts/registration.html', {'form': None})
     else:
         form = RegistrationForm()
     return render(request, 'accounts/registration.html', {'form': form})
 
 
+def activate_account(request, username, uid_hash):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('home'))
+
+    try:
+        account = Account.objects.get(username__iexact=username)
+    except Account.DoesNotExist:
+        return render(request, 'accounts/activate.html', {'user_does_not_exist': True})
+
+    new_hash = create_hash(account.id)
+    if new_hash != uid_hash:
+        return render(request, 'accounts/activate.html', {'decode_error': True})
+
+    account.is_active = True
+    account.save()
+    return render(request, 'accounts/activate.html', {'all_ok': True})
+
+
+def resend_activation_emmil(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('home'))
+
+    if request.method == 'POST':
+        form = ReactivationForm(request.POST)
+        if form.is_valid():
+            account = form.cleaned_data['account']
+            account.send_activation_email()
+            return render(request, 'accounts/resend_activation.html', {'form': None})
+    else:
+        form = ReactivationForm()
+    return render(request, 'accounts/resend_activation.html', {'form': form})
+
+
 @login_required
 def home(request):
-    return render(request, 'accounts/home.html', {'services': get_available_services()})
+    return render(request, 'accounts/home.html')
+
+
+@login_required
+def about(request):
+    return render(request, 'accounts/about.html')
 
 
 @login_required

@@ -1,9 +1,10 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from ac_mediator.exceptions import *
 from api.request_distributor import get_request_distributor
 from api.response_aggregator import get_response_aggregator
-from services.management import get_available_services
+from services.mgmt import get_available_services
 from services.acservice.constants import *
 from django.conf import settings
 from accounts.models import Account
@@ -86,9 +87,49 @@ def get_service_name_from_acid(acid):
     return acid.split(ACID_SEPARATOR_CHAR)[0]  # Derive service name from ACID
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
+@permission_classes((AllowAny, ))
 def invalid_url(request):
     raise ACAPIInvalidUrl
+
+
+@api_view(['GET'])
+def me(request):
+    """
+    .. http:get:: /me/
+
+        This resource returns information about the Audio Commons user account linked with
+        the access token used to authenticate. This information is useful for a third party
+        application to uniquely identify an Audio Commons user account and be able to store
+        extra information associated to the account or display user information on screen.
+        
+        This endpoint takes no query parameters.
+
+        :statuscode 200: no error
+        :statuscode 404: no user is authenticated or the linked user account does not exist
+
+        **Response**
+
+        This endpoint returns a dictionary which includes the following contents:
+
+        ======================  =====================================================
+        Key                     Value
+        ======================  =====================================================
+        ``account_id``          Integer representing a unique identifier for the Audio Commons user account.
+        ``username``            Username of the corresponding user account (i.e. the logged in user username).
+        ======================  =====================================================
+    """
+    account_id = get_request_context(request)['user_account_id']
+    if account_id is None:
+        raise ACAPIResourceDoesNotExist
+    try:
+        account = Account.objects.get(id=account_id)
+        return Response({
+            'username': account.username,
+            'account_id': account.id,
+        }, status=status.HTTP_200_OK)
+    except Account.DoesNotExist:
+        raise ACAPIResourceDoesNotExist
 
 
 @api_view(['GET'])
@@ -216,7 +257,7 @@ def text_search(request):
             the provided ``collect_url``. See the :ref:`aggregated-responses` section for more information.
 
         :query q: input query terms
-        :query f: filtering criteria (NOT IMPLEMENTED)
+        :query f: filtering criteria
         :query s: sorting criteria
         :query fields: metadata fields to include in each result (names separated by commas or '*' for all fields)
         :query size: number of results to be included in an individual search response
@@ -227,6 +268,88 @@ def text_search(request):
         :statuscode 200: no error (individual responses might have errors, see aggregated response's :ref:`aggregated-responses-errors`)
         :statuscode 400: wrong query parameters provided
         :statuscode 401: no authentication details provided
+
+
+        **Filtering with** ``f`` **parameter**
+
+        Use this parameter to further filter search results that match the input query terms. The Audio Commons API
+        allows you to define complex and expressive filters combining different metadata fields. Nevertheless, not all
+        third party services support such filters. If a service does not support some of the field names, values or
+        filter operators specified with the ``f`` parameter, an error will be raised. A list of filters supported by
+        each third party service is provided via the `services description endpoint <#get--services->`_.
+
+        Filters are specified with the following syntax:
+
+        .. code-block:: none
+
+            f=field_name:value
+
+        In some cases, filters can also feature ranges, which can be specified as:
+
+        .. code-block:: none
+
+            f=field_name:[value_form,value_to]
+
+        Filter values can be quoted. This is needed when values contain spaces or other special characters like ``:`` or
+        ``-``. In that case, a filter would be written as:
+
+        .. code-block:: none
+
+            f=field_name:"value"
+            f=field_name:["value_form","value_to"]
+
+        Filters can be combined using ``OR``, ``AND`` or ``NOT`` operators. Precedence can be indicated using
+        parentheses ``()``. Operators are required when adding more than one filter:
+
+        .. code-block:: none
+
+            f=field1_name:value AND field2_name:[value_form,value_to]
+            f=(field1_name:value AND field2_name:[value_form,value_to]) OR field_name3:value
+
+        The table below lists the field names that can be used in filters and provides hints on how should the values
+        look like. Nevertheless, remember that **not all fields are supported for filtering in all services**. You'll
+        need to check which ones are available using the `services description endpoint <#get--services->`_.
+
+        ======================  =====================================================
+        Field name              Values description
+        ======================  =====================================================
+        ``ac:id``               Audio Commons Unique Identifier (ACID).
+        ``ac:license``          License of the resource, must be one of [``CC0``, ``BY``, ``BY-NC``, ``BY-ND``, ``BY-SA``, ``BY-NC-SA``, ``BY-NC-ND``].
+        ``ac:timestamp``        Creation date of the resource. Must be indicated as a **range** with the format ``['2017-09-27 10:01:22','2017-09-27 10:01:22']`` (see examples below).
+        ``ac:duration``         Duration of the audio resource in seconds. Must be indicated as range.
+        ``ac:tag``              Tag with which the resource has been tagged, indicated a a string (see examples below).
+        ``ac:author``           Name of the author of the resource.
+        ``ac:format``           Audio format of the resource. Possible values depend on the third party service.
+        ``ac:channels``         Number of channels as an integer. Can be specified as a range.
+        ``ac:filesize``         Filesize in bytes. Can be specified as a range.
+        ``ac:bitrate``          Bitrate in number of bits per second. Can be specified as a range.
+        ``ac:bitdepth``         Number of bits per sample. Can be specified as a range.
+        ``ac:samplerate``       Sampling rate. Can be specified as a range.
+        ======================  =====================================================
+
+
+        You can **check the following examples** to have a better understanding about how the filters work:
+
+        .. code-block:: none
+
+            # Filter by license
+            /api/v1/search/text/?q=metal&include=Jamendo&f=ac:license:BY-NC-ND
+            /api/v1/search/text/?q=dogs&include=Freesound&f=ac:license:CC0 OR ac:license:BY
+
+            # Filter by timestamp
+            /api/v1/search/text/?q=dogs&include=Freesound&fields=ac:id,ac:timestamp&f=ac:timestamp:['2017-09-27 10:01:22','2017-09-27 10:01:22']
+
+            # Filter by duration
+            /api/v1/search/text/?q=metal&include=Jamendo&fields=ac:id,ac:duration&f=ac:duration:[320,350]
+
+            # Filter by duration and license
+            /api/v1/search/text/?q=metal&include=Jamendo&fields=ac:id,ac:license,ac:duration&f=ac:license:BY-NC-ND+AND+ac:duration:[320,350]
+
+            # Filter by tags
+            /api/v1/search/text/?q=dogs&include=Freesound&fields=ac:id,ac:tags&f=ac:tag:barking+AND+ac:tag:field-recording
+
+            # Filter by author
+            /api/v1/search/text/?q=dogs&include=Jamendo&f=ac:author:"Porpoise"
 
 
         **Sorting with** ``s`` **parameter**
