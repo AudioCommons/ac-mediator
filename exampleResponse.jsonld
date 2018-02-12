@@ -1,0 +1,38 @@
+[
+  {
+    "@type": "acx:SearchAction", "schema:actionStatus": "CompletedActionStatus", "schema:target": "services:Jamendo",
+    "schema:result": {"ac:membersCount": 0, "ac:collectionAsList": [ ]}
+  },
+  {
+    "@type": "acx:SearchAction", "schema:actionStatus": "CompletedActionStatus", "schema:target": "services:Freesound",
+    "schema:result": {
+      "ac:membersCount": 1,
+      "ac:collectionAsList": [
+        {
+          "@id": "audioClips:Freesound/385285", "dc:title": "01 - Cars across_city.wav",
+          "dc:description": "Recorded in Moscow. Cars across on street.",
+          "ac:duration": 127.321,
+          "ac_isPublishedBy": {
+            "@id": "users:Freesound/semenov_nick",
+            "foaf:homepage": "https://www.freesound.org/apiv2/users/semenov_nick/"
+          },
+          "ac:encodesDigitalSignal": {"ac:bitsPerSample": 31, "ac:channels": 2, "ac:sampleRate": 48000.0},
+          "ac:availableAs": [
+            {
+              "@id": "https://freesound.org/data/previews/170/170992_142024-hq.ogg", "@type": "ac:AudioFile",
+              "ebu:hasEncodingFormat": "wav", "ebu:bitRate": 3001, "ebu:fileSize": 48915012
+            }
+          ],
+          "ac_isMemberContentOf": "packs:Freesound/21409/",
+          "cc:license": "http://creativecommons.org/publicdomain/zero/1.0/",
+          "ac:audioCategory": ["fstags:city", "fstags:cars"],
+          "ac:homepage": "https://freesound.org/people/semenov_nick/sounds/385285/"
+        }
+      ]
+    }
+  },
+  {
+    "@type": "acx:SearchAction", "schema:actionStatus": "CompletedActionStatus", "schema:target": "services:Europeana",
+    "schema:result": {"ac:membersCount": 0, "ac:collectionAsList": [ ]}
+  }
+]

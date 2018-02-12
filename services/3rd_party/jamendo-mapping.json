@@ -1,0 +1,38 @@
+{
+  "id/fn:concat('soundClips:Jamendo/',.)": "@id",
+  "shareurl": "ac:homepage",
+  "audiodownload": {
+    "@out": {
+      "ac:availableAs": {
+        "@id": "$",
+        "@type": "ac:AudioFile"
+      }
+    }
+  },
+  "name": "dc:title",
+  ".": {
+    "@out": "ac:author",
+    "artist_id/fn:concat('agents:Jamendo/',.)": "@id",
+    "artist_name": "dc:name"
+  },
+  "image": "ac:image",
+  "duration/op:numeric-multiply(.,1000)": "ac:duration",
+  "license_ccurl": "cc:license",
+  "releasedate/xs:dateTime(.)": {
+    "@out": {
+      "ac_isPublishedAudioManifestation": {
+        "@type": "event:Event",
+        "event:time": {
+          "@type": ["time:TemporalEntity", "time:Instant"],
+          "time:inXSDDateTimeStamp": "$"
+        }
+      }
+    }
+  },
+  "musicinfo/tags": {
+    "@out": "ac:audioCategory",
+    "genres/fn:concat('categories:Jamendo/genres/',.)": ".",
+    "instruments/fn:concat('categories:Jamendo/instruments/',.)": ".",
+    "vartags/fn:concat('categories:Jamendo/vartags/',.)": "."
+  }
+}
