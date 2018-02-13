@@ -1,5 +1,5 @@
 {
-  "id/fn:concat('soundClips:Jamendo/',.)": "@id",
+  "id/fn:concat('audioClips:Jamendo/',.)": "@id",
   "shareurl": "ac:homepage",
   "audiodownload": {
     "@out": {

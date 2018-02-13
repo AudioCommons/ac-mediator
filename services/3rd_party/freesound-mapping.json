@@ -1,0 +1,60 @@
+{
+  "id/fn:concat('audioClips:Freesound/',.)": "@id",
+  "url": "ac:homepage",
+  "id/fn:concat('audioFiles:Freesound/',.)": {
+    "@out": {
+      "ac:availableAs": {
+        "@id": "$",
+        "@type": "ac:AudioFile"
+      }
+    },
+    "filesize": "ebu:filesize",
+    "bitrate": "ebu:audioBitRate",
+    "type": "ebu:hasEncodingFormat"
+  },
+  "previews/preview-hq-ogg":  {
+    "@out": {
+      "ac:availableAs": {
+        "@id": "$",
+        "@type": "ac:AudioFile"
+      }
+    }
+  },
+  ".": {
+    "@out": {
+      "ac:encodesDigitalSignal": {
+        "@id": "$",
+        "@type": "ac:DigitalSignal"
+      }
+    },
+    "channels": "ac:channels",
+    "bitdepth": "ac:bitsPerSample",
+    "samplerate": "ac:sampleRate"
+  },
+  "name": "dc:title",
+  "description": "dc:description",
+  "pack": "ac:parentCollection",
+  "username": {
+    "@out": "ac:author",
+    "fn:concat('agents:Freesound/',.)": "@id",
+    ".": "dc:name"
+  },
+  "images/waveform_m": "ac:image",
+  "duration/op:numeric-multiply(.,1000)": "ac:duration",
+  "license": "cc:license",
+  "created": {
+    "@out": {
+      "ac_isPublishedAudioManifestation": {
+        "@type": "event:Event",
+        "event:time": {
+          "@type": ["time:TemporalEntity", "time:Instant"],
+          "time:inXSDDateTimeStamp": "$"
+        }
+      }
+    }
+  },
+  "tags": {
+    "@out": "ac:audioCategory",
+    "fn:concat('categories:Freesound/',.)": "."
+  }
+}
