@@ -1,0 +1,37 @@
+{
+  "ac": "https://w3id.org/ac-ontology/aco#",
+
+  "mo": "http://purl.org/ontology/mo/",
+  "dc": "http://purl.org/dc/terms/",
+  "cc": "https://creativecommons.org/ns#",
+  "ccLicenses": "https://creativecommons.org/licenses/by-nc/",
+  "frbr": "http://purl.org/vocab/frbr/core#",
+  "foaf": "http://xmlns.com/foaf/0.1/",
+  "schema": "http://schema.org/",
+  "ebu": "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#",
+  "event": "http://purl.org/NET/c4dm/event.owl#",
+  "time": "",
+
+  "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+  "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+  "owl": "http://www.w3.org/2002/07/owl#",
+  "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+  "service": {"@id": "acx:fromService", "@type": "@id"},
+  "contents": "ac:memberNodeContent",
+  "num_results": {"@id": "ac:membersCount", "@type": "xsd:int"},
+  "results": {"@id": "ac:collectionAsList", "@container": "@list"},
+  "Freesound": "ac:memberNodeContent",
+  "Jamendo": "ac:memberNodeContent",
+  "Europeana": "ac:memberNodeContent",
+
+  "ac-api": "https://m.audiocommons.org/api/v2",
+  "audioClips": "ac-api:/soundClips/",
+  "audioFiles": "ac-api:/audioFiles/",
+  "agents": "ac-api:/agents/",
+  "categories": "ac-api:/categories/",
+
+  "ac_isPublishedAudioManifestation": {
+    "@reverse": "ac:publishedAudioManifestation"
+  }
+}
