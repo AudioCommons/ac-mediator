@@ -6,12 +6,15 @@ from services.acservice.search import ACServiceTextSearchMixin, translates_field
 from ac_mediator.exceptions import *
 import json
 import datetime
-
+import json
+import os
 
 class EuropeanaService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin):
     NAME = 'Europeana'
     URL = 'http://www.europeana.eu'
     API_BASE_URL = "https://www.europeana.eu/api/v2/"
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    RESULT_MAPPING = json.load(open(this_dir + '/europeana-mapping.json'))
 
     # Base
     def validate_response_status_code(self, response):

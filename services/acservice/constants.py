@@ -66,6 +66,8 @@ NEXT_PAGE_PROP = 'next'
 PREV_PAGE_PROP = 'prev'
 NUM_RESULTS_PROP = 'num_results'
 RESULTS_LIST = 'results'
+# NUM_RESULTS_PROP = 'ac:membersCount'
+# RESULTS_LIST = 'ac:collectionAsList'
 
 # Sort options
 SORT_OPTION_RELEVANCE = 'relevance'

@@ -1,0 +1,45 @@
+{
+  "id/fn:concat('audioClips:Europeana/',.)": "@id",
+  "guid": "ac:homepage",
+  "dcDescription": "dc:description",
+  "title": "dc:title",
+  "europeanaCollectionName": {
+    "@out": "ac_memberOfCollection",
+    "fn:concat('audioCollections:Europeana/',.)": "@id",
+    ".": "dc:title",
+    "fn:concat('https://www.europeana.eu/portal/en/search?q=europeana_collectionName%3A(',.,')')": "ac:homepage"
+  },
+  "edmIsShownBy":  {
+    "@out": {
+      "ac:availableAs": {
+        "@id": "$",
+        "@type": "ac:AudioFile"
+      }
+    }
+  },
+  ".": {
+    "@out": {
+      "ac:encodesDigitalSignal": {
+        "@type": "ac:DigitalSignal"
+      }
+    }
+  },
+  "dcCreator": {
+    "@out": "ac:author",
+    "fn:concat('agents:Europeana/',.)": "@id",
+    ".": "dc:name"
+  },
+  "edmPreview": "ac:image",
+  "rights": "cc:license",
+  "timestamp_created": {
+    "@out": {
+      "ac_isPublishedAudioManifestation": {
+        "@type": "event:Event",
+        "event:time": {
+          "@type": ["time:TemporalEntity", "time:Instant"],
+          "time:inXSDDateTimeStamp": "$"
+        }
+      }
+    }
+  }
+}
