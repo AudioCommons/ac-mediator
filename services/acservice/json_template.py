@@ -59,15 +59,15 @@ def normalizeTemplate(template):
         return dictCool(map(lambda keyValuePair: normalizeKeyValue(keyValuePair[0],normalizeTemplate(keyValuePair[1])), itemsCool(template)))
 
 def simpleReplace(outTemplate, input):
-    # print outTemplate
+    # print(outTemplate)
     if outTemplate == '$':
-        # print 'catched!'
-        # print input
+        # print('catched!')
+        # print(input)
         return input
     elif isinstance(outTemplate, dict):
         return dict(map(lambda keyValue: (keyValue[0], simpleReplace(keyValue[1], input)), outTemplate.items()))
     elif isinstance(outTemplate, list):
-        return map(lambda item: simpleReplace(item, input), outTemplate)
+        return list(map(lambda item: simpleReplace(item, input), outTemplate))
     else:
         return outTemplate
 
@@ -106,8 +106,7 @@ def xs_dateTime(input, args):
     return time.strftime('%Y-%m-%dT%H:%M:%S %Z', getDateTime(arg)).strip()
 
 def fn_concat(input, args):
-    print args
-    return ''.join(args)
+    return ''.join(map(str,args))
 
 def op_numeric_multiply(input, args):
     argsNumeric = map(getNumeric, args)
@@ -123,7 +122,6 @@ definedFunctions = {
     'fn:concat': fn_concat,
     'op:numeric-multiply': op_numeric_multiply
 }
-
 
 def applyFunctionCall(input, functionName, args):
     if functionName in definedFunctions:
@@ -164,9 +162,9 @@ def parseAndComputeScalar(input, code):
 def parseAndApplyFunctionCall(input, code):
     startParPos = code.find('(');
     if startParPos > -1:
-        return applyFunctionCall(input, code[:startParPos], map(
+        return applyFunctionCall(input, code[:startParPos], list(map(
             lambda parCode: parseAndComputeScalar(input, parCode),
-            splitConsideringQuotes(code[startParPos + 1: len(code) - 1], ',')))
+            splitConsideringQuotes(code[startParPos + 1: len(code) - 1], ','))))
 
 def applyPath(input, path):
     path = path.strip()
@@ -183,10 +181,10 @@ def applyPath(input, path):
         return [returnSeq]
 
 def applyCreate(input, createPathList):
-    # print 'applyCreate('
-    # print input
-    # print createPathList
-    # print ')'
+    # print('applyCreate(')
+    # print(input)
+    # print(createPathList)
+    # print(')')
     if createPathList == '.' or createPathList == '':
         return input
     else:
@@ -202,10 +200,10 @@ def applyCreate(input, createPathList):
             return dictCool((createPath,input) for createPath in createPathList for input in inputList)
 
 def addToDictionary(mainDict, dictToAdd):
-    # print 'addToDictionary('
-    # print mainDict
-    # print dictToAdd
-    # print ')'
+    # print('addToDictionary(')
+    # print(mainDict)
+    # print(dictToAdd)
+    # print(')')
     if isinstance(dictToAdd, dict):
         if not isinstance(mainDict, dict):
             if isinstance(mainDict, list) and len(mainDict) == 0:
@@ -256,12 +254,12 @@ def applyTemplate(input, template, normalizeIn = True, normalizeOut = True):
         result = normalizeTemplate(result)
     return result
 
-print headTailOfPath('musicinfo/tags/pluto');
-print headTailOfPath('musicinfo\/tags/pluto');
-print headTailOfPath('musicinfo\\/tags/pluto');
-print headTailOfPath('musicinfo');
+# print(headTailOfPath('musicinfo/tags/pluto'))
+# print(headTailOfPath('musicinfo\/tags/pluto'))
+# print(headTailOfPath('musicinfo\\/tags/pluto'))
+# print(headTailOfPath('musicinfo'))
 
-print normalizeTemplate({
+print(normalizeTemplate({
   "id/fn:concat('soundClips:Jamendo/',.)": "@id",
   "shareurl": "ac:homepage",
   "audiodownload": {
@@ -298,9 +296,9 @@ print normalizeTemplate({
     "instruments": ".",
     "vartags": "."
   }
-})
+}))
 
-print applyTemplate({
+print(applyTemplate({
     "id": "23123123",
     "shareurl": "http..shareurl",
     "name": "the_name",
@@ -356,4 +354,4 @@ print applyTemplate({
     "instruments/fn:concat('categories:Jamendo/instruments/',.)": ".",
     "vartags/fn:concat('categories:Jamendo/vartags/',.)": "."
   }
-}) #, True, False)
+})) #, True, False))

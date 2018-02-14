@@ -8,7 +8,8 @@ from services.acservice.licensing import ACLicensingMixin
 from services.acservice.download import ACDownloadMixin
 import datetime
 import urllib
-
+import json
+import os
 
 class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin, ACLicensingMixin, ACDownloadMixin):
 
@@ -16,6 +17,8 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
     NAME = 'Jamendo'
     URL = 'http://www.jamendo.com'
     API_BASE_URL = 'https://api.jamendo.com/v3.0/'
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    RESULT_MAPPING = json.load(open(this_dir + '/jamendo-mapping.json'))
 
     # Auth
     SUPPORTED_AUTH_METHODS = [APIKEY_AUTH_METHOD, ENDUSER_AUTH_METHOD]

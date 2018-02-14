@@ -4,6 +4,9 @@ from api.constants import *
 # Param substitution will be used to provide a service-specific prefix to the id
 ACID_SEPARATOR_CHAR = ':'
 
+# Some of these concept definitions should be linked with the ontology (or be loaded from it)
+AUDIOCOMMONS_ONTOLOGY_PREFIX = 'ac:'
+
 # Component names
 SEARCH_TEXT_COMPONENT = 'text_search'
 LICENSING_COMPONENT = 'licensing'
@@ -19,56 +22,29 @@ SUPPORTED_SORT_OPTIONS_DESCRIPTION_KEYWORD = 'supported_sort_options'
 APIKEY_AUTH_METHOD = 'apikey_auth'
 ENDUSER_AUTH_METHOD = 'enduser_auth'
 
-#          "@id": "audioClips:Freesound/385285", "dc:title": "01 - Cars across_city.wav",
-#          "dc:description": "Recorded in Moscow. Cars across on street.",
-#          "ac:duration": 127.321,
-          "ac_isPublishedBy": {
-            "@id": "users:Freesound/semenov_nick",
-            "foaf:homepage": "https://www.freesound.org/apiv2/users/semenov_nick/"
-          },
-          "ac:encodesDigitalSignal": {"ac:bitsPerSample": 31, "ac:channels": 2, "ac:sampleRate": 48000.0},
-          "ac:availableAs": [
-            {
-              "@id": "https://freesound.org/data/previews/170/170992_142024-hq.ogg", "@type": "ac:AudioFile",
-              "ebu:hasEncodingFormat": "wav", "ebu:bitRate": 3001, "ebu:fileSize": 48915012
-            }
-          ],
-          "ac_isMemberContentOf": "packs:Freesound/21409/",
-          "cc:license": "http://creativecommons.org/publicdomain/zero/1.0/",
-          "ac:audioCategory": ["fstags:city", "fstags:cars"],
-          "ac:homepage": "https://freesound.org/people/semenov_nick/sounds/385285/"
-
-
 # Resource fields (just using fake names here)
-FIELD_ID = '@id'
+FIELD_ID = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'id'
 FIELD_URL = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'url'
-FIELD_NAME = 'dc:title'
+FIELD_NAME = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'name'
 FIELD_AUTHOR_NAME = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'author'
 FIELD_AUTHOR_URL = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'author_url'
 FIELD_COLLECTION_NAME = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'collection'
 FIELD_COLLECTION_URL = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'collection_url'
-FIELD_TAGS = 'ac:audioCategory'
-FIELD_TAG = 'ac:audioCategory'  # Used for filtering a single tag, singular form reads better
-FIELD_DESCRIPTION = 'dc:description'
+FIELD_TAGS = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'tags'
+FIELD_TAG = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'tag'  # Used for filtering a single tag, singular form reads better
+FIELD_DESCRIPTION = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'description'
 FIELD_TIMESTAMP = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'timestamp'  # Use AUDIOCOMMONS_STRING_TIME_FORMAT (see below)
 FIELD_LICENSE = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'license'  # See Licenses section below, should be one of these
 FIELD_LICENSE_DEED_URL = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'license_deed_url'
 FIELD_IMAGE = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'image'
 
-FIELD_DURATION = 'ac:duration'  # xsd:float TODO: Currently in seconds, should be in ms
-FIELD_CHANNELS = 'ac:encodesDigitalSignal[1]/ac:channels'  # xsd:nonNegativeInteger
-FIELD_BITDEPTH = 'ac:encodesDigitalSignal[1]/ac:bitsPerSample'  # xsd:integer
-FIELD_SAMPLERATE_FLOAT = 'ac:encodesDigitalSignal[1]/ac:sampleRate'  # xsd:float
-
-'ac:availableAs[1]/@id'
-FIELD_FORMAT = 'ac:availableAs[1]/ebu:hasEncodingFormat' # TODO: should we define a list of formats?
-FIELD_FILESIZE = 'ac:availableAs[1]/ebu:filesize'  # In bytes
-FIELD_BITRATE = 'ac:availableAs[1]/ebu:audioBitRate'  # xsd:nonNegativeInteger
-# "@type": "ac:AudioFile"
-
-FIELD_CHANNELS = FIELD_CHANNELS + '|ac:availableAs[1]/ebu:audioChannelNumber'  # xsd:nonNegativeInteger
-FIELD_BITDEPTH = FIELD_BITDEPTH + '|ac:availableAs[1]/ebu:bitDepth'  # xsd:integer
-FIELD_SAMPLERATE = 'ac:availableAs[1]/ebu:sampleRate'  # xsd:integer
+FIELD_DURATION = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'duration'  # In seconds
+FIELD_FORMAT = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'format' # TODO: should he define a list of formats?
+FIELD_FILESIZE = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'filesize'  # In bytes
+FIELD_CHANNELS = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'channels'  # Integer
+FIELD_BITRATE = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'bitrate'  # Integer
+FIELD_BITDEPTH = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'bitdepth'  # Integer
+FIELD_SAMPLERATE = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'samplerate'  # Integer
 
 FIELD_PREVIEW = AUDIOCOMMONS_ONTOLOGY_PREFIX + 'preview_url'
 

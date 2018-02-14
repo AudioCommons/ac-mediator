@@ -1,8 +1,8 @@
 from ac_mediator.exceptions import ACFieldTranslateException, ACException, ACFilterParsingException
 from services.acservice.constants import *
 from services.acservice.utils import parse_filter
+from services.acservice.json_template import applyTemplate
 import pyparsing
-
 
 def translates_field(field_name):
     """
@@ -140,6 +140,8 @@ class BaseACServiceSearchMixin(object):
         :param target_fields: list of Audio Commons fields to return
         :return: dictionary representing the single result with keys and values compatible with Audio Commons API
         """
+        if self.RESULT_MAPPING:
+            return applyTemplate(result, self.RESULT_MAPPING)
         translated_result = dict()
         if target_fields is None:
             target_fields = list()  # Avoid non iterable error

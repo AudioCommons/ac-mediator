@@ -7,8 +7,9 @@ from services.acservice.search import ACServiceTextSearchMixin, translates_field
 from services.acservice.download import ACDownloadMixin
 from accounts.models import Account
 import datetime
+import json
+import os
 from django.utils import timezone
-
 
 class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin, ACDownloadMixin):
 
@@ -16,6 +17,8 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     NAME = 'Freesound'
     URL = 'https://freesound.org'
     API_BASE_URL = "https://freesound.org/apiv2/"
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    RESULT_MAPPING = json.load(open(this_dir + '/freesound-mapping.json'))
 
     # Base
     def validate_response_status_code(self, response):
