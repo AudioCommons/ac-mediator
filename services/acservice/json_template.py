@@ -58,6 +58,17 @@ def normalizeTemplate(template):
     else:
         return dictCool(map(lambda keyValuePair: normalizeKeyValue(keyValuePair[0],normalizeTemplate(keyValuePair[1])), itemsCool(template)))
 
+def hasValue(input, path, value):
+    return value in applyPath(input, path)
+
+def removeValue(input, path, value):
+    if value in applyPath(input, path):
+        valueList = input[path]
+        if valueList == value:
+            del input[path]
+        elif isinstance(valueList, list):
+            valueList.remove(value)
+
 def simpleReplace(outTemplate, input):
     # print(outTemplate)
     if outTemplate == '$':
@@ -65,7 +76,13 @@ def simpleReplace(outTemplate, input):
         # print(input)
         return input
     elif isinstance(outTemplate, dict):
-        return dict(map(lambda keyValue: (keyValue[0], simpleReplace(keyValue[1], input)), outTemplate.items()))
+        enrichObject = False
+        if hasValue(outTemplate, '@id', '$'):
+            enrichObject = True
+            removeValue(outTemplate, '@id', '$')
+        return addToDictionary(
+            dict(map(lambda keyValue: (keyValue[0], simpleReplace(keyValue[1], input)), outTemplate.items())),
+            input if enrichObject else {})
     elif isinstance(outTemplate, list):
         return list(map(lambda item: simpleReplace(item, input), outTemplate))
     else:
