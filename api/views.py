@@ -167,7 +167,10 @@ def collect_response(request):
     return Response(
         response,
         headers = {
-            Link: '</static/data/service_context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+            Link: [
+                '</static/data/service_context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
+                '</static/data/api_doc.jsonld>; rel="http://www.w3.org/ns/hydra/core#apiDocumentation"'
+            ]
         })
 
 

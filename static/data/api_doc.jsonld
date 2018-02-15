@@ -1,0 +1,5 @@
+{
+  "@vocab": "http://www.w3.org/ns/hydra/core#",
+  "@id": "/static/data/api_doc",
+  "@type": "EntryPoint",
+}
