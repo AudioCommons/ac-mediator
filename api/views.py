@@ -102,7 +102,7 @@ def me(request):
         the access token used to authenticate. This information is useful for a third party
         application to uniquely identify an Audio Commons user account and be able to store
         extra information associated to the account or display user information on screen.
-        
+
         This endpoint takes no query parameters.
 
         :statuscode 200: no error
@@ -164,7 +164,11 @@ def collect_response(request):
     response = response_aggregator.collect_response(request.GET.get('rid'))
     if response is None:
         raise ACAPIResponseDoesNotExist
-    return Response(response)
+    return Response(
+        response,
+        headers = {
+            Link: '</static/data/service_context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+        })
 
 
 @api_view(['GET'])
