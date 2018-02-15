@@ -10,7 +10,7 @@
   "schema": "http://schema.org/",
   "ebu": "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#",
   "event": "http://purl.org/NET/c4dm/event.owl#",
-  "time": "",
+  "time": "https://www.w3.org/2006/time#",
 
   "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
   "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
