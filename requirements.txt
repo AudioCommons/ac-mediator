@@ -14,7 +14,5 @@ redis==2.10.5
 celery==4.0.0
 uwsgi==2.0.14
 raven==5.32.0
-rdflib==4.2.2
-rdflib-jsonld==0.4.0
 graypy==0.2.14
 pyparsing==2.2.0

@@ -123,34 +123,9 @@ class ResponseAggregator(object):
             to_return['meta']['current_timestamp'] = str(datetime.datetime.now())
             if response['meta']['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
                 self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
-        elif format == settings.JSON_LD_FORMAT_KEY:
-            # NOTE: this is a fake implementation of returning a response in JSON-LD format
-            from rdflib import Graph, URIRef, Literal, Namespace, BNode
-            from rdflib.namespace import RDF
+        else:
+            raise ACAPIUnsupportedFormat()
 
-            g = Graph()
-            n_ac = Namespace('https://m.audiocommons.org/ontology/response/')
-            n_mo = Namespace('http://mo/')
-
-            object1 = URIRef('https://m.audiocommons.org/api/v1/acid/Freesound:1234/')
-            g.add((object1, RDF.type, n_mo.AudioFile))
-            g.add((object1, n_ac.creator, Literal('Name Surename')))
-            g.add((object1, n_ac.friend_of_creator, Literal('Name Surename')))
-
-            object2 = URIRef('https://m.audiocommons.org/api/v1/acid/Freesound:1235/')
-            g.add((object2, RDF.type, n_mo.AudioFile))
-            g.add((object2, n_ac.creator, Literal('Name2 Surename2')))
-
-            r_ref = BNode()
-            g.add((r_ref, RDF.type, n_ac.response))
-            g.add((r_ref, n_ac.response_contents, object1))
-            g.add((r_ref, n_ac.response_contents, object2))
-
-            to_return = g.serialize(format='json-ld', context={
-                '@ac': 'https://m.audiocommons.org/ontology/response/',
-                '@mo': 'http://mo/'
-            })
-            to_return = json.loads(to_return.decode("utf-8"))
         return to_return
 
 

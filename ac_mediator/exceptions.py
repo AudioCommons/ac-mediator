@@ -107,3 +107,9 @@ class ACAPIBadRequest(ACAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Bad request.'
     default_code = 'bad_request'
+
+
+class ACAPIUnsupportedFormat(ACAPIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Unsupported response format.'
+    default_code = 'bad_request'
