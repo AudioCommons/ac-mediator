@@ -130,7 +130,7 @@ class BaseACServiceSearchMixin(object):
         """
         return list(self.direct_fields_mapping.keys()) + list(self.translate_field_methods_registry.keys())
 
-    def translate_single_result(self, result, target_fields):
+    def translate_single_result(self, result, target_fields, format):
         """
         Take an individual search result from a service response in the form of a dictionary
         and translate its keys and values to an Audio Commons API compatible format.
@@ -138,6 +138,7 @@ class BaseACServiceSearchMixin(object):
         that each field should have in the Audio Commons API context.
         :param result: dictionary representing a single result entry form a service response
         :param target_fields: list of Audio Commons fields to return
+        :param format: format with which the response should be returned. Defaults to JSON.
         :return: dictionary representing the single result with keys and values compatible with Audio Commons API
         """
         translated_result = dict()
@@ -154,19 +155,21 @@ class BaseACServiceSearchMixin(object):
             translated_result[ac_field_name] = trans_field_value
         return translated_result
 
-    def format_search_response(self, response, common_search_params):
+    def format_search_response(self, response, common_search_params, format):
         """
         Take the search request response returned from the service and transform it
         to the unified Audio Commons search response definition.
 
         :param response: dictionary with json search response
         :param common_search_params: common search parameters passed here in case these are needed somewhere
+        :param format: format with which the response should be returned. Defaults to JSON.
         :return: dictionary with search results properly formatted
         """
         results = list()
         for result in self.get_results_list_from_response(response):
             translated_result = \
-                self.translate_single_result(result, target_fields=common_search_params.get('fields', None))
+                self.translate_single_result(result,
+                                             target_fields=common_search_params.get('fields', None), format=format)
             results.append(translated_result)
         return {
             NUM_RESULTS_PROP: self.get_num_results_from_response(response),
@@ -533,7 +536,7 @@ class ACServiceTextSearchMixin(BaseACServiceSearchMixin):
 
         # Send request and process response
         response = self.send_request(self.TEXT_SEARCH_ENDPOINT_URL, params=query_params)
-        formatted_response = self.format_search_response(response, common_search_params)
+        formatted_response = self.format_search_response(response, common_search_params, format=context['format'])
         return formatted_response
 
     # ***********************************************************************

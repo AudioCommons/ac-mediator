@@ -116,10 +116,15 @@ class ResponseAggregator(object):
         to_return = None
         if response is None:
             return to_return
-        if format == settings.JSON_FORMAT_KEY:
+        if format == settings.JSON_FORMAT_KEY or format == settings.JSON_LD_FORMAT_KEY:
+            # Currently we do the same for JSON and JSON_LD because changes in the response are only at the individual
+            # result level and this is done in the acservice code. This if statement might be split in two if the
+            # structure of the JSON_LD response needs a different treatment.
             to_return = response.copy()
             to_return['meta']['response_id'] = response_id  # Add response_id to returned dictionary
-            to_return['meta']['collect_url'] = settings.BASE_URL + '{0}?rid={1}'.format(reverse('api-collect'), response_id)  # Add collect url for convinience
+            to_return['meta']['collect_url'] = \
+                settings.BASE_URL + '{0}?rid={1}'.format(reverse('api-collect'),
+                                                         response_id)  # Add collect url for convenience
             to_return['meta']['current_timestamp'] = str(datetime.datetime.now())
             if response['meta']['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:
                 self.store.delete_response(response_id)  # If response has been all loaded, delete it from pool
