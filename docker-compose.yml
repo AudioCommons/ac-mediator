@@ -19,7 +19,7 @@ services:
     depends_on:
       - web
       - flower
-      - redmon
+      #- redmon
   redis:
     image: redis
   web:
@@ -59,8 +59,8 @@ services:
     command: flower --address=0.0.0.0 --port=5555 --broker=redis://redis --url_prefix=flower
     depends_on:
       - celery
-  redmon:  #  Redis monitoring
-    build: ./docker/redmon/
-    command: redmon --port=4567 --redis=redis://redis --base-path=/redmon --secure=${REDMON_BASIC_AUTH}
-    depends_on:
-      - redis
+  #redmon:  #  Redis monitoring
+  #  build: ./docker/redmon/
+  #  command: redmon --port=4567 --redis=redis://redis --base-path=/redmon --secure=${REDMON_BASIC_AUTH}
+  #  depends_on:
+  #    - redis
