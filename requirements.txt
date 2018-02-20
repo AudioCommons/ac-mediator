@@ -16,3 +16,4 @@ uwsgi==2.0.14
 raven==5.32.0
 graypy==0.2.14
 pyparsing==2.2.0
+django-cors-headers==2.1.0
