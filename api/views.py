@@ -86,6 +86,17 @@ def parse_common_search_query_params(request):
 def get_service_name_from_acid(acid):
     return acid.split(ACID_SEPARATOR_CHAR)[0]  # Derive service name from ACID
 
+def buildResponse(respDict):
+    return Response(
+        respDict,
+        headers = {
+            'Link':
+                '</static/data/service_context.jsonld>; ' +
+                    'rel="http://www.w3.org/ns/json-ld#context"; ' +
+                    'type="application/ld+json", ' +
+                '</static/data/api_doc.jsonld>; ' +
+                    'rel="http://www.w3.org/ns/hydra/core#apiDocumentation"'
+        })
 
 @api_view(['GET', 'POST'])
 @permission_classes((AllowAny, ))
@@ -124,10 +135,10 @@ def me(request):
         raise ACAPIResourceDoesNotExist
     try:
         account = Account.objects.get(id=account_id)
-        return Response({
+        return buildResponse({
             'username': account.username,
             'account_id': account.id,
-        }, status=status.HTTP_200_OK)
+        })
     except Account.DoesNotExist:
         raise ACAPIResourceDoesNotExist
 
@@ -164,14 +175,7 @@ def collect_response(request):
     response = response_aggregator.collect_response(request.GET.get('rid'))
     if response is None:
         raise ACAPIResponseDoesNotExist
-    return Response(
-        response,
-        headers = {
-            Link: [
-                '</static/data/service_context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
-                '</static/data/api_doc.jsonld>; rel="http://www.w3.org/ns/hydra/core#apiDocumentation"'
-            ]
-        })
+    return buildResponse(response)
 
 
 @api_view(['GET'])
@@ -239,7 +243,7 @@ def services(request):
             }
     """
     services = get_available_services(component=request.GET.get('component', None))
-    return Response({
+    return buildResponse({
         'count': len(services),
         'services': {service.name: {
             'id': service.id,
@@ -478,7 +482,7 @@ def text_search(request):
         'method': 'text_search',
         'kwargs': dict(q=q, f=f, s=s, common_search_params=search_qp),
     }, **parse_request_distributor_query_params(request))
-    return Response(response)
+    return buildResponse(response)
 
 
 @api_view(['GET'])
@@ -541,7 +545,7 @@ def licensing(request):
         'method': 'license',
         'kwargs': {'acid': acid}
     }, acid_domain=get_service_name_from_acid(acid), **parse_request_distributor_query_params(request))
-    return Response(response)
+    return buildResponse(response)
 
 
 @api_view(['GET'])
@@ -603,4 +607,4 @@ def download(request):
         'method': 'download',
         'kwargs': {'acid': acid}
     }, acid_domain=get_service_name_from_acid(acid), **parse_request_distributor_query_params(request))
-    return Response(response)
+    return buildResponse(response)
