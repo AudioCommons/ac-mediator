@@ -466,8 +466,8 @@ def text_search(request):
     """
     search_qp = parse_common_search_query_params(request)
     q = request.GET.get(QUERY_PARAM_QUERY, None)  # Textual input query parameter
-    if q is None or not q.strip():
-        raise ACAPIBadRequest("Missing or invalid query parameter: '{0}'".format(QUERY_PARAM_QUERY))
+    # if q is None or not q.strip():
+    #    raise ACAPIBadRequest("Missing or invalid query parameter: '{0}'".format(QUERY_PARAM_QUERY))
     f = request.GET.get(QUERY_PARAM_FILTER, None)
     s = request.GET.get(QUERY_PARAM_SORT, None)
     if s is not None and (s not in SORT_OPTIONS and s not in ['-{0}'.format(opt) for opt in SORT_OPTIONS]):
