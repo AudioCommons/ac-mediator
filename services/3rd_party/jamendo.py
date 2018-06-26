@@ -128,7 +128,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
         return response['results']
 
     def get_num_results_from_response(self, response):
-        return None  # Jamendo does not return the total number of results
+        return response['headers']['results_fullcount']
 
     def process_q_query_parameter(self, q):
         return {'search': q}
@@ -176,7 +176,8 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
         return filter_params
 
     def add_extra_search_query_params(self):
-        return {'include': 'musicinfo+licenses'}  # Use include parameter to retrieve all infomation we need
+        # Use include parameter to retrieve all infomation we need and fullcount to get total number of results
+        return {'include': 'musicinfo+licenses', 'fullcount': 'true'}
 
     # Licensing
     LICENSING_ACID_DOMAINS = [NAME]
