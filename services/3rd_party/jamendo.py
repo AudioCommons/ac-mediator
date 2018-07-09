@@ -175,6 +175,25 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
                 })
         return filter_params
 
+    def process_size_query_parameter(self, size, common_search_params):
+        size = int(size)
+        if size > 200:  # This is Jamendo's maximum page size
+            self.add_response_warning("Maximum '{0}' is 200".format(QUERY_PARAM_SIZE))
+            size = 200
+        return {'limit': size}
+
+    def process_page_query_parameter(self, page, common_search_params):
+        # NOTE: Jamendo uses an offset/limit approach to pagination instead of page_size/page_number, therefore to
+        # estimate the page number we need to know the requested size of the page
+
+        size = common_search_params[QUERY_PARAM_SIZE]
+        if size is not None:  # size defaults to 15 so it should never be 'None'
+            used_size = self.process_size_query_parameter(size, common_search_params)['limit']
+        else:
+            used_size = 10  # Jamendo's default
+        print(used_size, used_size * (page - 1) )
+        return {'offset': used_size * (page - 1)}
+
     def add_extra_search_query_params(self):
         # Use include parameter to retrieve all infomation we need and fullcount to get total number of results
         return {'include': 'musicinfo+licenses', 'fullcount': 'true'}
