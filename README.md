@@ -59,11 +59,11 @@ This behaviour can be changed editing the `ALLOW_UNAUTHENTICATED_API_REQUESTS_ON
 setting in `ac_mediator/settings.py`.
 
 
-### Configuring third-party services
+### Configuring third-party services
 
 The Audio Commons mediator has to interact with third party services and needs
-to be configure to do so. This is done via a configuration file that will mainly store
-API credentials and other relevant information for each service. An example of such
+to be configured to do so. This is done via a configuration file that stores
+API credentials and some other relevant information for each service. An example of such
 file is found in [/services/services_conf.example.cfg](https://github.com/AudioCommons/ac-mediator/blob/master/services/services_conf.example.cfg).
 
 To be able to use such services in local development you'll need to request API keys
