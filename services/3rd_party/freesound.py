@@ -105,6 +105,75 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         return datetime.datetime.strptime(result['created'].split('.')[0], '%Y-%m-%dT%H:%M:%S')\
             .strftime(AUDIOCOMMONS_STRING_TIME_FORMAT)
 
+    def __translate_ac_field(self, result, field_name, default=None):
+        if not result['ac_analysis']:
+            return default
+        else:
+            return result['ac_analysis'].get(field_name, default)
+
+    @translates_field(FIELD_BRIGHTNESS)
+    def translate_field_brightness(self, result):
+        return self.__translate_ac_field(result, 'ac_brightness')
+
+    @translates_field(FIELD_ROUGHNESS)
+    def translate_field_roughness(self, result):
+        return self.__translate_ac_field(result, 'ac_roughness')
+
+    @translates_field(FIELD_HARDNESS)
+    def translate_field_hardness(self, result):
+        return self.__translate_ac_field(result, 'ac_hardness')
+
+    @translates_field(FIELD_SHARPNESS)
+    def translate_field_sharpness(self, result):
+        return self.__translate_ac_field(result, 'ac_sharpness')
+
+    @translates_field(FIELD_WARMTH)
+    def translate_field_warmth(self, result):
+        return self.__translate_ac_field(result, 'ac_warmth')
+
+    @translates_field(FIELD_BOOMING)
+    def translate_field_booming(self, result):
+        return self.__translate_ac_field(result, 'ac_booming')
+
+    @translates_field(FIELD_TEMPO)
+    def translate_field_tempo(self, result):
+        tempo = self.__translate_ac_field(result, 'ac_tempo')
+        if not tempo:
+            return None
+        return tempo
+
+    @translates_field(FIELD_TEMPO_CONFIDENCE)
+    def translate_field_tempo_confidence(self, result):
+        return self.__translate_ac_field(result, 'ac_tempo_confidence', default=0.0)
+
+    @translates_field(FIELD_NOTE)
+    def translate_field_note(self, result):
+        return self.__translate_ac_field(result, 'ac_note')
+
+    @translates_field(FIELD_NOTE_CONFIDENCE)
+    def translate_field_note_confidence(self, result):
+        return self.__translate_ac_field(result, 'ac_note_confidence', default=0.0)
+
+    @translates_field(FIELD_TONALITY)
+    def translate_field_tonality(self, result):
+        return self.__translate_ac_field(result, 'ac_tonality')
+
+    @translates_field(FIELD_TONALITY_CONFIDENCE)
+    def translate_field_tonality_confidence(self, result):
+        return self.__translate_ac_field(result, 'ac_tonality_confidence', default=0.0)
+
+    @translates_field(FIELD_LOUDNESS)
+    def translate_field_loudness(self, result):
+        return self.__translate_ac_field(result, 'ac_loudness')
+
+    @translates_field(FIELD_SINGLE_EVENT)
+    def translate_field_single_event(self, result):
+        return self.__translate_ac_field(result, 'ac_single_event')
+
+    @translates_field(FIELD_LOOP)
+    def translate_field_loop(self, result):
+        return self.__translate_ac_field(result, 'ac_loop')
+
     # Implement filters mapping
 
     @property
@@ -235,7 +304,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         # ac:id, the forwarded query to Freesound will request all potential fields. It could be optimized in the future
         # by setting 'fields' depending on what's in common_search_params['fields'].
         return {'fields': 'id,url,name,license,previews,username,tags,duration,filesize,channels,bitrate,bitdepth,'
-                          'samplerate,type,description,created,pack,images'}
+                          'samplerate,type,description,created,pack,images,ac_analysis'}
 
     # Download component
     DOWNLOAD_ACID_DOMAINS = [NAME]
