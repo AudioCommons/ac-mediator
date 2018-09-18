@@ -148,7 +148,11 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
 
     @translates_field(FIELD_NOTE)
     def translate_field_note(self, result):
-        return self.__translate_ac_field(result, 'ac_note')
+        return self.__translate_ac_field(result, 'ac_note_name')
+
+    @translates_field(FIELD_NOTE_MIDI)
+    def translate_field_note_midi(self, result):
+        return self.__translate_ac_field(result, 'ac_note_midi')
 
     @translates_field(FIELD_NOTE_CONFIDENCE)
     def translate_field_note_confidence(self, result):
@@ -187,6 +191,20 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             FIELD_BITDEPTH: 'bitdepth',
             FIELD_SAMPLERATE: 'samplerate',
             FIELD_TAG: 'tag',
+            FIELD_BRIGHTNESS: 'ac_brightness',
+            FIELD_ROUGHNESS: 'ac_roughness',
+            FIELD_HARDNESS: 'ac_hardness',
+            FIELD_SHARPNESS: 'ac_sharpness',
+            FIELD_WARMTH: 'ac_warmth',
+            FIELD_BOOMING: 'ac_booming',
+            FIELD_TEMPO: 'ac_tempo',
+            FIELD_TEMPO_CONFIDENCE: 'ac_tempo_confidence',
+            FIELD_NOTE: 'ac_note_name',
+            FIELD_NOTE_MIDI: 'ac_note_midi',
+            FIELD_NOTE_CONFIDENCE: 'ac_note_confidence',
+            FIELD_TONALITY: 'ac_tonality',
+            FIELD_TONALITY_CONFIDENCE: 'ac_tonality_confidence',
+            FIELD_LOUDNESS: 'ac_loudness',
         }
 
     @translates_filter_for_field(FIELD_ID)
@@ -199,6 +217,22 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
         -> 1234).
         """
         return self.SERVICE_ID_FIELDNAME, value[len(self.id_prefix):]
+
+    @translates_filter_for_field(FIELD_SINGLE_EVENT)
+    def translate_filter_single_event(self, value):
+        if value not in ['true', 'false']:
+            raise ACFilterParsingException(
+                'The provided value for filter \'{0}\' is not supported (should be true/false)'
+                    .format(FIELD_SINGLE_EVENT))
+        return 'ac_single_event', value
+
+    @translates_filter_for_field(FIELD_LOOP)
+    def translate_filter_loop(self, value):
+        if value not in ['true', 'false']:
+            raise ACFilterParsingException(
+                'The provided value for filter \'{0}\' is not supported (should be true/false)'
+                    .format(FIELD_LOOP))
+        return 'ac_loop', value
 
     @translates_filter_for_field(FIELD_FORMAT)
     def translate_filter_format(self, value):
