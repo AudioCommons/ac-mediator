@@ -123,6 +123,10 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     def translate_field_hardness(self, result):
         return self.__translate_ac_field(result, 'ac_hardness')
 
+    @translates_field(FIELD_DEPTH)
+    def translate_field_depth(self, result):
+        return self.__translate_ac_field(result, 'ac_depth')
+
     @translates_field(FIELD_SHARPNESS)
     def translate_field_sharpness(self, result):
         return self.__translate_ac_field(result, 'ac_sharpness')
@@ -195,6 +199,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             FIELD_ROUGHNESS: 'ac_roughness',
             FIELD_HARDNESS: 'ac_hardness',
             FIELD_SHARPNESS: 'ac_sharpness',
+            FIELD_DEPTH: 'ac_depth',
             FIELD_WARMTH: 'ac_warmth',
             FIELD_BOOMING: 'ac_booming',
             FIELD_TEMPO: 'ac_tempo',
