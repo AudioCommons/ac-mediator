@@ -318,22 +318,39 @@ def text_search(request):
         look like. Nevertheless, remember that **not all fields are supported for filtering in all services**. You'll
         need to check which ones are available using the `services description endpoint <#get--services->`_.
 
-        ======================  =====================================================
-        Field name              Values description
-        ======================  =====================================================
-        ``ac:id``               Audio Commons Unique Identifier (ACID).
-        ``ac:license``          License of the resource, must be one of [``CC0``, ``BY``, ``BY-NC``, ``BY-ND``, ``BY-SA``, ``BY-NC-SA``, ``BY-NC-ND``].
-        ``ac:timestamp``        Creation date of the resource. Must be indicated as a **range** with the format ``['2017-09-27 10:01:22','2017-09-27 10:01:22']`` (see examples below).
-        ``ac:duration``         Duration of the audio resource in seconds. Must be indicated as range.
-        ``ac:tag``              Tag with which the resource has been tagged, indicated a a string (see examples below).
-        ``ac:author``           Name of the author of the resource.
-        ``ac:format``           Audio format of the resource. Possible values depend on the third party service.
-        ``ac:channels``         Number of channels as an integer. Can be specified as a range.
-        ``ac:filesize``         Filesize in bytes. Can be specified as a range.
-        ``ac:bitrate``          Bitrate in number of bits per second. Can be specified as a range.
-        ``ac:bitdepth``         Number of bits per sample. Can be specified as a range.
-        ``ac:samplerate``       Sampling rate. Can be specified as a range.
-        ======================  =====================================================
+        ==========================  =====================================================
+        Field name                  Values description
+        ==========================  =====================================================
+        ``ac:id``                   Audio Commons Unique Identifier (ACID).
+        ``ac:license``              License of the resource, must be one of [``CC0``, ``BY``, ``BY-NC``, ``BY-ND``, ``BY-SA``, ``BY-NC-SA``, ``BY-NC-ND``].
+        ``ac:timestamp``            Creation date of the resource. Must be indicated as a **range** with the format ``['2017-09-27 10:01:22','2017-09-27 10:01:22']`` (see examples below).
+        ``ac:duration``             Duration of the audio resource in seconds. Must be indicated as range.
+        ``ac:tag``                  Tag with which the resource has been tagged, indicated a a string (see examples below).
+        ``ac:author``               Name of the author of the resource.
+        ``ac:format``               Audio format of the resource. Possible values depend on the third party service.
+        ``ac:channels``             Number of channels as an integer. Can be specified as a range.
+        ``ac:filesize``             Filesize in bytes. Can be specified as a range.
+        ``ac:bitrate``              Bitrate in number of bits per second. Can be specified as a range.
+        ``ac:bitdepth``             Number of bits per sample. Can be specified as a range.
+        ``ac:samplerate``           Sampling rate. Can be specified as a range.
+        ``ac:brightness``           Timbral quality of the signal [0-100]. A bright sound is one that is clear/vibrant and/or contains significant high-pitched elements.
+        ``ac:hardness``             Timbral quality of the signal [0-100]. A hard sound is one that conveys the sense of having been made (i) by something solid, firm or rigid; or (ii) with a great deal of force.
+        ``ac:depth``                Timbral quality of the signal [0-100]. A deep sound is one that conveys the sense of having been made far down below the surface of its source.
+        ``ac:roughness``            Timbral quality of the signal [undefined range]. A rough sound is one that has an uneven or irregular sonic texture.
+        ``ac:warmth``               Timbral quality of the signal (experimental)
+        ``ac:booming``              Timbral quality of the signal (experimental)
+        ``ac:sharpness``            Timbral quality of the signal (experimental)
+        ``ac:tempo``                Tempo estimation of the audio in BPM.
+        ``ac:tempo_confidence``     Confidence of the tempo estimation [0-1].
+        ``ac:note``                 Estimated note name.
+        ``ac:note_midi``            Estimated MIDI note number.
+        ``ac:note_confidence``      Confidence of note name (and MIDI note) estimation [0-1].
+        ``ac:tonality``             Tonality of the audio signal in format ``'key scale'`` where ``key=[A,B,C,Ab,Bb,...]`` and ``scale=[minor,major]`.
+        ``ac:tonality_confidence``  Confidence of the tonality estimation [0-1].
+        ``ac:loudness``             The integrated (overall) loudness (LUFS) measured using the EBU R128 standard.
+        ``ac:loop``                 Whether audio file is loopable [``true``, ``false``].
+        ``ac:single_event``         Whether the audio file contains one single audio event or more than one [``true``, ``false``].
+        ==========================  =====================================================
 
 
         You can **check the following examples** to have a better understanding about how the filters work:
