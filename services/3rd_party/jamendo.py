@@ -50,7 +50,7 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
             FIELD_PREVIEW: 'audiodownload',
             FIELD_IMAGE: 'image',
             FIELD_DURATION: 'duration',
-            FIELD_LICENSE_DEED_URL: 'license_ccurl',
+            FIELD_LICENSE_DEED_URL: 'license_ccurl'
         }
 
     @translates_field(FIELD_TAGS)
@@ -70,6 +70,17 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
         return datetime.datetime.strptime(result['releasedate'], '%Y-%m-%d').strftime(AUDIOCOMMONS_STRING_TIME_FORMAT)
 
     # Implement filters mapping
+
+    @translates_filter_for_field(FIELD_TAG)
+    def translate_filter_tag(self, value):
+        return 'tag_filter', value
+
+    @translates_filter_for_field(FIELD_FORMAT)
+    def translate_filter_format(self, value):
+        if value not in ['mp31', 'mp32', 'ogg', 'flac']:
+            raise ACFilterParsingException(
+                'The provided value for filter \'{0}\' is not supported'.format(FIELD_FORMAT))
+        return 'type', value
 
     @translates_filter_for_field(FIELD_ID)
     def translate_filter_id(self, value):
@@ -173,6 +184,13 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
                 filter_params.update({
                     'artist_name': item.split('author_filter:')[1],
                 })
+            if 'tag_filter' in item:
+                if 'tags' in filter_params:
+                    filter_params['tags'] += '+' + item.split('tag_filter:')[1]
+                else:
+                    filter_params.update({
+                        'tags': item.split('tag_filter:')[1],
+                    })
         return filter_params
 
     def process_size_query_parameter(self, size, common_search_params):
