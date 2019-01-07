@@ -1,3 +1,4 @@
+
 """
 Django settings for ac_mediator project.
 
@@ -34,9 +35,18 @@ if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
 else:
     DEBUG = True
 DATABASE_URL_ENV_NAME = 'DJANGO_DATABASE_URL'
-DATABASES = {'default': dj_database_url.config(
-    DATABASE_URL_ENV_NAME, default='postgres://postgres:postgres@db/ac_mediator')}
-
+# DATABASES = {'default': dj_database_url.config(
+    # DATABASE_URL_ENV_NAME, default='postgres://postgres:postgres@db/ac_mediator')}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'ac_mediator',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
 # Application definition
 
 INSTALLED_APPS = [
