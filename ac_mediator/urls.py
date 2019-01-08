@@ -9,8 +9,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 # Auth urls
 # https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
-# domainPrefix = "authenticate/"
-domainPrefix = ""
+domainPrefix = "authenticate/"
+# domainPrefix = ""
 
 urlpatterns = [
     url(r'^%scrash/$' % domainPrefix, crash_me, name='crash_me'),

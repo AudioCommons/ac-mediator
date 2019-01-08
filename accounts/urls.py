@@ -7,8 +7,8 @@ from accounts.views import home
 
 # Auth urls
 # https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
-# domainPrefix = "authenticate/"
-domainPrefix = ""
+domainPrefix = "authenticate/"
+# domainPrefix = ""
 urlpatterns = [
     # Home
     url(r'^%s$' % domainPrefix, home, name='home'),
