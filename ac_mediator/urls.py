@@ -42,7 +42,7 @@ urlpatterns = [
     url(r'^developers/', include('developers.urls')),
 
     # Api
-    url(r'^api/', include('api.urls')),
+    url(r'^%sapi/' % domainPrefix, include('api.urls')),
 
     # Admin
     url(r'^admin/monitor/$', monitor, name="admin-monitor"),
