@@ -11,15 +11,9 @@ Sphinx==1.4
 Pygments==2.1.3
 sphinxcontrib-httpdomain==1.4.0
 redis==2.10.5
-# conflicting with python's async registered word
-# kombu==4.0.2  # Needed to avoid problems with celery
-kombu==4.2.2.post1  # Needed to avoid problems with celery
-# conflicting with python's async registered word
-# celery==4.0.2
-celery==4.2.1
+kombu==4.0.2  # Needed to avoid problems with celery
+celery==4.0.2
 uwsgi==2.0.15
-# conflicting with python's async registered word
-# raven==5.32.0
-raven==6.9.0
+raven==5.32.0
 graypy==0.2.14
 pyparsing==2.2.0
