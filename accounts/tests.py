@@ -15,8 +15,6 @@ class AccountRegistrationTestCase(TestCase):
             'password1': '123456',
             'password2': '123456',
             'accepted_tos': 'on',
-            'first_name': '',
-            'last_name': '',
             'username': 'test_username',
             'email1': 'example@email.com',
             'email2': 'example@email.com',

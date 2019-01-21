@@ -7,39 +7,42 @@ from ac_mediator.views import monitor, crash_me
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 
-urlpatterns = [
-    url(r'^crash/$', crash_me, name='crash_me'),
+# Auth urls
+# https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
+# domainPrefix = "authenticate/"
+domainPrefix = ""
 
-    # Auth urls
-    url(r'^register/$', registration, name='registration'),
-    url(r'^activate/(?P<username>[^\/]+)/(?P<uid_hash>[^\/]+)/.*$', activate_account, name="accounts-activate"),
-    url(r'^reactivate/$', resend_activation_emmil, name="accounts-resend-activation"),
-    url(r'^login/$', auth_views.login, {'template_name': 'accounts/login.html'}, name='login'),
-    url(r'^logout/$', auth_views.logout, {'next_page': settings.LOGOUT_URL}, name='logout'),
-    url(r'^password_reset/$', auth_views.password_reset, dict(
+urlpatterns = [
+    url(r'^%scrash/$' % domainPrefix, crash_me, name='crash_me'),
+    url(r'^%sregister/$' % domainPrefix, registration, name='registration'),
+    url(r'^%sactivate/(?P<username>[^\/]+)/(?P<uid_hash>[^\/]+)/.*$' % domainPrefix, activate_account, name="accounts-activate"),
+    url(r'^%sreactivate/$' % domainPrefix, resend_activation_emmil, name="accounts-resend-activation"),
+    url(r'^%slogin/$' % domainPrefix, auth_views.login, {'template_name': 'accounts/login.html'}, name='login'),
+    url(r'^%slogout/$' % domainPrefix, auth_views.logout, {'next_page': settings.LOGOUT_URL}, name='logout'),
+    url(r'^%spassword_reset/$' % domainPrefix, auth_views.password_reset, dict(
             template_name='accounts/password_reset_form.html',
             subject_template_name='emails/password_reset_subject.txt',
             email_template_name='emails/password_reset.txt',
         ), name='password_reset'),
-    url(r'^password_reset/done/$', auth_views.password_reset_done, dict(
+    url(r'^%spassword_reset/done/$' % domainPrefix, auth_views.password_reset_done, dict(
             template_name='accounts/password_reset_done.html'
         ), name='password_reset_done'),
-    url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    url(r'^%sreset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$' % domainPrefix,
         auth_views.password_reset_confirm, dict(
             template_name='accounts/password_reset_confirm.html'
         ), name='password_reset_confirm'),
-    url(r'^reset/done/$', auth_views.password_reset_complete, dict(
+    url(r'^%sreset/done/$' % domainPrefix, auth_views.password_reset_complete, dict(
             template_name='accounts/password_reset_complete.html'
         ), name='password_reset_complete'),
 
     # Accounts
-    url(r'^', include('accounts.urls')),
+    url(r'^%s' % domainPrefix, include('accounts.urls')),
 
     # Developers
     url(r'^developers/', include('developers.urls')),
 
     # Api
-    url(r'^api/', include('api.urls')),
+    url(r'^%sapi/' % domainPrefix, include('api.urls')),
 
     # Admin
     url(r'^admin/monitor/$', monitor, name="admin-monitor"),

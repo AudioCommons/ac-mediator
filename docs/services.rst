@@ -27,19 +27,12 @@ it must be implemented in Python using the ``acservice`` package that we provide
 
 
 
-Types of services
------------------
-
-
-Getting an ``ACServiceId`` from Audio Commons
----------------------------------------------
-
-
 Using the ``acservice`` package
 -------------------------------
 
-
-.. tip:: Check the `example implementation for the Freesound <https://github.com/AudioCommons/ac-mediator/blob/master/services/3rd_party/freesound.py>`_ service.
+Checkout the `Guidelines for implementing a new service component <https://www.audiocommons.org/assets/files/AC-WP2-UPF-D2.6%20Service%20Integration%20Draft%20Guidelines.pdf>`_
+which describe how to implement a service using the ``acservice`` package. What's provided next is the source code
+documentation of ``acservice`` package.
 
 
 .. toctree::
@@ -48,18 +41,4 @@ Using the ``acservice`` package
    acservice
 
 
-Testing your service component
-------------------------------
-
-
-Managing your service
----------------------
-
-Monitoring usage
-****************
-
-Limiting access
-***************
-
-Retrieving provenance information
-*********************************
+.. tip:: For a quick overview of how it works, check out the `example implementation for the Freesound <https://github.com/AudioCommons/ac-mediator/blob/master/services/3rd_party/freesound.py>`_ service.
