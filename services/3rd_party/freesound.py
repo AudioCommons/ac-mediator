@@ -81,7 +81,7 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
             FIELD_FORMAT: 'type',
             FIELD_COLLECTION_URL: 'pack',
             FIELD_DESCRIPTION: 'description',
-            FIELD_LICENSE_DEED_URL: 'license',
+            FIELD_LICENSE_DEED_URL: 'license'
         }
 
     @translates_field(FIELD_LICENSE)
@@ -91,6 +91,10 @@ class FreesoundService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMix
     @translates_field(FIELD_PREVIEW)
     def translate_field_preview(self, result):
         return result['previews']['preview-hq-ogg']
+
+    @translates_field(FIELD_WAVEFORM_PEAKS)
+    def translate_field_waveform_peaks(self, result):
+        return result['images']['waveform_m']
 
     @translates_field(FIELD_IMAGE)
     def translate_field_image(self, result):
