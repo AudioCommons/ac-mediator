@@ -50,7 +50,8 @@ class JamendoService(BaseACService, ACServiceAuthMixin, ACServiceTextSearchMixin
             FIELD_PREVIEW: 'audiodownload',
             FIELD_IMAGE: 'image',
             FIELD_DURATION: 'duration',
-            FIELD_LICENSE_DEED_URL: 'license_ccurl'
+            FIELD_LICENSE_DEED_URL: 'license_ccurl',
+            FIELD_WAVEFORM_PEAKS: 'waveform' 
         }
 
     @translates_field(FIELD_TAGS)
