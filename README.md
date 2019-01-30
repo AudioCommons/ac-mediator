@@ -2,8 +2,6 @@
 
 Mediator component of the Audio Commons Ecosystem.
 
-**Note:** What's hosted here is work in progress, no functional component is provided yet.
-
 
 # Development
 
