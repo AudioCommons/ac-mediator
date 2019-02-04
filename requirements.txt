@@ -13,7 +13,7 @@ sphinxcontrib-httpdomain==1.4.0
 redis==2.10.5
 kombu==4.0.2  # Needed to avoid problems with celery
 celery==4.0.2
-uwsgi==2.0.15
+uwsgi==2.0.17.1
 raven==5.32.0
 graypy==0.2.14
 pyparsing==2.2.0
