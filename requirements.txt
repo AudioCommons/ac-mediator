@@ -1,4 +1,4 @@
-Django==1.11.18
+Django==1.11.20
 docutils==0.12
 djangorestframework==3.5.1
 django-oauth-toolkit==0.10.0
