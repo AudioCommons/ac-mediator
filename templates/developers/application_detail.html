@@ -2,10 +2,9 @@
 {% block title %}{{ application.name }}{% endblock title %}
 {% load staticfiles %}
 {% load i18n %}
-{% load url from compat %}
 {% block content %}
     <h1>
-        <a href="{% url 'home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
+        <a href="{% url 'accounts:home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
         <span class="breadcrumb-separator">|</span> API Client Details
     </h1>
 
@@ -71,8 +70,8 @@
     </div>
 
     <div class="btn-toolbar pull-right">
-        <a class="btn btn-warning" href="{% url "developers-app-update" application.id %}">{% trans "Edit" %}</a>
-        <a class="btn btn-danger" href="{% url "developers-app-delete" application.id %}">{% trans "Delete" %}</a>
+        <a class="btn btn-warning" href="{% url "developers:app-update" application.id %}">{% trans "Edit" %}</a>
+        <a class="btn btn-danger" href="{% url "developers:app-delete" application.id %}">{% trans "Delete" %}</a>
     </div>
-    <a href="{% url "developers-app-list" %}">Back</a>
+    <a href="{% url "developers:app-list" %}">Back</a>
 {% endblock content %}

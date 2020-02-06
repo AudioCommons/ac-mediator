@@ -50,7 +50,7 @@
                 {% endif %}
                 Audio Commons - <a href="http://www.audiocommons.org" target="_blank">http://audiocommons.org</a><br>
                 {% if request.user.is_authenticated %}
-                    <a href="{% url 'home' %}">Home</a> | <a href="/docs/api_tos.html">Terms of Service and Privacy Policy</a> | <a href="{% url 'developers-app-list' %}">Developers</a>
+                    <a href="{% url 'accounts:home' %}">Home</a> | <a href="/docs/api_tos.html">Terms of Service and Privacy Policy</a> | <a href="{% url 'developers:app-list' %}">Developers</a>
                 {% endif %}
             </div>
         </div>

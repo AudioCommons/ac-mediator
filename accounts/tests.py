@@ -1,6 +1,6 @@
 from django.test import TestCase, override_settings
 from accounts.models import Account
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core import mail
 from django.conf import settings
 

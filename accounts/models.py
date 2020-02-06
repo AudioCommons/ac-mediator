@@ -38,9 +38,9 @@ class ServiceCredentials(models.Model):
     interpreting the contests of the 'credentials' field.
     """
 
-    account = models.ForeignKey(Account, related_name='service_credentials')
+    account = models.ForeignKey(Account, related_name='service_credentials', on_delete=models.deletion.CASCADE)
     service_id = models.CharField(max_length=64)
-    credentials = JSONField(null=False, default={})
+    credentials = JSONField(null=False, default=dict)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 

@@ -1,10 +1,9 @@
 {% extends "developers/application_form.html" %}
 {% block title %}Register a new Api Client{% endblock title %}
 {% load i18n %}
-{% load url from compat %}
 
 {% block app-form-title %}{% trans "Register a new Api Client" %}{% endblock app-form-title %}
 
-{% block app-form-action-url %}{% url 'developers-app-register' %}{% endblock app-form-action-url %}
+{% block app-form-action-url %}{% url 'developers:app-register' %}{% endblock app-form-action-url %}
 
-{% block app-form-back-url %}{% url "developers-app-list" %}"{% endblock app-form-back-url %}
+{% block app-form-back-url %}{% url "developers:app-list" %}"{% endblock app-form-back-url %}

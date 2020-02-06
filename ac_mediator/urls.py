@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import re_path, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from accounts.views import registration, activate_account, resend_activation_emmil
@@ -13,43 +13,43 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 domainPrefix = ""
 
 urlpatterns = [
-    url(r'^%scrash/$' % domainPrefix, crash_me, name='crash_me'),
-    url(r'^%sregister/$' % domainPrefix, registration, name='registration'),
-    url(r'^%sactivate/(?P<username>[^\/]+)/(?P<uid_hash>[^\/]+)/.*$' % domainPrefix, activate_account, name="accounts-activate"),
-    url(r'^%sreactivate/$' % domainPrefix, resend_activation_emmil, name="accounts-resend-activation"),
-    url(r'^%slogin/$' % domainPrefix, auth_views.login, {'template_name': 'accounts/login.html'}, name='login'),
-    url(r'^%slogout/$' % domainPrefix, auth_views.logout, {'next_page': settings.LOGOUT_URL}, name='logout'),
-    url(r'^%spassword_reset/$' % domainPrefix, auth_views.password_reset, dict(
+    re_path(r'^%scrash/$' % domainPrefix, crash_me, name='crash_me'),
+    re_path(r'^%sregister/$' % domainPrefix, registration, name='registration'),
+    re_path(r'^%sactivate/(?P<username>[^\/]+)/(?P<uid_hash>[^\/]+)/.*$' % domainPrefix, activate_account, name="accounts-activate"),
+    re_path(r'^%sreactivate/$' % domainPrefix, resend_activation_emmil, name="accounts-resend-activation"),
+    re_path(r'^%slogin/$' % domainPrefix, auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
+    re_path(r'^%slogout/$' % domainPrefix, auth_views.LogoutView.as_view(next_page=settings.LOGOUT_URL), name='logout'),
+    re_path(r'^%spassword_reset/$' % domainPrefix, auth_views.PasswordResetView.as_view(
             template_name='accounts/password_reset_form.html',
             subject_template_name='emails/password_reset_subject.txt',
             email_template_name='emails/password_reset.txt',
         ), name='password_reset'),
-    url(r'^%spassword_reset/done/$' % domainPrefix, auth_views.password_reset_done, dict(
+    re_path(r'^%spassword_reset/done/$' % domainPrefix, auth_views.PasswordResetDoneView.as_view(
             template_name='accounts/password_reset_done.html'
         ), name='password_reset_done'),
-    url(r'^%sreset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$' % domainPrefix,
-        auth_views.password_reset_confirm, dict(
+    re_path(r'^%sreset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$' % domainPrefix,
+        auth_views.PasswordResetConfirmView.as_view(
             template_name='accounts/password_reset_confirm.html'
         ), name='password_reset_confirm'),
-    url(r'^%sreset/done/$' % domainPrefix, auth_views.password_reset_complete, dict(
+    re_path(r'^%sreset/done/$' % domainPrefix, auth_views.PasswordResetCompleteView.as_view(
             template_name='accounts/password_reset_complete.html'
         ), name='password_reset_complete'),
 
     # Accounts
-    url(r'^%s' % domainPrefix, include('accounts.urls')),
+    re_path(r'^%s' % domainPrefix, include('accounts.urls')),
 
     # Developers
-    url(r'^developers/', include('developers.urls')),
+    re_path(r'^developers/', include('developers.urls')),
 
     # Api
-    url(r'^%sapi/' % domainPrefix, include('api.urls')),
+    re_path(r'^%sapi/' % domainPrefix, include('api.urls')),
 
     # Admin
-    url(r'^admin/monitor/$', monitor, name="admin-monitor"),
-    url(r'^admin/', admin.site.urls),
+    re_path(r'^admin/monitor/$', monitor, name="admin-monitor"),
+    re_path(r'^admin/', admin.site.urls),
 
     # Documentation
-    url(r'^docs/', include('docs.urls')),
+    re_path(r'^docs/', include('docs.urls')),
 ]
 
 if settings.DEBUG:

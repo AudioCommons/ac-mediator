@@ -1,7 +1,7 @@
 from django.test import TestCase, override_settings
 from api.models import ApiClient
 from accounts.models import Account
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from services import management
 from django.conf import settings
 import oauth2_provider
@@ -399,7 +399,7 @@ class DownloadEndpointsTestCase(TestCase):
     def test_get_download_link(self):
 
         # Make unauthenticated request and assert it returns 401
-        resp = self.client.get(reverse('api-download'), {
+        resp = self.client.get(reverse('api:download'), {
             'acid': 'DownloadService:123',
         })
         self.assertEqual(resp.status_code, 401)
@@ -414,19 +414,19 @@ class DownloadEndpointsTestCase(TestCase):
         )
 
         # Make API request authenticated and assert it returns 200
-        resp = self.client.get(reverse('api-download'), {
+        resp = self.client.get(reverse('api:download'), {
             'acid': 'DownloadService:123',
         }, HTTP_AUTHORIZATION='Bearer {0}'.format(access_token))
         self.assertEqual(resp.status_code, 200)
 
         # Ensure request for non existing service returns 404
-        resp = self.client.get(reverse('api-download'), {
+        resp = self.client.get(reverse('api:download'), {
             'acid': 'DownloadService2:123',
         }, HTTP_AUTHORIZATION='Bearer {0}'.format(access_token))
         self.assertEqual(resp.status_code, 404)
 
         # Ensure request with no acid parameter returns 400
-        resp = self.client.get(reverse('api-download'), {
+        resp = self.client.get(reverse('api:download'), {
             'acid2': 'DownloadService:123',
         }, HTTP_AUTHORIZATION='Bearer {0}'.format(access_token))
         self.assertEqual(resp.status_code, 400)

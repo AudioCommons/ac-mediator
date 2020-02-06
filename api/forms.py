@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.forms.fields import Field
-from django.utils.text import mark_safe
+from django.utils.safestring import mark_safe
 from django.forms.widgets import HiddenInput
 from api.models import ApiClient
 setattr(Field, 'is_checkbox', lambda self: isinstance(self.widget, forms.CheckboxInput))  # Used in the template

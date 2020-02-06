@@ -16,7 +16,7 @@
     </script>
 
     <h1>
-        <a href="{% url 'home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
+        <a href="{% url 'accounts:home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
         <span class="breadcrumb-separator">|</span> Link service accounts
     </h1>
 
@@ -28,7 +28,7 @@
             <div class="pull-right">
                 {% if user_credentials %}
                     <a class="btn btn-danger"
-                       href="{% url "unlink_service" service.id %}"
+                       href="{% url "accounts:unlink_service" service.id %}"
                     >unlink</a>
                 {% else %}
                     <button class="btn btn-success"
@@ -56,5 +56,5 @@
     {% endfor %}
     </ul>
 
-    <br><br><a href="{% url 'home' %}">Back</a>
+    <br><br><a href="{% url 'accounts:home' %}">Back</a>
 {% endblock %}

@@ -1,6 +1,6 @@
 from accounts.models import ServiceCredentials
 from ac_mediator.exceptions import *
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 import requests
 from services.acservice.constants import *
@@ -37,7 +37,7 @@ class ACServiceAuthMixin(object):
         return self.BASE_AUTHORIZE_URL.format(self.service_client_id)
 
     def get_redirect_uri(self):
-        return settings.BASE_URL + reverse('link_service_callback', args=[self.id])
+        return settings.BASE_URL + reverse('accounts:link_service_callback', args=[self.id])
 
     def access_token_request_data(self, authorization_code=None, refresh_token=None):
         data = {'client_id': self.service_client_id, 'client_secret': self.service_client_secret}
@@ -133,7 +133,7 @@ class ACServiceAuthMixin(object):
         For OAuth2 based services, this should be True when refresh token is about to expire but can be
         still set to False if only access token has expired (as the access token can be automatically
         renewed at request time if the refresh token is still valid).
-        This method should be overwritten by each individual service or it will return the opposite 
+        This method should be overwritten by each individual service or it will return the opposite
         value of `check_credentials_are_valid`.
         :param credentials: credentials object as stored in ServiceCredentials entry
         """
