@@ -59,7 +59,7 @@
             {% endif %}
         {% endif %}
         {% if not errors and not complete %}
-            window.location='{% url "link_service_get_token" service_id %}?code={{ code }}';
+            window.location='{% url "accounts:link_service_get_token" service_id %}?code={{ code }}';
         {% endif %}">
     <div class="frame">
         <img class="image" src="{% static "img/logo-icon.svg" %}" alt="">

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 from accounts.forms import RegistrationForm, ReactivationForm
 from accounts.models import ServiceCredentials, Account
@@ -11,8 +11,8 @@ from utils.encryption import create_hash
 
 
 def registration(request):
-    if request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('home'))
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('accounts:home'))
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -28,7 +28,7 @@ def registration(request):
 
 def activate_account(request, username, uid_hash):
     if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('home'))
+        return HttpResponseRedirect(reverse('accounts:home'))
 
     try:
         account = Account.objects.get(username__iexact=username)
@@ -46,7 +46,7 @@ def activate_account(request, username, uid_hash):
 
 def resend_activation_emmil(request):
     if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('home'))
+        return HttpResponseRedirect(reverse('accounts:home'))
 
     if request.method == 'POST':
         form = ReactivationForm(request.POST)
@@ -138,4 +138,4 @@ def link_service_get_token(request, service_id):
 @login_required
 def unlink_service(request, service_id):
     ServiceCredentials.objects.filter(account=request.user, service_id=service_id).delete()
-    return HttpResponseRedirect(reverse('link_services'))
+    return HttpResponseRedirect(reverse('accounts:link_services'))

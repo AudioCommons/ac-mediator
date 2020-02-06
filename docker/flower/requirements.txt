@@ -1,2 +1,2 @@
-redis
-flower
+redis==3.4.1
+flower==0.9.3

@@ -24,7 +24,7 @@ def get_request_context(request):
     else:
         # In integration tests or local development it can happen that successful_authenticator does not exist
         # In that case we provide 'fake' context so tests can be carried out correctly
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             user_account_id = request.user.id
             dev_account_id = user_account_id
         else:
@@ -108,7 +108,7 @@ def me(request):
         the access token used to authenticate. This information is useful for a third party
         application to uniquely identify an Audio Commons user account and be able to store
         extra information associated to the account or display user information on screen.
-        
+
         This endpoint takes no query parameters.
 
         :statuscode 200: no error

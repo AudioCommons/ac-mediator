@@ -1,15 +1,15 @@
-version: '2'
+version: '3.7'
 volumes:
   dbvolume:
 services:
   db:
-    image: postgres:9.6
+    image: postgres:12.1
     env_file:
       - .env
     volumes:
       - dbvolume:/var/lib/postgresql/data/
   nginx:
-    image: nginx
+    image: nginx:1.17.8
     ports:
       - "80:80"
       - "443:443"
@@ -19,9 +19,8 @@ services:
     depends_on:
       - web
       - flower
-      #- redmon
   redis:
-    image: redis
+    image: redis:5.0.7
   web:
     build: .
     env_file:
@@ -38,8 +37,10 @@ services:
     build: .
     env_file:
       - .env
-    volumes_from:
-      - web
+    volumes:
+      - .:/code
+      - /static/
+      - ./services/services_conf.cfg:/code/services/services_conf.cfg
     command: celery worker -A ac_mediator --concurrency=${CELERY_CONCURRENCY}
     depends_on:
       - redis
@@ -47,8 +48,10 @@ services:
     build: .
     env_file:
       - .env
-    volumes_from:
-      - web
+    volumes:
+      - .:/code
+      - /static/
+      - ./services/services_conf.cfg:/code/services/services_conf.cfg
     command: celery beat -A ac_mediator
     depends_on:
       - redis
@@ -59,8 +62,3 @@ services:
     command: flower --address=0.0.0.0 --port=5555 --broker=redis://redis --url_prefix=flower
     depends_on:
       - celery
-  #redmon:  #  Redis monitoring
-  #  build: ./docker/redmon/
-  #  command: redmon --port=4567 --redis=redis://redis --base-path=/redmon --secure=${REDMON_BASIC_AUTH}
-  #  depends_on:
-  #    - redis

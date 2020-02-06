@@ -6,7 +6,7 @@
     <h1><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"> Welcome!</h1>
     <br>
     <ul class="landing-options">
-        <li><a href="{% url 'link_services' %}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> <br>Link service accounts</a></li>
-        <li><a href="{% url 'authorized-token-list' %}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> <br>Manage authorized applications</a></li>
+        <li><a href="{% url 'accounts:link_services' %}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> <br>Link service accounts</a></li>
+        <li><a href="{% url 'accounts:authorized-token-list' %}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> <br>Manage authorized applications</a></li>
     </ul>
 {% endblock %}

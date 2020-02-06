@@ -1,17 +1,18 @@
-from django.conf.urls import include, url
+from django.urls import re_path, include
 from api import views
 
+app_name = 'api'
 urlpatterns = [
-    url(r'^v1/services/$', views.services, name='api-services'),
-    url(r'^v1/collect/$', views.collect_response, name='api-collect'),
-    url(r'^v1/search/text/$', views.text_search, name='api-text-search'),
-    url(r'^v1/license/$', views.licensing, name='api-licensing'),
-    url(r'^v1/download/$', views.download, name='api-download'),
-    url(r'^v1/me/$', views.me, name='api-me'),
+    re_path(r'^v1/services/$', views.services, name='services'),
+    re_path(r'^v1/collect/$', views.collect_response, name='collect'),
+    re_path(r'^v1/search/text/$', views.text_search, name='text-search'),
+    re_path(r'^v1/license/$', views.licensing, name='licensing'),
+    re_path(r'^v1/download/$', views.download, name='download'),
+    re_path(r'^v1/me/$', views.me, name='me'),
 
     # Oauth2 urls
-    url(r'^o/', include('api.oauth2_urls', namespace='oauth2_provider')),
+    re_path(r'^o/', include('api.oauth2_urls')),
 
     # Invalid url
-    url(r'$', views.invalid_url),
+    re_path(r'$', views.invalid_url),
 ]

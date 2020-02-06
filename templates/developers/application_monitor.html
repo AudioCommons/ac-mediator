@@ -9,7 +9,7 @@
         }, false);
 
         function loadApplicationMonitorData() {
-            getJSON('{% url "developers-app-monitor-data" application.id %}').then(
+            getJSON('{% url "developers:app-monitor-data" application.id %}').then(
                 function(xhr) { // Success (status = 200)
                     // Sort data by date
                     var sortedData = xhr.response.data.sort(function(a,b){
@@ -197,6 +197,6 @@
     </div>
 
     <div class="btn-toolbar">
-        <a href="{% url "developers-app-list" %}">Back</a>
+        <a href="{% url "developers:app-list" %}">Back</a>
     </div>
 {% endblock content %}

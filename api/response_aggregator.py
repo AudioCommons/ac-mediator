@@ -123,7 +123,7 @@ class ResponseAggregator(object):
             to_return = response.copy()
             to_return['meta']['response_id'] = response_id  # Add response_id to returned dictionary
             to_return['meta']['collect_url'] = \
-                settings.BASE_URL + '{0}?rid={1}'.format(reverse('api-collect'),
+                settings.BASE_URL + '{0}?rid={1}'.format(reverse('api:api-collect'),
                                                          response_id)  # Add collect url for convenience
             to_return['meta']['current_timestamp'] = str(datetime.datetime.now())
             if response['meta']['status'] == RESPONSE_STATUS_FINISHED and settings.DELETE_RESPONSES_AFTER_CONSUMED:

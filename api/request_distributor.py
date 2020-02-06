@@ -35,7 +35,7 @@ class RequestDistributor(object):
         return a response right after all requests have been sent. This response will mainly
         include a response_id parameter that can be later used to pull the actual responses
         from the 3rd party services (see ResponseAggregator.collect_response).
-        If wait_until_complete is set to False, then this method will wait untill a response is
+        If wait_until_complete is set to False, then this method will wait until a response is
         received for all requests and only then will return an aggregated response including the
         contents of all 3rd party services individual responses.
 
@@ -83,7 +83,7 @@ class RequestDistributor(object):
             # Wait until all responses are received (only if wait_until_complete == True)
             if wait_until_complete:
                 # We wait until we get a response for all the requests we sent
-                # We do that by continuously iterating over all async_response_objetcs in a while
+                # We do that by continuously iterating over all async_response_objects in a while
                 # loop and only exit when all of them have been flagged as ready
                 # TODO: we should add some control over timeouts, etc as this operation is blocking
                 while True:

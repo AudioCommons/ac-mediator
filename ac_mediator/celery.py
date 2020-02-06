@@ -18,7 +18,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
-app.autodiscover_tasks('api', related_name='requests_distributor')
+app.autodiscover_tasks(['api'], related_name='requests_distributor')
 
 
 @app.task(bind=True)

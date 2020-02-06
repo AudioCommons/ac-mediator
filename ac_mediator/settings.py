@@ -133,7 +133,7 @@ ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG = True
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated' if not DEBUG or not ALLOW_UNAUTHENTICATED_API_REQUESTS_ON_DEBUG

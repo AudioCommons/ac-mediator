@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from oauth2_provider.models import AbstractApplication
 
 
@@ -14,7 +14,7 @@ class ApiClient(AbstractApplication):
     #  Add more custom fields here like description, logo, preferred services...
 
     def get_absolute_url(self):
-        return reverse('developers-app-detail', args=[self.id])
+        return reverse('developers:app-detail', args=[self.id])
 
     def clean(self):
         """

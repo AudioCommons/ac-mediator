@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load i18n %}
-{% load url from compat %}
 {% block title %}{% trans "Authorized applications" %}{% endblock title %}
 
 {% block content %}
     <h1>
-        <a href="{% url 'home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
+        <a href="{% url 'accounts:home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
         <span class="breadcrumb-separator">|</span> Authorized applications
     </h1>
 
@@ -14,7 +13,7 @@
     {% for authorized_token in authorized_tokens %}
         <li>
             {{ authorized_token.application }}
-            <div class="pull-right"><a class="btn btn-danger" href="{% url 'authorized-token-delete' authorized_token.pk %}">Revoke</a></div>
+            <div class="pull-right"><a class="btn btn-danger" href="{% url 'accounts:authorized-token-delete' authorized_token.pk %}">Revoke</a></div>
         </li>
         <ul>
         {% for scope_name, scope_description in authorized_token.scopes.items %}
@@ -26,5 +25,5 @@
     {% endfor %}
     </ul>
     <br><br>
-    <p><a href="{% url 'home' %}">Back</a></p>
+    <p><a href="{% url 'accounts:home' %}">Back</a></p>
 {% endblock %}

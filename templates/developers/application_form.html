@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load i18n %}
-{% load url from compat %}
 {% block content %}
     <script>
     window.onload=function(){
@@ -19,9 +18,9 @@
         }
     }
     </script>
-    <form id="app_registration_form" class="form-horizontal" method="post" action="{% block app-form-action-url %}{% url 'developers-app-update' application.id %}{% endblock app-form-action-url %}">
+    <form id="app_registration_form" class="form-horizontal" method="post" action="{% block app-form-action-url %}{% url 'developers:app-update' application.id %}{% endblock app-form-action-url %}">
         <h1>
-            <a href="{% url 'home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
+            <a href="{% url 'accounts:home' %}"><img class="logo-breadcrumb" src="{% static "img/logo-icon.svg" %}" alt="Audio Commons Logo"></a>
         <span class="breadcrumb-separator">|</span>
             {% block app-form-title %}
                 {% trans "Edit application" %} {{ application.name }}
@@ -90,7 +89,7 @@
         <div class="control-group">
             <div class="controls">
                 <button type="submit" class="btn btn-success pull-right">Save</button>
-                &nbsp;&nbsp;<a href="{% block app-form-back-url %}{% url "developers-app-detail" application.id %}{% endblock app-form-back-url %}">Back</a>
+                &nbsp;&nbsp;<a href="{% block app-form-back-url %}{% url "developers:app-detail" application.id %}{% endblock app-form-back-url %}">Back</a>
             </div>
         </div>
     </form>
